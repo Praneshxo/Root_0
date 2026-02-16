@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle2, Tag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import CodeContent from '../components/content/CodeContent';
@@ -253,17 +253,43 @@ export default function CompanyQuestionDetail() {
                 {/* Left Panel - Explanation */}
                 <div className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-xl p-8 h-[calc(100vh-200px)] overflow-auto">
                     <h1 className="text-2xl font-bold text-white mb-3">{question.question}</h1>
-                    <div className="flex items-center gap-2 mb-6">
-                        <span className="text-sm text-gray-400">{question.category || question.topic}</span>
-                        <span className="text-gray-600">•</span>
-                        <span className="text-sm text-green-400">
-                            Page {currentPage + 1} of {question.pages.length}
+                    <div className="flex items-center gap-3 mb-6">
+                        {/* Difficulty Badge */}
+                        <span className={`px-3 py-1 text-xs font-medium rounded-full border ${question.difficulty === 'Easy'
+                            ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                            : question.difficulty === 'Medium'
+                                ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                : 'bg-red-500/10 text-red-400 border-red-500/20'
+                            }`}>
+                            {question.difficulty}
                         </span>
+
+                        {/* Topic Badge */}
+                        <div className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-gray-800 text-gray-400 border border-gray-700">
+                            <Tag className="w-3 h-3" />
+                            <span>{question.category || question.topic}</span>
+                        </div>
                     </div>
 
-                    <div className="prose prose-invert prose-lg max-w-none text-gray-300 text-lg leading-relaxed">
+                    <div className="prose prose-invert prose-xl max-w-none text-gray-300 leading-relaxed">
                         <ReactMarkdown
                             remarkPlugins={[remarkGfm, remarkBreaks]}
+                            components={{
+                                h1: ({ node, ...props }) => <h1 className="text-2xl font-bold text-white mb-4 mt-6" {...props} />,
+                                h2: ({ node, ...props }) => <h2 className="text-xl font-bold text-white mb-3 mt-5" {...props} />,
+                                h3: ({ node, ...props }) => <h3 className="text-lg font-bold text-white mb-2 mt-4" {...props} />,
+                                p: ({ node, ...props }) => <p className="mb-4 text-gray-300 leading-relaxed" {...props} />,
+                                ul: ({ node, ...props }) => <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-300" {...props} />,
+                                ol: ({ node, ...props }) => <ol className="list-decimal pl-6 mb-4 space-y-2 text-gray-300" {...props} />,
+                                li: ({ node, ...props }) => <li className="pl-1" {...props} />,
+                                strong: ({ node, ...props }) => <strong className="font-bold text-white" {...props} />,
+                                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-purple-500 pl-4 italic my-4 text-gray-400 bg-gray-900/50 py-2 pr-2 rounded-r" {...props} />,
+                                code: ({ node, inline, className, children, ...props }: any) => {
+                                    return inline ?
+                                        <code className="bg-gray-800 text-purple-300 px-1.5 py-0.5 rounded text-sm font-mono" {...props}>{children}</code> :
+                                        <code className="block bg-gray-900 p-4 rounded-lg overflow-x-auto font-mono text-sm text-gray-300 my-4 border border-gray-800" {...props}>{children}</code>;
+                                }
+                            }}
                         >
                             {currentPageData.explanation.replace(/\\n/g, '\n')}
                         </ReactMarkdown>

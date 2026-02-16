@@ -161,7 +161,7 @@ export default function FillInBlankCodeContent({ codeData, onComplete }: FillInB
                             onChange={(e) => handleInputChange(blankId, e.target.value)}
                             disabled={isCorrect}
                             placeholder={blank.hint || `blank${blankId}`}
-                            className={`inline-block px-2 py-0.5 mx-1 min-w-[120px] bg-gray-800 border-2 rounded text-purple-300 font-mono text-sm focus:outline-none focus:border-purple-500 disabled:bg-gray-700 disabled:border-green-500 ${isShaking ? 'animate-shake border-red-500' : 'border-purple-500/50'
+                            className={`inline-block px-2 py-0.5 mx-1 min-w-[120px] bg-gray-800 border-2 rounded text-purple-300 font-mono text-base focus:outline-none focus:border-purple-500 disabled:bg-gray-700 disabled:border-green-500 ${isShaking ? 'animate-shake border-red-500' : 'border-purple-500/50'
                                 } ${isCorrect ? 'border-green-500 text-green-400' : ''}`}
                             title={blank.hint}
                         />
@@ -183,8 +183,8 @@ export default function FillInBlankCodeContent({ codeData, onComplete }: FillInB
 
             return (
                 <div key={lineIndex} className="flex leading-relaxed">
-                    <span className="text-gray-600 select-none w-12 text-right pr-4 font-mono text-xs">{lineNumber}</span>
-                    <span className="flex-1 flex items-center flex-wrap font-mono text-sm">
+                    <span className="text-gray-600 select-none w-12 text-right pr-4 font-mono text-sm">{lineNumber}</span>
+                    <span className="flex-1 flex items-center flex-wrap font-mono text-base">
                         {parts.map((part, idx) =>
                             typeof part === 'string' ? <span key={idx}>{part}</span> : part
                         )}

@@ -60,7 +60,7 @@ export default function InteractiveCodeContent({ codeData }: InteractiveCodeCont
 
                 return (
                     <div key={index} className="flex">
-                        <span className="text-gray-600 select-none w-12 text-right pr-4">{lineNumber}</span>
+                        <span className="text-gray-600 select-none w-12 text-right pr-4 font-mono text-sm">{lineNumber}</span>
                         <span className="flex-1">
                             {parts[0]}
                             <span className="inline-flex items-center">
@@ -69,7 +69,7 @@ export default function InteractiveCodeContent({ codeData }: InteractiveCodeCont
                                         {blank.answer}
                                     </span>
                                 ) : (
-                                    <span className="border-b-2 border-dotted border-green-400 px-8 py-0.5 mx-1 inline-block min-w-[100px] text-center text-gray-500 text-xs">
+                                    <span className="border-b-2 border-dotted border-green-400 px-8 py-0.5 mx-1 inline-block min-w-[100px] text-center text-gray-500 text-sm">
                                         {blank.placeholder}
                                     </span>
                                 )}
@@ -136,7 +136,7 @@ export default function InteractiveCodeContent({ codeData }: InteractiveCodeCont
 
             {/* Code Block */}
             <div className="flex-1 bg-gray-950 overflow-auto custom-scrollbar">
-                <pre className="py-4 text-sm leading-relaxed font-mono">
+                <pre className="py-4 text-base leading-relaxed font-mono">
                     <code className="text-gray-300 block">
                         {renderCodeWithBlanks()}
                     </code>

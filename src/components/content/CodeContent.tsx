@@ -42,8 +42,8 @@ export default function CodeContent({ codeData }: CodeContentProps) {
         const lines = codeData.code.replace(/\\n/g, '\n').split('\n');
         return lines.map((line, index) => (
             <div key={index} className="flex leading-relaxed">
-                <span className="text-gray-600 select-none w-12 text-right pr-4 shrink-0 font-mono text-xs">{index + 1}</span>
-                <span className="text-gray-300 font-mono text-sm whitespace-pre">{line}</span>
+                <span className="text-gray-600 select-none w-12 text-right pr-4 shrink-0 font-mono text-sm">{index + 1}</span>
+                <span className="text-gray-300 font-mono text-base whitespace-pre">{line}</span>
             </div>
         ));
     };

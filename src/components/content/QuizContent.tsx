@@ -54,7 +54,7 @@ export default function QuizContent({ quizData, onComplete, isCompleted }: QuizC
             <div className="flex-1 p-6 overflow-auto space-y-6 bg-gray-950/50">
                 {/* Question */}
                 <div className="p-4 rounded-lg bg-gray-900 border border-gray-800">
-                    <p className="text-lg text-white font-medium leading-relaxed">{quizData.question}</p>
+                    <p className="text-xl text-white font-medium leading-relaxed">{quizData.question}</p>
                 </div>
 
                 {/* Options */}
@@ -92,7 +92,7 @@ export default function QuizContent({ quizData, onComplete, isCompleted }: QuizC
                                     }`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className={`${textColor} font-medium text-base`}>
+                                    <span className={`${textColor} font-medium text-lg`}>
                                         {String.fromCharCode(65 + index)}. {option}
                                     </span>
                                     {showCorrect && <CheckCircle2 className="w-5 h-5 text-green-400" />}
@@ -121,7 +121,7 @@ export default function QuizContent({ quizData, onComplete, isCompleted }: QuizC
                                 <p className={`font-semibold mb-1 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
                                     {isCorrect ? 'Correct!' : 'Incorrect'}
                                 </p>
-                                <p className="text-base text-gray-300 leading-relaxed">{quizData.explanation.replace(/\\n/g, '\n')}</p>
+                                <p className="text-lg text-gray-300 leading-relaxed">{quizData.explanation.replace(/\\n/g, '\n')}</p>
                             </div>
                         </div>
                     </div>

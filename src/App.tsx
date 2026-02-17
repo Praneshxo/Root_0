@@ -36,6 +36,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="companies" element={<Companies />} />
             <Route path="companies/:questionId" element={<CompanyQuestionDetail />} />
+            <Route path="companies/question/:questionId" element={<CompanyQuestionDetail />} />
             <Route path="dsa" element={<DSA />} />
             <Route path="dsa/:questionId" element={<QuestionDetail type="dsa" />} />
             <Route path="sql" element={<SQL />} />

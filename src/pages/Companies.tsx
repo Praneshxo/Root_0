@@ -258,7 +258,7 @@ export default function Companies() {
                     key={question.id}
                     onClick={() => {
                       // Navigate to company question detail page with state
-                      navigate(`/companies/${question.id}`, {
+                      navigate(`/companies/question/${question.id}`, {
                         state: {
                           company: activeCompany,
                           tab: activeTab

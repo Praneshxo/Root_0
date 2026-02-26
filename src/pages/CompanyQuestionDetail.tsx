@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, CheckCircle2, Tag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Tag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import QuizContent from '../components/content/QuizContent';
 import CodeContent from '../components/content/CodeContent';
 import ImageContent from '../components/content/ImageContent';
 import TextContent from '../components/content/TextContent';
@@ -15,7 +16,7 @@ import remarkBreaks from 'remark-breaks';
 interface QuestionPage {
     pageNumber: number;
     explanation: string;
-    contentType: 'text' | 'code' | 'image' | 'interactive_code' | 'fill_in_blank_code';
+    contentType: 'text' | 'code' | 'image' | 'interactive_code' | 'fill_in_blank_code' | 'quiz';
     content: any;
 }
 
@@ -38,6 +39,7 @@ export default function CompanyQuestionDetail() {
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(0);
     const [completed, setCompleted] = useState(false);
+    const [allQuestionIds, setAllQuestionIds] = useState<string[]>([]);
 
     useEffect(() => {
         fetchQuestion();
@@ -107,10 +109,88 @@ export default function CompanyQuestionDetail() {
         }
     };
 
+    // Fetch all questions for navigation (same company and topic)
+    useEffect(() => {
+        if (!question) return;
+
+        const fetchAllQuestions = async () => {
+            try {
+                let ids: string[] = [];
+                const state = location.state as any;
+                const currentTab = state?.tab || (question.topic ? question.topic : 'Interview Questions');
+
+                console.log('Fetching questions for:', {
+                    company: question.company_name,
+                    tab: currentTab,
+                    questionTopic: question.topic,
+                    questionCategory: question.category
+                });
+
+                if (currentTab === 'Interview Questions') {
+                    const { data } = await supabase
+                        .from('company_interview_questions')
+                        .select('id')
+                        .eq('company_name', question.company_name)
+                        .order('created_at');
+                    ids = data?.map(q => q.id) || [];
+                    console.log('Interview questions found:', ids.length);
+                } else {
+                    const { data } = await supabase
+                        .from('company_topic_questions')
+                        .select('id')
+                        .eq('company_name', question.company_name)
+                        .eq('topic', currentTab)
+                        .order('created_at');
+                    ids = data?.map(q => q.id) || [];
+                    console.log('Topic questions found:', ids.length, 'for topic:', currentTab);
+                }
+
+                setAllQuestionIds([...new Set(ids)]);
+                console.log('Set allQuestionIds:', ids);
+            } catch (err) {
+                console.error("Error fetching question list:", err);
+            }
+        };
+        fetchAllQuestions();
+    }, [question, (location.state as any)?.tab]);
+
+    const handleNextQuestion = () => {
+        console.log('handleNextQuestion called', { questionId, allQuestionIds });
+
+        if (!questionId) {
+            console.log('No questionId, going back');
+            handleBack();
+            return;
+        }
+
+        if (allQuestionIds.length === 0) {
+            console.log('allQuestionIds is empty, staying on page');
+            // Don't navigate if we don't have the question list yet
+            return;
+        }
+
+        const currentIndex = allQuestionIds.indexOf(questionId);
+        console.log('Current index:', currentIndex, 'Total questions:', allQuestionIds.length);
+
+        if (currentIndex !== -1 && currentIndex < allQuestionIds.length - 1) {
+            const nextId = allQuestionIds[currentIndex + 1];
+            console.log('Navigating to next question:', nextId);
+            navigate(`/companies/question/${nextId}`, {
+                state: location.state,
+                replace: true
+            });
+        } else {
+            console.log('Last question, going back to list');
+            handleBack();
+        }
+    };
+
+
     const getReturnState = () => {
+        const state = location.state as any;
         // If we have state passed from previous page, trust it
-        if (location.state?.company && location.state?.tab) {
-            return { company: location.state.company, tab: location.state.tab };
+        if (state?.company && state?.tab) {
+            return { company: state.company, tab: state.tab };
         }
 
         // Otherwise derive from question data
@@ -146,16 +226,24 @@ export default function CompanyQuestionDetail() {
     const handleComplete = async () => {
         if (!user || !questionId) return;
 
+        console.log('handleComplete called', { user: user.id, questionId, completed });
+
         try {
-            await supabase.from('user_company_progress').upsert({
+            const { data, error } = await supabase.from('user_company_progress').upsert({
                 user_id: user.id,
                 question_id: questionId,
                 solved: true,
                 updated_at: new Date().toISOString()
-            });
+            }, {
+                onConflict: 'user_id,question_id'
+            }).select();
 
-            setCompleted(true);
-            handleBack();
+            if (error) {
+                console.error('Error upserting progress:', error);
+            } else {
+                console.log('Successfully saved progress:', data);
+                setCompleted(true);
+            }
         } catch (error) {
             console.error('Error marking as complete:', error);
         }
@@ -225,25 +313,8 @@ export default function CompanyQuestionDetail() {
                             </span>
                         </div>
 
-                        {/* Right: Stats */}
-                        <div className="flex items-center gap-6">
-                            {completed && (
-                                <div className="flex items-center gap-2 text-sm text-green-400">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                    <span>Completed</span>
-                                </div>
-                            )}
-                            <span
-                                className={`px-3 py-1 text-xs font-medium rounded-full ${question.difficulty === 'Easy'
-                                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                    : question.difficulty === 'Medium'
-                                        ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                                        : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                                    }`}
-                            >
-                                {question.difficulty}
-                            </span>
-                        </div>
+                        {/* Right: Empty or minimal space */}
+                        <div className="w-20"></div>
                     </div>
                 </div>
             </div>
@@ -254,6 +325,12 @@ export default function CompanyQuestionDetail() {
                 <div className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-xl p-8 h-[calc(100vh-200px)] overflow-auto">
                     <h1 className="text-2xl font-bold text-white mb-3">{question.question}</h1>
                     <div className="flex items-center gap-3 mb-6">
+                        {/* Topic Badge */}
+                        <div className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-gray-800 text-gray-400 border border-gray-700">
+                            <Tag className="w-3 h-3" />
+                            <span>{question.category || question.topic}</span>
+                        </div>
+
                         {/* Difficulty Badge */}
                         <span className={`px-3 py-1 text-xs font-medium rounded-full border ${question.difficulty === 'Easy'
                             ? 'bg-green-500/10 text-green-400 border-green-500/20'
@@ -263,15 +340,9 @@ export default function CompanyQuestionDetail() {
                             }`}>
                             {question.difficulty}
                         </span>
-
-                        {/* Topic Badge */}
-                        <div className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-gray-800 text-gray-400 border border-gray-700">
-                            <Tag className="w-3 h-3" />
-                            <span>{question.category || question.topic}</span>
-                        </div>
                     </div>
 
-                    <div className="prose prose-invert prose-xl max-w-none text-gray-300 leading-relaxed">
+                    <div className={`transition-opacity duration-300 prose prose-invert prose-xl max-w-none text-gray-300 leading-relaxed`}>
                         <ReactMarkdown
                             remarkPlugins={[remarkGfm, remarkBreaks]}
                             components={{
@@ -294,75 +365,67 @@ export default function CompanyQuestionDetail() {
                             {currentPageData.explanation.replace(/\\n/g, '\n')}
                         </ReactMarkdown>
                     </div>
-                </div>
+                </div >
 
                 {/* Right Panel - Interactive Content */}
-                <div className="h-[calc(100vh-200px)]">
-                    {currentPageData.contentType === 'fill_in_blank_code' ? (
-                        <FillInBlankCodeContent
-                            codeData={currentPageData.content}
-                            onComplete={handleComplete}
-                        />
-                    ) : currentPageData.contentType === 'interactive_code' ? (
-                        <InteractiveCodeContent codeData={currentPageData.content} />
-                    ) : currentPageData.contentType === 'code' ? (
-                        <CodeContent codeData={currentPageData.content} />
-                    ) : currentPageData.contentType === 'image' ? (
-                        <ImageContent
-                            imageData={{
-                                ...currentPageData.content,
-                                url: currentPageData.content.url || currentPageData.content.image_url,
-                                alt: currentPageData.content.alt || currentPageData.content.title || 'Image',
-                                caption: currentPageData.content.caption || currentPageData.content.title
-                            }}
-                        />
-                    ) : currentPageData.contentType === 'text' ? (
-                        <TextContent content={currentPageData.content.text || currentPageData.content} />
-                    ) : (
-                        <div className="h-full flex items-center justify-center bg-gray-900/50 backdrop-blur-xl border border-purple-500/20 rounded-xl">
-                            <p className="text-gray-500">No content available</p>
-                        </div>
-                    )}
-                </div>
-            </div>
+                < div className="h-[calc(100vh-200px)]" >
+                    {
+                        currentPageData.contentType === 'fill_in_blank_code' ? (
+                            <FillInBlankCodeContent
+                                codeData={currentPageData.content}
+                                onComplete={handleComplete}
+                            />
+                        ) : currentPageData.contentType === 'interactive_code' ? (
+                            <InteractiveCodeContent codeData={currentPageData.content} />
+                        ) : currentPageData.contentType === 'code' ? (
+                            <CodeContent codeData={currentPageData.content} />
+                        ) : currentPageData.contentType === 'image' ? (
+                            <ImageContent
+                                imageData={{
+                                    ...currentPageData.content,
+                                    url: currentPageData.content.url || currentPageData.content.image_url,
+                                    alt: currentPageData.content.alt || currentPageData.content.title || 'Image',
+                                    caption: currentPageData.content.caption || currentPageData.content.title
+                                }}
+                            />
+                        ) : currentPageData.contentType === 'text' ? (
+                            <TextContent content={currentPageData.content.text || currentPageData.content} />
+                        ) : (currentPageData.contentType === 'quiz') ? (
+                            <>
+                                {console.log('Quiz Data:', currentPageData.content)}
+                                <QuizContent
+                                    quizData={currentPageData.content}
+                                    onComplete={handleComplete}
+                                    isCompleted={completed}
+                                />
+                            </>
+                        ) : (
+                            <div className="h-full flex items-center justify-center bg-gray-900/50 backdrop-blur-xl border border-purple-500/20 rounded-xl">
+                                <p className="text-gray-500">No content available</p>
+                            </div>
+                        )
+                    }
+                </div >
+            </div >
 
             {/* Navigation Footer */}
-            <div className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-gray-900/90 backdrop-blur-xl">
+            < div className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-gray-900/90 backdrop-blur-xl" >
                 <div className="px-6 py-4 max-w-[1800px] mx-auto">
                     <div className="flex items-center justify-between">
-                        <button
-                            onClick={handlePreviousPage}
-                            disabled={isFirstPage}
-                            className="flex items-center gap-2 px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <ChevronLeft className="w-5 h-5" />
-                            <span>Previous</span>
-                        </button>
-
                         <div className="text-sm text-gray-400">
-                            Use ← → arrow keys to navigate • Press Esc to go back
+                            {/* navigation text removed */}
                         </div>
 
-                        {isLastPage ? (
-                            <button
-                                onClick={handleComplete}
-                                className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                            >
-                                <CheckCircle2 className="w-5 h-5" />
-                                <span>Complete & Return</span>
-                            </button>
-                        ) : (
-                            <button
-                                onClick={handleNextPage}
-                                className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                            >
-                                <span>Next</span>
-                                <ChevronRight className="w-5 h-5" />
-                            </button>
-                        )}
+                        <button
+                            onClick={handleNextQuestion}
+                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                        >
+                            <span>Next</span>
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

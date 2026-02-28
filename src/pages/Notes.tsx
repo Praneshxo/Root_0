@@ -142,19 +142,19 @@ export default function Notes() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-[#4F0F93] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-[#0F0F13] text-white">
       {/* Header */}
-      <div className="border-b border-purple-500/20 bg-gray-900/50 backdrop-blur-xl">
+      <div className="border-b border-gray-800 bg-[#111317]/80 backdrop-blur-xl">
         <div className="px-6 py-6">
           <div className="mb-4">
             <h1 className="text-3xl font-bold mb-2">Notes</h1>
-            <p className="text-gray-400">Comprehensive study materials for all subjects</p>
+            <p className="text-[#A0A0B0]">Comprehensive study materials for all subjects</p>
           </div>
 
           {/* Tabs */}
@@ -162,8 +162,8 @@ export default function Notes() {
             <button
               onClick={() => setActiveTab('all')}
               className={`pb-3 border-b-2 transition-colors ${activeTab === 'all'
-                ? 'border-purple-500 text-white'
-                : 'border-transparent text-gray-400 hover:text-white'
+                ? 'border-[#4F0F93] text-white'
+                : 'border-transparent text-[#A0A0B0] hover:text-white'
                 }`}
             >
               All Notes
@@ -171,8 +171,8 @@ export default function Notes() {
             <button
               onClick={() => setActiveTab('bookmarked')}
               className={`pb-3 border-b-2 transition-colors ${activeTab === 'bookmarked'
-                ? 'border-purple-500 text-white'
-                : 'border-transparent text-gray-400 hover:text-white'
+                ? 'border-[#4F0F93] text-white'
+                : 'border-transparent text-[#A0A0B0] hover:text-white'
                 }`}
             >
               Bookmarked Notes
@@ -187,9 +187,9 @@ export default function Notes() {
           {filteredNotes.map((note) => (
             <div
               key={note.id}
-              className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-xl overflow-hidden hover:border-gray-700 transition-all group"
+              className="bg-[#111317] border border-gray-800 rounded-xl overflow-hidden hover:border-gray-800 transition-all group"
             >
-              <div className="relative h-48 bg-gray-800 overflow-hidden">
+              <div className="relative h-48 bg-zinc-800/50 overflow-hidden">
                 <img
                   src={note.preview_image_url}
                   alt={note.title}
@@ -197,7 +197,7 @@ export default function Notes() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 <div className="absolute bottom-3 left-3">
-                  <span className="px-3 py-1 text-xs font-medium bg-purple-500/90 text-white rounded-full">
+                  <span className="px-3 py-1 text-xs font-medium bg-[#4F0F93]/90 text-white rounded-full">
                     {note.subject}
                   </span>
                 </div>
@@ -211,7 +211,7 @@ export default function Notes() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handlePreview(note.pdf_url)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-all"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-zinc-800/50 hover:bg-[#2C2C2C] text-white text-sm font-medium rounded-lg transition-all"
                   >
                     <Eye className="w-4 h-4" />
                     Preview
@@ -219,8 +219,8 @@ export default function Notes() {
                   <button
                     onClick={() => toggleBookmark(note.id)}
                     className={`px-4 py-2 rounded-lg transition-all ${bookmarkedNotes.has(note.id)
-                      ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                      : 'bg-gray-800 hover:bg-gray-700 text-gray-400'
+                      ? 'bg-[#4F0F93] hover:bg-[#6312BA] text-white'
+                      : 'bg-zinc-800/50 hover:bg-[#2C2C2C] text-[#A0A0B0]'
                       }`}
                   >
                     {bookmarkedNotes.has(note.id) ? (
@@ -237,7 +237,7 @@ export default function Notes() {
 
         {filteredNotes.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-gray-500">No notes found</p>
+            <p className="text-[#808090]">No notes found</p>
           </div>
         )}
       </div>

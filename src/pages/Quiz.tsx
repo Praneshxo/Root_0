@@ -215,9 +215,9 @@ export default function Quiz() {
       case 'Aptitude':
         return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
       case 'Non Tech':
-        return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
+        return 'bg-[#4F0F93]/20 text-[#A855F7] border-gray-800';
       default:
-        return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+        return 'bg-gray-500/20 text-[#A0A0B0] border-gray-500/30';
     }
   };
 
@@ -230,7 +230,7 @@ export default function Quiz() {
       case 'Hard':
         return 'text-red-400 bg-red-500/10 border-red-500/30';
       default:
-        return 'text-gray-400 bg-gray-500/10 border-gray-500/30';
+        return 'text-[#A0A0B0] bg-gray-500/10 border-gray-500/30';
     }
   };
 
@@ -277,24 +277,24 @@ export default function Quiz() {
     const score = calculateScore();
     return (
       <div className="max-w-2xl mx-auto space-y-6">
-        <div className="bg-purple-900/30 border border-purple-500/30 rounded-2xl p-8 text-center">
-          <div className="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="bg-[#4F0F93]/10 border border-gray-800 rounded-2xl p-8 text-center">
+          <div className="w-20 h-20 bg-[#4F0F93] rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Quiz Completed!</h1>
-          <p className="text-xl text-gray-300 mb-6">Your Score: {score}%</p>
+          <p className="text-xl text-[#D0D0E0] mb-6">Your Score: {score}%</p>
           <button
             onClick={() => {
               setActiveQuiz(null);
               setQuizCompleted(false);
             }}
-            className="px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors"
+            className="px-6 py-3 bg-[#4F0F93] text-white font-medium rounded-lg hover:bg-[#6312BA] transition-colors"
           >
             Back to Quizzes
           </button>
         </div>
 
-        <div className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-xl p-6">
+        <div className="bg-[#111317] border border-gray-800 rounded-xl p-6">
           <h2 className="text-xl font-bold text-white mb-4">Review Answers</h2>
           <div className="space-y-4">
             {activeQuiz.questions_json.map((q, index) => {
@@ -302,7 +302,7 @@ export default function Quiz() {
               const isCorrect = userAnswer === q.correct;
 
               return (
-                <div key={index} className="bg-gray-800/30 rounded-lg p-4">
+                <div key={index} className="bg-[#111317] rounded-lg p-4">
                   <div className="flex items-start gap-3 mb-3">
                     {isCorrect ? (
                       <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -323,7 +323,7 @@ export default function Quiz() {
                             ? 'bg-green-500/20 text-green-400 border border-green-500/30'
                             : isUserAnswer
                               ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                              : 'text-gray-400'
+                              : 'text-[#A0A0B0]'
                             }`}
                         >
                           {option}
@@ -348,17 +348,17 @@ export default function Quiz() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">{activeQuiz.title}</h1>
-            <p className="text-gray-400">
+            <p className="text-[#A0A0B0]">
               Question {currentQuestionIndex + 1} of {activeQuiz.questions_json.length}
             </p>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg">
+          <div className="flex items-center gap-2 px-4 py-2 bg-[#111317]/80 border border-gray-800 rounded-lg">
             <Clock className="w-5 h-5 text-blue-400" />
             <span className="text-xl font-bold text-white">{formatTime(timeLeft)}</span>
           </div>
         </div>
 
-        <div className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-xl p-8">
+        <div className="bg-[#111317] border border-gray-800 rounded-xl p-8">
           <h2 className="text-xl font-bold text-white mb-6">{currentQuestion.question}</h2>
 
           <div className="space-y-3">
@@ -368,7 +368,7 @@ export default function Quiz() {
                 onClick={() => handleAnswerSelect(index)}
                 className={`w-full p-4 text-left rounded-lg border transition-all ${selectedAnswers[currentQuestionIndex] === index
                   ? 'bg-blue-500/20 border-blue-500 text-white'
-                  : 'bg-gray-800/30 border-gray-700 text-gray-300 hover:border-gray-600'
+                  : 'bg-[#111317] border-gray-800 text-[#D0D0E0] hover:border-gray-600'
                   }`}
               >
                 {option}
@@ -381,7 +381,7 @@ export default function Quiz() {
           <button
             onClick={handlePrevious}
             disabled={currentQuestionIndex === 0}
-            className="px-6 py-3 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-zinc-800/50 text-white font-medium rounded-lg hover:bg-[#2C2C2C] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
@@ -396,7 +396,7 @@ export default function Quiz() {
           ) : (
             <button
               onClick={handleNext}
-              className="px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors"
+              className="px-6 py-3 bg-[#4F0F93] text-white font-medium rounded-lg hover:bg-[#6312BA] transition-colors"
             >
               Next
             </button>
@@ -413,7 +413,7 @@ export default function Quiz() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-white mb-1.5">Quizzes</h1>
-        <p className="text-base text-gray-400">
+        <p className="text-base text-[#A0A0B0]">
           Test your knowledge with our comprehensive collection of quizzes.
         </p>
       </div>
@@ -426,7 +426,7 @@ export default function Quiz() {
             onClick={() => setActiveTab(tab as any)}
             className={`px-4 py-2.5 text-sm font-medium transition-colors ${activeTab === tab
               ? 'text-white border-b-2 border-white'
-              : 'text-gray-400 hover:text-white'
+              : 'text-[#A0A0B0] hover:text-white'
               }`}
           >
             {tab}
@@ -437,13 +437,13 @@ export default function Quiz() {
       {/* Search and Filters */}
       <div className="flex gap-3 items-center">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A0A0B0]" />
           <input
             type="text"
             placeholder="Search quizzes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-gray-900/50 border border-gray-800 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-700"
+            className="w-full bg-[#111317]/80 border border-gray-800 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-800"
           />
         </div>
 
@@ -451,36 +451,36 @@ export default function Quiz() {
           <select
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
-            className="appearance-none bg-gray-900/50 border border-gray-800 rounded-lg px-4 py-2.5 pr-10 text-sm text-white focus:outline-none focus:border-gray-700 cursor-pointer"
+            className="appearance-none bg-[#111317]/80 border border-gray-800 rounded-lg px-4 py-2.5 pr-10 text-sm text-white focus:outline-none focus:border-gray-800 cursor-pointer"
           >
             <option>All Difficulties</option>
             <option>Easy</option>
             <option>Medium</option>
             <option>Hard</option>
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A0A0B0] pointer-events-none" />
         </div>
 
         <div className="relative">
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="appearance-none bg-gray-900/50 border border-gray-800 rounded-lg px-4 py-2.5 pr-10 text-sm text-white focus:outline-none focus:border-gray-700 cursor-pointer"
+            className="appearance-none bg-[#111317]/80 border border-gray-800 rounded-lg px-4 py-2.5 pr-10 text-sm text-white focus:outline-none focus:border-gray-800 cursor-pointer"
           >
             <option>All Roles</option>
             <option>Tech</option>
             <option>Aptitude</option>
             <option>Non Tech</option>
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A0A0B0] pointer-events-none" />
         </div>
       </div>
 
       {/* Quiz Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredQuizzes.length === 0 ? (
-          <div className="col-span-full bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-xl p-8 text-center">
-            <p className="text-gray-400">No quizzes found matching your filters.</p>
+          <div className="col-span-full bg-[#111317] border border-gray-800 rounded-xl p-8 text-center">
+            <p className="text-[#A0A0B0]">No quizzes found matching your filters.</p>
           </div>
         ) : (
           filteredQuizzes.map((quiz) => {
@@ -491,25 +491,25 @@ export default function Quiz() {
               <div
                 key={quiz.id}
                 onClick={() => startQuiz(quiz)}
-                className="bg-gray-900/50 backdrop-blur-xl border border-purple-500/20 rounded-xl p-5 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all cursor-pointer group"
+                className="bg-[#111317] border border-gray-800 rounded-xl p-5 hover:border-[#4F0F93]/50 hover:bg-[#4F0F93]/5 transition-all cursor-pointer group"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-bold text-white line-clamp-2 flex-1 pr-2 group-hover:text-purple-300 transition-colors">
+                  <h3 className="text-lg font-bold text-white line-clamp-2 flex-1 pr-2 group-hover:text-[#8970D6] transition-colors">
                     {quiz.title}
                   </h3>
                   <button
                     onClick={(e) => toggleBookmark(quiz.id, e)}
-                    className="text-gray-400 hover:text-purple-400 transition-colors flex-shrink-0"
+                    className="text-[#A0A0B0] hover:text-[#A855F7] transition-colors flex-shrink-0"
                   >
                     {isBookmarked ? (
-                      <BookmarkCheck className="w-5 h-5 text-purple-400" />
+                      <BookmarkCheck className="w-5 h-5 text-[#A855F7]" />
                     ) : (
                       <Bookmark className="w-5 h-5" />
                     )}
                   </button>
                 </div>
 
-                <p className="text-sm text-gray-400 mb-4 line-clamp-2">
+                <p className="text-sm text-[#A0A0B0] mb-4 line-clamp-2">
                   {quiz.category || 'Test your knowledge with this comprehensive quiz.'}
                 </p>
 

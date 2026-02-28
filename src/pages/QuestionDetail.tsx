@@ -253,7 +253,7 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-[#4F0F93] border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
@@ -261,10 +261,10 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
     if (!question) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen">
-                <p className="text-xl text-gray-400 mb-4">Question not found</p>
+                <p className="text-xl text-[#A0A0B0] mb-4">Question not found</p>
                 <button
                     onClick={() => navigate(getRoutePath())}
-                    className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    className="px-6 py-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors"
                 >
                     Back to List
                 </button>
@@ -273,16 +273,16 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
     }
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white">
+        <div className="min-h-screen bg-[#0F0F13] text-white">
             {/* Header */}
-            <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-xl sticky top-0 z-10">
+            <div className="border-b border-gray-800 bg-[#111317]/80 backdrop-blur-xl sticky top-0 z-10">
                 <div className="px-6 py-4">
                     <div className="flex items-center justify-between">
                         {/* Breadcrumb */}
                         <div className="flex items-center gap-2 text-sm">
                             <button
                                 onClick={() => navigate(getRoutePath())}
-                                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                                className="flex items-center gap-2 text-[#A0A0B0] hover:text-white transition-colors"
                             >
                                 <Home className="w-4 h-4" />
                                 <span>{getTypeName()}</span>
@@ -295,7 +295,7 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
 
                         {/* Stats */}
                         <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2 text-sm text-gray-400">
+                            <div className="flex items-center gap-2 text-sm text-[#A0A0B0]">
                                 <Clock className="w-4 h-4" />
                                 <span>{formatTime(timeSpent)}</span>
                             </div>
@@ -323,27 +323,27 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
             {/* Main Content */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 max-w-[1800px] mx-auto">
                 {/* Left Panel - Explanation */}
-                <div className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-xl p-8 h-[calc(100vh-200px)] overflow-auto">
+                <div className="bg-[#111317] border border-gray-800 rounded-xl p-8 h-[calc(100vh-200px)] overflow-auto">
                     <h1 className="text-2xl font-bold text-white mb-3">{question.title}</h1>
-                    <p className="text-gray-400 mb-6">{question.description}</p>
+                    <p className="text-[#A0A0B0] mb-6">{question.description}</p>
 
-                    <div className="prose prose-invert prose-xl max-w-none text-gray-300 leading-relaxed">
+                    <div className="prose prose-invert prose-xl max-w-none text-[#D0D0E0] leading-relaxed">
                         <ReactMarkdown
                             remarkPlugins={[remarkGfm, remarkBreaks]}
                             components={{
                                 h1: ({ node, ...props }) => <h1 className="text-2xl font-bold text-white mb-4 mt-6" {...props} />,
                                 h2: ({ node, ...props }) => <h2 className="text-xl font-bold text-white mb-3 mt-5" {...props} />,
                                 h3: ({ node, ...props }) => <h3 className="text-lg font-bold text-white mb-2 mt-4" {...props} />,
-                                p: ({ node, ...props }) => <p className="mb-4 text-gray-300 leading-relaxed" {...props} />,
-                                ul: ({ node, ...props }) => <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-300" {...props} />,
-                                ol: ({ node, ...props }) => <ol className="list-decimal pl-6 mb-4 space-y-2 text-gray-300" {...props} />,
+                                p: ({ node, ...props }) => <p className="mb-4 text-[#D0D0E0] leading-relaxed" {...props} />,
+                                ul: ({ node, ...props }) => <ul className="list-disc pl-6 mb-4 space-y-2 text-[#D0D0E0]" {...props} />,
+                                ol: ({ node, ...props }) => <ol className="list-decimal pl-6 mb-4 space-y-2 text-[#D0D0E0]" {...props} />,
                                 li: ({ node, ...props }) => <li className="pl-1" {...props} />,
                                 strong: ({ node, ...props }) => <strong className="font-bold text-white" {...props} />,
-                                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-purple-500 pl-4 italic my-4 text-gray-400 bg-gray-900/50 py-2 pr-2 rounded-r" {...props} />,
+                                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-[#4F0F93] pl-4 italic my-4 text-[#A0A0B0] bg-[#111317]/80 py-2 pr-2 rounded-r" {...props} />,
                                 code: ({ node, inline, className, children, ...props }: any) => {
                                     return inline ?
-                                        <code className="bg-gray-800 text-purple-300 px-1.5 py-0.5 rounded text-sm font-mono" {...props}>{children}</code> :
-                                        <code className="block bg-gray-900 p-4 rounded-lg overflow-x-auto font-mono text-sm text-gray-300 my-4 border border-gray-800" {...props}>{children}</code>;
+                                        <code className="bg-zinc-800/50 text-[#8970D6] px-1.5 py-0.5 rounded text-sm font-mono" {...props}>{children}</code> :
+                                        <code className="block bg-[#111317] p-4 rounded-lg overflow-x-auto font-mono text-sm text-[#D0D0E0] my-4 border border-gray-800" {...props}>{children}</code>;
                                 }
                             }}
                         >
@@ -367,34 +367,34 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
                     ) : question.content_type === 'text' && question.content_data ? (
                         <TextContent content={question.content_data.text || question.content_data} />
                     ) : (
-                        <div className="h-full flex items-center justify-center bg-gray-900/50 backdrop-blur-xl border border-purple-500/20 rounded-xl">
-                            <p className="text-gray-500">No additional content available</p>
+                        <div className="h-full flex items-center justify-center bg-[#111317]/80 backdrop-blur-xl border border-gray-800 rounded-xl">
+                            <p className="text-[#808090]">No additional content available</p>
                         </div>
                     )}
                 </div>
             </div>
 
             {/* Navigation Footer */}
-            <div className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-gray-900/90 backdrop-blur-xl">
+            <div className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-[#111317]/90 backdrop-blur-xl">
                 <div className="px-6 py-4 max-w-[1800px] mx-auto">
                     <div className="flex items-center justify-between">
                         <button
                             onClick={handlePrevious}
                             disabled={currentIndex === 0}
-                            className="flex items-center gap-2 px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-6 py-3 bg-zinc-800/50 text-white rounded-lg hover:bg-[#2C2C2C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <ChevronLeft className="w-5 h-5" />
                             <span>Previous</span>
                         </button>
 
-                        <div className="text-sm text-gray-400">
+                        <div className="text-sm text-[#A0A0B0]">
                             Use ← → arrow keys to navigate • Press Esc to go back
                         </div>
 
                         <button
                             onClick={handleNext}
                             disabled={!canGoNext()}
-                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-6 py-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <span>{question.has_quiz && !quizCompleted ? 'Complete Quiz First' : 'Complete & Return'}</span>
                             <ChevronRight className="w-5 h-5" />

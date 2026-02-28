@@ -234,19 +234,19 @@ export default function Projects() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-[#4F0F93] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-[#0F0F13] text-white">
       {/* Header */}
-      <div className="border-b border-purple-500/20 bg-gray-900/50 backdrop-blur-xl">
+      <div className="border-b border-gray-800 bg-[#111317]/80 backdrop-blur-xl">
         <div className="px-6 py-6">
           <div className="mb-4">
             <h1 className="text-3xl font-bold mb-2">Projects</h1>
-            <p className="text-gray-400">Showcase projects to boost your portfolio</p>
+            <p className="text-[#A0A0B0]">Showcase projects to boost your portfolio</p>
           </div>
 
           {/* Tabs */}
@@ -254,8 +254,8 @@ export default function Projects() {
             <button
               onClick={() => setActiveTab('all')}
               className={`pb-3 border-b-2 transition-colors ${activeTab === 'all'
-                ? 'border-purple-500 text-white'
-                : 'border-transparent text-gray-400 hover:text-white'
+                ? 'border-[#4F0F93] text-white'
+                : 'border-transparent text-[#A0A0B0] hover:text-white'
                 }`}
             >
               All Projects
@@ -263,8 +263,8 @@ export default function Projects() {
             <button
               onClick={() => setActiveTab('bookmarked')}
               className={`pb-3 border-b-2 transition-colors ${activeTab === 'bookmarked'
-                ? 'border-purple-500 text-white'
-                : 'border-transparent text-gray-400 hover:text-white'
+                ? 'border-[#4F0F93] text-white'
+                : 'border-transparent text-[#A0A0B0] hover:text-white'
                 }`}
             >
               Bookmarked Projects
@@ -278,13 +278,13 @@ export default function Projects() {
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#A0A0B0]" />
             <input
               type="text"
               placeholder="Search projects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+              className="w-full pl-10 pr-4 py-2 bg-[#111317] border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4F0F93] transition-colors"
             />
           </div>
 
@@ -292,22 +292,22 @@ export default function Projects() {
           <div className="relative" ref={techStackDropdownRef}>
             <button
               onClick={() => setTechStackDropdownOpen(!techStackDropdownOpen)}
-              className="w-full md:w-48 px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-left flex items-center justify-between hover:border-gray-700 transition-colors"
+              className="w-full md:w-48 px-4 py-2 bg-[#111317] border border-gray-800 rounded-lg text-left flex items-center justify-between hover:border-gray-800 transition-colors"
             >
-              <span className="text-sm text-gray-300">
+              <span className="text-sm text-[#D0D0E0]">
                 {selectedTechStack || 'All Tech Stacks'}
               </span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <ChevronDown className="w-4 h-4 text-[#A0A0B0]" />
             </button>
 
             {techStackDropdownOpen && (
-              <div className="absolute top-full mt-2 w-full md:w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl z-10 max-h-64 overflow-y-auto">
+              <div className="absolute top-full mt-2 w-full md:w-48 bg-[#111317] border border-gray-800 rounded-lg shadow-xl z-10 max-h-64 overflow-y-auto">
                 <button
                   onClick={() => {
                     setSelectedTechStack(null);
                     setTechStackDropdownOpen(false);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-800 transition-colors text-gray-300"
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-800/50 transition-colors text-[#D0D0E0]"
                 >
                   All Tech Stacks
                 </button>
@@ -318,7 +318,7 @@ export default function Projects() {
                       setSelectedTechStack(tech);
                       setTechStackDropdownOpen(false);
                     }}
-                    className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-800 transition-colors ${selectedTechStack === tech ? 'text-purple-400' : 'text-gray-300'
+                    className={`w-full px-4 py-2 text-left text-sm hover:bg-zinc-800/50 transition-colors ${selectedTechStack === tech ? 'text-[#A855F7]' : 'text-[#D0D0E0]'
                       }`}
                   >
                     {tech}
@@ -332,22 +332,22 @@ export default function Projects() {
           <div className="relative" ref={difficultyDropdownRef}>
             <button
               onClick={() => setDifficultyDropdownOpen(!difficultyDropdownOpen)}
-              className="w-full md:w-40 px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-left flex items-center justify-between hover:border-gray-700 transition-colors"
+              className="w-full md:w-40 px-4 py-2 bg-[#111317] border border-gray-800 rounded-lg text-left flex items-center justify-between hover:border-gray-800 transition-colors"
             >
-              <span className="text-sm text-gray-300">
+              <span className="text-sm text-[#D0D0E0]">
                 {selectedDifficulty || 'All Levels'}
               </span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <ChevronDown className="w-4 h-4 text-[#A0A0B0]" />
             </button>
 
             {difficultyDropdownOpen && (
-              <div className="absolute top-full mt-2 w-full md:w-40 bg-gray-900 border border-gray-800 rounded-lg shadow-xl z-10">
+              <div className="absolute top-full mt-2 w-full md:w-40 bg-[#111317] border border-gray-800 rounded-lg shadow-xl z-10">
                 <button
                   onClick={() => {
                     setSelectedDifficulty(null);
                     setDifficultyDropdownOpen(false);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-800 transition-colors text-gray-300"
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-800/50 transition-colors text-[#D0D0E0]"
                 >
                   All Levels
                 </button>
@@ -358,7 +358,7 @@ export default function Projects() {
                       setSelectedDifficulty(difficulty);
                       setDifficultyDropdownOpen(false);
                     }}
-                    className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-800 transition-colors ${selectedDifficulty === difficulty ? 'text-purple-400' : 'text-gray-300'
+                    className={`w-full px-4 py-2 text-left text-sm hover:bg-zinc-800/50 transition-colors ${selectedDifficulty === difficulty ? 'text-[#A855F7]' : 'text-[#D0D0E0]'
                       }`}
                   >
                     {difficulty}
@@ -376,9 +376,9 @@ export default function Projects() {
           {filteredProjects.map((project) => (
             <div
               key={project.id}
-              className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-xl overflow-hidden hover:border-gray-700 transition-all group flex flex-col h-full"
+              className="bg-[#111317] border border-gray-800 rounded-xl overflow-hidden hover:border-gray-800 transition-all group flex flex-col h-full"
             >
-              <div className="relative h-48 bg-gray-800 overflow-hidden flex-shrink-0">
+              <div className="relative h-48 bg-zinc-800/50 overflow-hidden flex-shrink-0">
                 <img
                   src={project.preview_image_url}
                   alt={project.title}
@@ -390,8 +390,8 @@ export default function Projects() {
                 <button
                   onClick={() => toggleBookmark(project.id)}
                   className={`absolute top-3 right-3 z-20 p-2 rounded-lg transition-all ${bookmarkedProjects.has(project.id)
-                    ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                    : 'bg-gray-900/80 hover:bg-gray-800 text-gray-400 backdrop-blur-sm'
+                    ? 'bg-[#4F0F93] hover:bg-[#6312BA] text-white'
+                    : 'bg-[#111317]/80 hover:bg-zinc-800/50 text-[#A0A0B0] backdrop-blur-sm'
                     }`}
                 >
                   {bookmarkedProjects.has(project.id) ? (
@@ -407,7 +407,7 @@ export default function Projects() {
                   {project.title}
                 </h3>
 
-                <p className="text-sm text-gray-400 mb-4 line-clamp-2 min-h-[2.5rem]">
+                <p className="text-sm text-[#A0A0B0] mb-4 line-clamp-2 min-h-[2.5rem]">
                   {project.description}
                 </p>
 
@@ -416,13 +416,13 @@ export default function Projects() {
                   {project.tech_stack.slice(0, 3).map((tech) => (
                     <span
                       key={tech}
-                      className="px-2 py-1 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-full"
+                      className="px-2 py-1 text-xs font-medium bg-[#4F0F93]/20 text-[#8970D6] rounded-full"
                     >
                       {tech}
                     </span>
                   ))}
                   {project.tech_stack.length > 3 && (
-                    <span className="px-2 py-1 text-xs font-medium bg-gray-800 text-gray-400 rounded-full">
+                    <span className="px-2 py-1 text-xs font-medium bg-zinc-800/50 text-[#A0A0B0] rounded-full">
                       +{project.tech_stack.length - 3}
                     </span>
                   )}
@@ -431,7 +431,7 @@ export default function Projects() {
                 {/* View Source Button - Full Width at bottom */}
                 <button
                   onClick={() => handleViewSource(project.github_url)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white text-base font-medium rounded-lg transition-all mt-auto"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-zinc-800/50 hover:bg-[#2C2C2C] text-white text-base font-medium rounded-lg transition-all mt-auto"
                 >
                   <Github className="w-5 h-5" />
                   View Source
@@ -443,7 +443,7 @@ export default function Projects() {
 
         {filteredProjects.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-gray-500">No projects found</p>
+            <p className="text-[#808090]">No projects found</p>
           </div>
         )}
       </div>

@@ -29,34 +29,34 @@ export default function ImageContent({ imageData }: ImageContentProps) {
 
     return (
         <>
-            <div className="h-full flex flex-col p-6 bg-gray-900/50 backdrop-blur-xl border border-purple-500/20 rounded-xl">
+            <div className="h-full flex flex-col p-6 bg-[#111317]/80 backdrop-blur-xl border border-gray-800 rounded-xl">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                        <ImageIcon className="w-5 h-5 text-purple-400" />
-                        <span className="text-sm font-semibold text-gray-300">Visual Reference</span>
+                        <ImageIcon className="w-5 h-5 text-[#A855F7]" />
+                        <span className="text-sm font-semibold text-[#D0D0E0]">Visual Reference</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleZoomOut}
                             disabled={zoom <= 50}
-                            className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-2 bg-zinc-800/50 hover:bg-[#2C2C2C] text-[#D0D0E0] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Zoom Out"
                         >
                             <ZoomOut className="w-4 h-4" />
                         </button>
-                        <span className="text-sm text-gray-400 w-12 text-center">{zoom}%</span>
+                        <span className="text-sm text-[#A0A0B0] w-12 text-center">{zoom}%</span>
                         <button
                             onClick={handleZoomIn}
                             disabled={zoom >= 200}
-                            className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-2 bg-zinc-800/50 hover:bg-[#2C2C2C] text-[#D0D0E0] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Zoom In"
                         >
                             <ZoomIn className="w-4 h-4" />
                         </button>
                         <button
                             onClick={handleFullscreen}
-                            className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors ml-2"
+                            className="p-2 bg-zinc-800/50 hover:bg-[#2C2C2C] text-[#D0D0E0] rounded-lg transition-colors ml-2"
                             title="Fullscreen"
                         >
                             <Maximize2 className="w-4 h-4" />
@@ -78,14 +78,14 @@ export default function ImageContent({ imageData }: ImageContentProps) {
 
                 {/* Caption */}
                 {imageData.caption && (
-                    <div className="mt-4 p-3 bg-gray-800/50 border border-gray-700 rounded-lg">
-                        <p className="text-sm text-gray-400">{imageData.caption}</p>
+                    <div className="mt-4 p-3 bg-[#111317] border border-gray-800 rounded-lg">
+                        <p className="text-sm text-[#A0A0B0]">{imageData.caption}</p>
                     </div>
                 )}
 
                 {/* Info */}
-                <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <div className="mt-4 flex items-center gap-2 text-xs text-[#808090]">
+                    <div className="w-2 h-2 bg-[#4F0F93] rounded-full"></div>
                     <span>Study the diagram to understand the concept visually</span>
                 </div>
             </div>
@@ -98,7 +98,7 @@ export default function ImageContent({ imageData }: ImageContentProps) {
                 >
                     <button
                         onClick={handleFullscreen}
-                        className="absolute top-4 right-4 p-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                        className="absolute top-4 right-4 p-2 bg-zinc-800/50 hover:bg-[#2C2C2C] text-white rounded-lg transition-colors"
                     >
                         ✕
                     </button>
@@ -109,8 +109,8 @@ export default function ImageContent({ imageData }: ImageContentProps) {
                         onClick={(e) => e.stopPropagation()}
                     />
                     {imageData.caption && (
-                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 max-w-2xl bg-gray-900/90 backdrop-blur-xl border border-gray-700 rounded-lg p-4">
-                            <p className="text-sm text-gray-300 text-center">{imageData.caption}</p>
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 max-w-2xl bg-[#111317]/90 backdrop-blur-xl border border-gray-800 rounded-lg p-4">
+                            <p className="text-sm text-[#D0D0E0] text-center">{imageData.caption}</p>
                         </div>
                     )}
                 </div>

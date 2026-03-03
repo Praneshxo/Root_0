@@ -11,11 +11,13 @@ import SQL from './pages/SQL';
 import Aptitude from './pages/Aptitude';
 import CoreCS from './pages/CoreCS';
 import InterviewQuestions from './pages/InterviewQuestions';
-import Quiz from './pages/Quiz';
+import HRContacts from './pages/HRContacts';
+
 import Notes from './pages/Notes';
 import Projects from './pages/Projects';
 import QuestionDetail from './pages/QuestionDetail';
 import CompanyQuestionDetail from './pages/CompanyQuestionDetail';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -47,7 +49,9 @@ function App() {
             <Route path="core-cs/:questionId" element={<QuestionDetail type="corecs" />} />
             <Route path="interview-questions" element={<InterviewQuestions />} />
             <Route path="interview-questions/:questionId" element={<QuestionDetail type="interview" />} />
-            <Route path="quiz" element={<Quiz />} />
+            <Route path="hr-contacts" element={<HRContacts />} />
+            <Route path="profile" element={<Profile />} />
+
             <Route path="notes" element={<Notes />} />
             <Route path="projects" element={<Projects />} />
           </Route>

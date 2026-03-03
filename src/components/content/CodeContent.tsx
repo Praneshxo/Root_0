@@ -30,12 +30,12 @@ export default function CodeContent({ codeData }: CodeContentProps) {
             typescript: 'text-blue-400',
             python: 'text-green-400',
             java: 'text-orange-400',
-            cpp: 'text-purple-400',
+            cpp: 'text-[#A855F7]',
             sql: 'text-pink-400',
             html: 'text-red-400',
             css: 'text-blue-300',
         };
-        return colors[lang.toLowerCase()] || 'text-gray-400';
+        return colors[lang.toLowerCase()] || 'text-[#A0A0B0]';
     };
 
     const renderCodeWithLineNumbers = () => {
@@ -43,15 +43,15 @@ export default function CodeContent({ codeData }: CodeContentProps) {
         return lines.map((line, index) => (
             <div key={index} className="flex leading-relaxed">
                 <span className="text-gray-600 select-none w-12 text-right pr-4 shrink-0 font-mono text-sm">{index + 1}</span>
-                <span className="text-gray-300 font-mono text-base whitespace-pre">{line}</span>
+                <span className="text-[#D0D0E0] font-mono text-base whitespace-pre">{line}</span>
             </div>
         ));
     };
 
     return (
-        <div className="h-full flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="h-full flex flex-col bg-[#111317] border border-gray-800 rounded-xl overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800 bg-gray-900/80">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800 bg-[#111317]/80">
                 <div className="flex items-center gap-3">
                     <div className="flex gap-1.5">
                         <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/30"></div>
@@ -65,7 +65,7 @@ export default function CodeContent({ codeData }: CodeContentProps) {
                     </span>
                     <button
                         onClick={handleCopy}
-                        className="p-1.5 hover:bg-gray-800 text-gray-400 hover:text-white rounded-md transition-colors"
+                        className="p-1.5 hover:bg-zinc-800/50 text-[#A0A0B0] hover:text-white rounded-md transition-colors"
                         title="Copy Code"
                     >
                         {copied ? (
@@ -86,8 +86,8 @@ export default function CodeContent({ codeData }: CodeContentProps) {
 
             {/* Caption */}
             {codeData.caption && (
-                <div className="p-4 border-t border-gray-800 bg-gray-900/50">
-                    <p className="text-sm text-gray-400">{codeData.caption}</p>
+                <div className="p-4 border-t border-gray-800 bg-[#111317]/80">
+                    <p className="text-sm text-[#A0A0B0]">{codeData.caption}</p>
                 </div>
             )}
         </div>

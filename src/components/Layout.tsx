@@ -10,7 +10,7 @@ export default function Layout() {
   const isDashboard = location.pathname === '/';
 
   return (
-    <div className="min-h-screen bg-black text-white flex">
+    <div className="min-h-screen bg-[#0F0F13] text-white flex">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main content - margin left to account for sidebar */}

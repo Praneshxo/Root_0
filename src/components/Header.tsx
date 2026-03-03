@@ -1,6 +1,7 @@
-import { Menu, User, LogOut, CreditCard } from 'lucide-react';
+import { Menu, User, LogOut, CreditCard, UserCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AIRing from './AIRing';
 
 interface HeaderProps {
@@ -11,14 +12,15 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showAITooltip, setShowAITooltip] = useState(false);
+  const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-30 bg-gray-900/50 backdrop-blur-xl border-b border-purple-500/20">
+    <header className="sticky top-0 z-30 bg-[#111317]">
       <div className="flex items-center justify-between px-6 py-4">
         {/* Mobile Menu Button */}
         <button
           onClick={onMenuClick}
-          className="lg:hidden text-gray-400 hover:text-white transition-colors"
+          className="lg:hidden text-[#A0A0B0] hover:text-white transition-colors"
         >
           <Menu className="w-6 h-6" />
         </button>
@@ -40,9 +42,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
             {/* AI Tooltip */}
             {showAITooltip && (
-              <div className="absolute top-full right-0 mt-2 w-64 bg-gray-900 border border-purple-500/30 rounded-lg shadow-xl p-4 z-50">
+              <div className="absolute top-full right-0 mt-2 w-64 bg-[#111317] border border-gray-800 rounded-lg shadow-xl p-4 z-50">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#4F0F93] to-[#6312BA] rounded-full flex items-center justify-center flex-shrink-0">
                     {/* Modern AI Brain/Chip Icon */}
                     <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
                       {/* Brain outline */}
@@ -65,7 +67,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-white mb-1">AI Assistant</h3>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-[#A0A0B0]">
                       Your personalised Assistant is being built
                     </p>
                   </div>
@@ -75,7 +77,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           </div>
 
           {/* Upgrade Button */}
-          <button className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
+          <button className="px-4 py-2 bg-[#4F0F93] text-white text-sm font-medium rounded-lg hover:bg-[#6312BA] transition-colors flex items-center gap-2">
             <span className="hidden sm:inline">Upgrade</span>
           </button>
 
@@ -83,7 +85,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <div className="relative">
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="p-2 text-gray-400 hover:text-white hover:bg-purple-500/10 rounded-lg transition-all"
+              className="p-2 text-[#A0A0B0] hover:text-white hover:bg-[#4F0F93]/10 rounded-lg transition-all"
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -94,26 +96,37 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   className="fixed inset-0 z-40"
                   onClick={() => setShowDropdown(false)}
                 />
-                <div className="absolute right-0 mt-2 w-56 bg-gray-900 border border-purple-500/30 rounded-lg shadow-xl z-50">
+                <div className="absolute right-0 mt-2 w-56 bg-[#111317] border border-gray-800 rounded-lg shadow-xl z-50">
                   <div className="p-2">
                     {/* User Info */}
-                    <div className="px-4 py-3 border-b border-purple-500/20">
+                    <div className="px-4 py-3 border-b border-gray-800">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-[#4F0F93] rounded-full flex items-center justify-center">
                           <User className="w-5 h-5 text-white" />
                         </div>
                         <div>
                           <p className="text-sm font-medium text-white">
-                            {user?.email?.split('@')[0] || 'User'}
+                            {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
                           </p>
-                          <p className="text-xs text-gray-400">Free Plan</p>
+                          <p className="text-xs text-[#A0A0B0]">Free Plan</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Menu Items */}
                     <div className="py-2">
-                      <button className="flex items-center gap-3 w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-purple-500/10 rounded-lg transition-all">
+                      <button
+                        onClick={() => {
+                          navigate('/profile');
+                          setShowDropdown(false);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-2 text-left text-[#D0D0E0] hover:text-white hover:bg-[#4F0F93]/10 rounded-lg transition-all"
+                      >
+                        <UserCircle className="w-4 h-4" />
+                        <span className="text-sm">Profile</span>
+                      </button>
+
+                      <button className="flex items-center gap-3 w-full px-4 py-2 text-left text-[#D0D0E0] hover:text-white hover:bg-[#4F0F93]/10 rounded-lg transition-all">
                         <CreditCard className="w-4 h-4" />
                         <span className="text-sm">Switch Plan</span>
                       </button>
@@ -123,7 +136,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                           signOut();
                           setShowDropdown(false);
                         }}
-                        className="flex items-center gap-3 w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-purple-500/10 rounded-lg transition-all"
+                        className="flex items-center gap-3 w-full px-4 py-2 text-left text-[#D0D0E0] hover:text-white hover:bg-[#4F0F93]/10 rounded-lg transition-all"
                       >
                         <LogOut className="w-4 h-4" />
                         <span className="text-sm">Sign Out</span>

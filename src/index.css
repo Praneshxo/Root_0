@@ -9,9 +9,9 @@
     --primary-purple: #9333ea;
     --primary-purple-hover: #7e22ce;
     --accent-purple: #a855f7;
-    --bg-black: #0a0a0a;
-    --bg-dark: #111111;
-    --bg-card: #1a1a1a;
+    --bg-black: #0F0F13;
+    --bg-dark: #0F0F13;
+    --bg-card: #161616;
     --border-purple: rgba(147, 51, 234, 0.2);
   }
 
@@ -21,8 +21,8 @@
   }
 
   body {
-    @apply bg-black text-white;
-    background-color: #0a0a0a;
+    @apply bg-[#0F0F13] text-white;
+    background-color: #0F0F13;
   }
 
   h1 {
@@ -65,7 +65,7 @@
 
   /* Card styles with purple accent - NO gradients */
   .card-purple {
-    @apply bg-gray-900/50 border border-purple-500/20 hover:border-purple-500/50;
+    @apply bg-[#111317]/80 border border-purple-500/20 hover:border-purple-500/50;
   }
 }
 

@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   Building2,
   MessageSquare,
-  Brain,
   Code,
   Database,
   Calculator,
@@ -12,6 +11,7 @@ import {
   FileText,
   FolderGit2,
   Sparkles,
+  Users,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -23,11 +23,11 @@ const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
   { icon: Building2, label: 'Companies', path: '/companies' },
   { icon: MessageSquare, label: 'Interview Questions', path: '/interview-questions' },
-  { icon: Brain, label: 'Quiz', path: '/quiz' },
   { icon: Code, label: 'DSA Questions', path: '/dsa' },
   { icon: Database, label: 'SQL Questions', path: '/sql' },
   { icon: Calculator, label: 'Aptitude', path: '/aptitude' },
   { icon: BookOpen, label: 'Core CS Subjects', path: '/core-cs' },
+  { icon: Users, label: 'HR Contacts', path: '/hr-contacts' },
   { icon: FileText, label: 'Notes', path: '/notes' },
   { icon: FolderGit2, label: 'Projects', path: '/projects' },
 ];
@@ -61,25 +61,25 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       <aside
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`fixed top-0 left-0 h-screen bg-gray-900/50 backdrop-blur-xl border-r border-purple-500/20 transition-[width] duration-300 ease-in-out overflow-hidden ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        className={`fixed top-0 left-0 h-screen bg-[#111317] transition-[width] duration-300 ease-in-out overflow-hidden ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           } ${shouldExpand ? 'w-64 z-50' : 'w-20 z-40'}`}
       >
         <div className="flex flex-col h-full">
           {/* Logo Section */}
-          <div className="flex items-center justify-between p-4 border-b border-purple-500/20">
+          <div className="flex items-center justify-between p-4 border-b border-gray-800">
             {shouldExpand && (
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-[#4F0F93] rounded-lg flex items-center justify-center">
                   <Code className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h1 className="text-lg font-bold text-white">PlacementPro</h1>
-                  <p className="text-xs text-gray-400">Ace Your Interviews</p>
+                  <p className="text-xs text-[#A0A0B0]">Ace Your Interviews</p>
                 </div>
               </div>
             )}
             {!shouldExpand && (
-              <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mx-auto">
+              <div className="w-10 h-10 bg-[#4F0F93] rounded-lg flex items-center justify-center mx-auto">
                 <Code className="w-6 h-6 text-white" />
               </div>
             )}
@@ -99,8 +99,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   to={item.path}
                   onClick={() => onClose()}
                   className={`group relative flex items-center gap-3 px-3 py-3 rounded-lg transition-all ${isActive
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-purple-500/10'
+                    ? 'bg-[#4F0F93] text-white'
+                    : 'text-[#A0A0B0] hover:text-white hover:bg-[#4F0F93]/10'
                     } ${!shouldExpand ? 'justify-center' : ''}`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
@@ -108,7 +108,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
                   {/* Tooltip on hover when collapsed - only show if not already hovered */}
                   {!shouldExpand && !isHovered && (
-                    <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 border border-purple-500/30 rounded-lg text-sm text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                    <div className="absolute left-full ml-2 px-3 py-2 bg-[#111317] border border-gray-800 rounded-lg text-sm text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
                       {item.label}
                     </div>
                   )}
@@ -118,24 +118,24 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           </nav>
 
           {/* Upgrade Section */}
-          <div className="p-3 border-t border-purple-500/20">
+          <div className="p-3 border-t border-gray-800">
             <div
               className={`relative overflow-hidden ${!shouldExpand
                 ? 'upgrade-box-collapsed'
-                : 'upgrade-box-expanded bg-purple-900/30 border border-purple-500/30 rounded-lg p-4'
+                : 'upgrade-box-expanded bg-[#4F0F93]/10 border border-gray-800 rounded-lg p-4'
                 }`}
             >
 
               {!shouldExpand ? (
                 <div className="group relative">
                   <button
-                    className="relative w-full flex items-center justify-center p-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    className="relative w-full flex items-center justify-center p-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors"
                   >
                     <Sparkles className="w-5 h-5" />
                   </button>
                   {/* Tooltip - only show if not hovered */}
                   {!isHovered && (
-                    <div className="absolute left-full ml-2 bottom-0 px-3 py-2 bg-gray-900 border border-purple-500/30 rounded-lg text-sm text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                    <div className="absolute left-full ml-2 bottom-0 px-3 py-2 bg-[#111317] border border-gray-800 rounded-lg text-sm text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
                       Upgrade Now
                     </div>
                   )}
@@ -143,15 +143,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               ) : (
                 <>
                   <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-4 h-4 text-purple-400" />
+                    <Sparkles className="w-4 h-4 text-[#A855F7]" />
                     <h3 className="text-sm font-semibold text-white">
                       Premium Access
                     </h3>
                   </div>
-                  <p className="text-xs text-gray-400 mb-3">
+                  <p className="text-xs text-[#A0A0B0] mb-3">
                     Unlock advanced features and content
                   </p>
-                  <button className="w-full bg-purple-600 text-white text-sm font-medium py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                  <button className="w-full bg-[#4F0F93] text-white text-sm font-medium py-2 rounded-lg hover:bg-[#6312BA] transition-colors">
                     Upgrade Now
                   </button>
                 </>

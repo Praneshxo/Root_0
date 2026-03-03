@@ -8,10 +8,11 @@ import * as THREE from 'three';
  */
 export default function AIRing() {
     const containerRef = useRef<HTMLDivElement>(null);
-    const [_, setIsLoading] = useState(true);
+    const [, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (!containerRef.current) return;
+        const currentContainer = containerRef.current;
+        if (!currentContainer) return;
         setIsLoading(false);
 
         let renderer: THREE.WebGLRenderer;
@@ -43,9 +44,9 @@ export default function AIRing() {
                 return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
             },
             perlin(x: number, y: number, z: number) {
-                let X = Math.floor(x) & 255;
-                let Y = Math.floor(y) & 255;
-                let Z = Math.floor(z) & 255;
+                const X = Math.floor(x) & 255;
+                const Y = Math.floor(y) & 255;
+                const Z = Math.floor(z) & 255;
                 x -= Math.floor(x); y -= Math.floor(y); z -= Math.floor(z);
                 const u = this.fade(x), v = this.fade(y), w = this.fade(z);
                 const A = this.p[X] + Y, AA = this.p[A] + Z, AB = this.p[A + 1] + Z;
@@ -74,9 +75,9 @@ export default function AIRing() {
             renderer.setSize(size, size);
             renderer.setPixelRatio(window.devicePixelRatio); // Full retina support
 
-            if (containerRef.current) {
-                containerRef.current.innerHTML = '';
-                containerRef.current.appendChild(renderer.domElement);
+            if (currentContainer) {
+                currentContainer.innerHTML = '';
+                currentContainer.appendChild(renderer.domElement);
                 renderer.domElement.style.width = '100%';
                 renderer.domElement.style.height = '100%';
             }
@@ -180,7 +181,7 @@ export default function AIRing() {
         return () => {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             if (renderer) renderer.dispose();
-            if (containerRef.current) containerRef.current.innerHTML = '';
+            if (currentContainer) currentContainer.innerHTML = '';
         };
     }, []);
 

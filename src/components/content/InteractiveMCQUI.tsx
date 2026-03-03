@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle2, XCircle, ArrowRight, Eye } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -21,18 +21,28 @@ export default function InteractiveMCQUI({ mcqData, onComplete, isCompleted }: I
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [showSolution, setShowSolution] = useState(false);
+    const [hasAttempted, setHasAttempted] = useState(false);
+    const [isRevealed, setIsRevealed] = useState(false);
 
     const handleOptionSelect = (index: number) => {
-        if (isSubmitted || isCompleted) return;
+        if (isRevealed || isCompleted || (isSubmitted && selectedOption === mcqData.correctAnswer)) return;
         setSelectedOption(index);
+        setIsSubmitted(false);
     };
 
     const handleSubmit = () => {
         if (selectedOption === null) return;
         setIsSubmitted(true);
+        setHasAttempted(true);
         if (selectedOption === mcqData.correctAnswer) {
             onComplete?.();
         }
+    };
+
+    const handleReveal = () => {
+        setIsRevealed(true);
+        setHasAttempted(true);
+        // Do NOT call onComplete() so it does not count as naturally solved.
     };
 
     const formatMarkdownText = (text: string) => {
@@ -45,6 +55,7 @@ export default function InteractiveMCQUI({ mcqData, onComplete, isCompleted }: I
 
     // Check if correct considering pre-existing completion or current selection
     const isCorrect = isCompleted || (isSubmitted && selectedOption === mcqData.correctAnswer);
+    const showCorrectAnswer = isCompleted || isCorrect || isRevealed;
 
     return (
         <div className="bg-[#111317]/80 backdrop-blur-xl border border-gray-800 rounded-xl p-8 flex flex-col h-full">
@@ -56,7 +67,7 @@ export default function InteractiveMCQUI({ mcqData, onComplete, isCompleted }: I
                     let textClasses = "text-lg";
                     let icon = null;
 
-                    if (isSubmitted || isCompleted) {
+                    if (showCorrectAnswer) {
                         if (index === mcqData.correctAnswer) {
                             optionClasses += " border-green-500/50 bg-green-500/10 text-green-400";
                             icon = <CheckCircle2 className="w-6 h-6 text-green-500" />;
@@ -66,6 +77,9 @@ export default function InteractiveMCQUI({ mcqData, onComplete, isCompleted }: I
                         } else {
                             optionClasses += " border-gray-800 bg-zinc-800/20 text-[#A0A0B0] opacity-50";
                         }
+                    } else if (isSubmitted && selectedOption === index && !isCorrect) {
+                        optionClasses += " border-red-500/50 bg-red-500/10 text-red-400";
+                        icon = <XCircle className="w-6 h-6 text-red-500" />;
                     } else {
                         if (selectedOption === index) {
                             optionClasses += " border-[#8970D6] bg-[#8970D6]/10 text-white";
@@ -79,7 +93,7 @@ export default function InteractiveMCQUI({ mcqData, onComplete, isCompleted }: I
                             key={index}
                             className={`w-full ${optionClasses}`}
                             onClick={() => handleOptionSelect(index)}
-                            disabled={isSubmitted || isCompleted}
+                            disabled={showCorrectAnswer}
                         >
                             <span className={textClasses}>{option}</span>
                             {icon}
@@ -87,7 +101,7 @@ export default function InteractiveMCQUI({ mcqData, onComplete, isCompleted }: I
                     );
                 })}
 
-                {(isSubmitted || isCompleted) && hasSolution && (
+                {showCorrectAnswer && hasSolution && (
                     <div className="mt-8">
                         <button
                             onClick={() => setShowSolution(!showSolution)}
@@ -118,30 +132,42 @@ export default function InteractiveMCQUI({ mcqData, onComplete, isCompleted }: I
                 )}
             </div>
 
-            {!(isCompleted || isCorrect) && (
+            {!(showCorrectAnswer) && (
                 <div className="pt-6 border-t border-gray-800 mt-auto">
-                    <button
-                        onClick={handleSubmit}
-                        disabled={selectedOption === null || isSubmitted}
-                        className="w-full py-4 text-white font-bold rounded-lg bg-gradient-to-r from-[#8970D6] to-[#4F0F93] hover:from-[#9B88E1] hover:to-[#6312BA] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#4F0F93]/20"
-                    >
-                        {isSubmitted ? 'Incorrect - Try Again' : 'Submit Answer'}
-                    </button>
-                    {isSubmitted && !isCorrect && (
-                        <button
-                            onClick={() => {
-                                setIsSubmitted(false);
-                                setSelectedOption(null);
-                            }}
-                            className="w-full mt-3 py-3 text-[#A0A0B0] hover:text-white transition-colors"
-                        >
-                            Reset
-                        </button>
-                    )}
+                    <div className="flex gap-3">
+                        <div className="flex-1 flex flex-col gap-3">
+                            <button
+                                onClick={handleSubmit}
+                                disabled={selectedOption === null || isSubmitted}
+                                className="w-full py-4 text-white font-bold rounded-lg bg-gradient-to-r from-[#8970D6] to-[#4F0F93] hover:from-[#9B88E1] hover:to-[#6312BA] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#4F0F93]/20"
+                            >
+                                {isSubmitted ? 'Incorrect - Select another' : 'Submit Answer'}
+                            </button>
+                        </div>
+                        <div className="relative group flex items-start">
+                            <button
+                                onClick={hasAttempted ? handleReveal : undefined}
+                                disabled={!hasAttempted}
+                                className={`px-5 py-4 border font-medium rounded-lg transition-colors flex items-center gap-2 ${hasAttempted
+                                    ? 'bg-transparent hover:bg-zinc-800/50 border-gray-800 text-[#D0D0E0] cursor-pointer'
+                                    : 'bg-transparent border-gray-800/50 text-gray-600 cursor-not-allowed opacity-50'
+                                    }`}
+                            >
+                                <Eye size={16} />
+                                Reveal Answer
+                            </button>
+                            {!hasAttempted && (
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-zinc-800 text-xs text-[#D0D0E0] rounded-md border border-gray-700 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg">
+                                    Try to solve once
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-zinc-800" />
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
 
-            {(isCompleted || isCorrect) && (
+            {(showCorrectAnswer) && (
                 <div className="pt-6 border-t border-gray-800 mt-auto">
                     <div className="w-full py-4 text-white font-bold rounded-lg bg-green-500/20 border border-green-500/50 flex items-center justify-center gap-2">
                         <CheckCircle2 className="w-6 h-6 text-green-400" />

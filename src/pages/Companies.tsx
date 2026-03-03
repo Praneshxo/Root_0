@@ -44,16 +44,20 @@ export default function Companies() {
   const fetchQuestions = async () => {
     setLoading(true);
     try {
-      let data: any[] = [];
-      let error: any = null;
+      let data: CompanyQuestion[] = [];
+      let error: unknown = null;
 
       if (activeTab === 'Interview Questions') {
         const result = await supabase
-          .from('company_interview_questions')
+          .from('company_topic_questions')
           .select('*')
           .eq('company_name', activeCompany)
+          .in('topic', ['HR', 'Technical'])
           .order('created_at');
-        data = result.data || [];
+        data = (result.data || []).map(q => ({
+          ...q,
+          category: q.topic // Map topic to category for display interface
+        }));
         error = result.error;
       } else {
         const result = await supabase
@@ -164,7 +168,7 @@ export default function Companies() {
       case 'Hard':
         return 'text-red-400 bg-red-500/10 border-red-500/30';
       default:
-        return 'text-gray-400 bg-gray-500/10 border-gray-500/30';
+        return 'text-[#A0A0B0] bg-gray-500/10 border-gray-500/30';
     }
   };
 
@@ -182,17 +186,9 @@ export default function Companies() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white mb-1.5">Interview Questions for {activeCompany}</h1>
-          <p className="text-base text-gray-400">
+          <p className="text-base text-[#A0A0B0]">
             Prepare for mass IT company recruitments with comprehensive study material.
           </p>
-        </div>
-        <div className="flex gap-2">
-          <button className="px-4 py-2 text-sm bg-gray-800/50 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors border border-gray-700">
-            📊 My progress
-          </button>
-          <button className="px-4 py-2 text-sm bg-gray-800/50 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors border border-gray-700">
-            View all resources
-          </button>
         </div>
       </div>
 
@@ -203,8 +199,8 @@ export default function Companies() {
             key={company}
             onClick={() => setActiveCompany(company)}
             className={`px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-all ${activeCompany === company
-              ? 'bg-gray-800 text-white border border-gray-700'
-              : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800/50'
+              ? 'bg-zinc-800/50 text-white border border-gray-800'
+              : 'bg-transparent text-[#A0A0B0] hover:text-white hover:bg-[#111317]'
               }`}
           >
             {company}
@@ -219,8 +215,8 @@ export default function Companies() {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap ${activeTab === tab
-              ? 'text-white border-b-2 border-purple-500 text-purple-400'
-              : 'text-gray-400 hover:text-white border-b-2 border-transparent'
+              ? 'text-white border-b-2 border-[#4F0F93] text-[#A855F7]'
+              : 'text-[#A0A0B0] hover:text-white border-b-2 border-transparent'
               }`}
           >
             <span className="mr-2">{TAB_ICONS[tab]}</span>
@@ -234,21 +230,21 @@ export default function Companies() {
           <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : (
-        <div className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-xl overflow-hidden">
+        <div className="bg-[#111317] border border-gray-800 rounded-xl overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-800/50 border-b border-gray-800">
+            <thead className="bg-[#111317] border-b border-gray-800">
               <tr>
-                <th className="px-5 py-3.5 text-left text-sm font-medium text-gray-400 w-16">#</th>
-                <th className="px-5 py-3.5 text-left text-sm font-medium text-gray-400">Question</th>
-                <th className="px-5 py-3.5 text-left text-sm font-medium text-gray-400 w-28">Difficulty</th>
-                <th className="px-5 py-3.5 text-center text-sm font-medium text-gray-400 w-24">Solved</th>
-                <th className="px-5 py-3.5 text-center text-sm font-medium text-gray-400 w-24">Revision</th>
+                <th className="px-5 py-3.5 text-left text-sm font-medium text-[#A0A0B0] w-16">#</th>
+                <th className="px-5 py-3.5 text-left text-sm font-medium text-[#A0A0B0]">Question</th>
+                <th className="px-5 py-3.5 text-left text-sm font-medium text-[#A0A0B0] w-28">Difficulty</th>
+                <th className="px-5 py-3.5 text-center text-sm font-medium text-[#A0A0B0] w-24">Solved</th>
+                <th className="px-5 py-3.5 text-center text-sm font-medium text-[#A0A0B0] w-24">Revision</th>
               </tr>
             </thead>
             <tbody>
               {questions.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-base text-gray-400">
+                  <td colSpan={5} className="px-5 py-10 text-center text-base text-[#A0A0B0]">
                     No questions available for {activeCompany} yet.
                   </td>
                 </tr>
@@ -265,12 +261,12 @@ export default function Companies() {
                         }
                       });
                     }}
-                    className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors cursor-pointer"
+                    className="border-b border-gray-800/50 hover:bg-[#111317] transition-colors cursor-pointer"
                   >
-                    <td className="px-5 py-4 text-sm text-gray-400">{index + 1}</td>
+                    <td className="px-5 py-4 text-sm text-[#A0A0B0]">{index + 1}</td>
                     <td className="px-5 py-4">
                       <div className="text-base text-white font-medium line-clamp-1">{question.question}</div>
-                      <div className="text-sm text-gray-400 mt-1">
+                      <div className="text-sm text-[#A0A0B0] mt-1">
                         {question.category}
                       </div>
                     </td>
@@ -280,19 +276,22 @@ export default function Companies() {
                       </span>
                     </td>
                     <td className="px-5 py-4 text-center" onClick={(e) => e.stopPropagation()}>
-                      <div className="inline-flex items-center justify-center w-6 h-6 text-gray-400 relative group">
+                      <div
+                        className="inline-flex items-center justify-center w-6 h-6 text-[#A0A0B0] relative group cursor-pointer hover:text-green-400 transition-colors"
+                        onClick={() => toggleSolved(question.id)}
+                      >
                         {userProgress[question.id]?.solved ? (
                           <>
                             <CheckCircle2 className="w-6 h-6 text-green-400" />
-                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
                               Completed
                             </div>
                           </>
                         ) : (
                           <>
                             <Circle className="w-6 h-6" />
-                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                              Click row to view question
+                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
+                              Mark as solved
                             </div>
                           </>
                         )}
@@ -301,7 +300,7 @@ export default function Companies() {
                     <td className="px-5 py-4 text-center" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => toggleRevision(question.id)}
-                        className="inline-flex items-center justify-center w-6 h-6 text-gray-400 hover:text-blue-400 transition-colors"
+                        className="inline-flex items-center justify-center w-6 h-6 text-[#A0A0B0] hover:text-blue-400 transition-colors"
                       >
                         {userProgress[question.id]?.revision ? (
                           <BookmarkCheck className="w-6 h-6 text-blue-400" />

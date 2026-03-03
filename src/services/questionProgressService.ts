@@ -193,22 +193,13 @@ export async function markAsSolved(
 
         switch (questionType) {
             case 'dsa':
-                tableName = 'user_dsa_progress';
-                columnName = 'problem_id';
-                break;
             case 'sql':
-                tableName = 'user_sql_progress';
-                columnName = 'question_id';
-                break;
             case 'aptitude':
-                tableName = 'user_aptitude_progress';
-                columnName = 'question_id';
-                break;
             case 'corecs':
-                tableName = 'user_corecs_progress';
+                tableName = 'user_company_progress';
                 columnName = 'question_id';
                 break;
-            case 'interview':
+            case 'interview': {
                 tableName = 'user_progress';
                 columnName = 'question_id';
                 // For interview questions, we need to use status='solved'
@@ -222,6 +213,7 @@ export async function markAsSolved(
                     });
                 if (interviewError) throw interviewError;
                 return;
+            }
         }
 
         // For other question types

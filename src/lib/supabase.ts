@@ -68,28 +68,28 @@ export type Database = {
     created_at: string;
     updated_at: string;
   };
-  dsa_categories: {
-    id: string;
-    name: string;
-    description: string | null;
-    icon: string | null;
-    created_at: string;
-  };
-  dsa_problems: {
-    id: string;
-    title: string;
-    description: string;
-    difficulty: 'Easy' | 'Medium' | 'Hard';
-    category_id: string;
-    solution_text: string | null;
-    hints: string[] | null;
-    companies: string[] | null;
-    created_at: string;
-  };
-  user_dsa_progress: {
+  user_sql_progress: {
     id: string;
     user_id: string;
-    problem_id: string;
+    question_id: string;
+    solved: boolean;
+    revision: boolean;
+    created_at: string;
+    updated_at: string;
+  };
+  user_core_cs_progress: {
+    id: string;
+    user_id: string;
+    question_id: string;
+    solved: boolean;
+    revision: boolean;
+    created_at: string;
+    updated_at: string;
+  };
+  user_aptitude_progress: {
+    id: string;
+    user_id: string;
+    question_id: string;
     solved: boolean;
     revision: boolean;
     created_at: string;

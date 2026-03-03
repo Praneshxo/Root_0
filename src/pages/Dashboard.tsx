@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,14 +10,15 @@ import {
   Brain,
   Map,
   Clock,
-  CheckCircle,
   Zap,
   Target,
   ChevronRight,
   Crown,
+  Database,
+  BrainCircuit,
   Layout,
   Terminal,
-  Database
+  FileText
 } from 'lucide-react';
 
 
@@ -54,35 +58,58 @@ function DashboardContent() {
     }
   }, [user?.id]);
 
+  const [skillGap, setSkillGap] = useState({
+    DSA: 0,
+    SQL: 0,
+    Aptitude: 0,
+    CoreCS: 0
+  });
+
   const fetchDashboardData = async () => {
     try {
-      // @ts-ignore - Ignoring TS errors for mock supabase client compatibility
-      const [statsResult, progressResult, quizResult] = await Promise.all([
-        supabase
-          .from('user_stats')
-          .select('*')
-          .eq('user_id', user?.id)
-          .maybeSingle(),
-        supabase
-          .from('user_progress')
-          .select('*, questions(title, category)')
-          .eq('user_id', user?.id)
-          .order('created_at', { ascending: false })
-          .limit(4),
-        supabase
-          .from('quiz_attempts')
-          .select('score')
-          .eq('user_id', user?.id)
-          .order('completed_at', { ascending: false })
-          .limit(10),
+      // @ts-ignore
+      const [statsResult, questionsResult, progressResult, sqlResult, coreResult, aptResult] = await Promise.all([
+        supabase.from('user_stats').select('*').eq('user_id', user?.id).maybeSingle(),
+        supabase.from('questions').select('category'),
+        supabase.from('user_progress').select('question_id, status').eq('user_id', user?.id).eq('status', 'solved'),
+        supabase.from('user_sql_progress').select('question_id, solved').eq('user_id', user?.id).eq('solved', true),
+        supabase.from('user_core_cs_progress').select('question_id, solved').eq('user_id', user?.id).eq('solved', true),
+        supabase.from('user_aptitude_progress').select('question_id, solved').eq('user_id', user?.id).eq('solved', true),
       ]);
 
       if (statsResult.data) {
         setStats(statsResult.data);
       }
 
-      if (progressResult.data) {
-        const activities = progressResult.data.map((p: any) => ({
+      // Calculate Solved Counts for Readiness
+      const solvedCountMap: Record<string, number> = {
+        DSA: (progressResult.data || []).length,
+        SQL: (sqlResult.data || []).length,
+        Aptitude: (aptResult.data || []).length,
+        CoreCS: (coreResult.data || []).length
+      };
+
+      setSkillGap({
+        DSA: totals['DSA'] > 0 ? (solvedCountMap.DSA / totals['DSA']) * 100 : 0,
+        SQL: totals['SQL'] > 0 ? (solvedCountMap.SQL / totals['SQL']) * 100 : 0,
+        Aptitude: totals['Aptitude'] > 0 ? (solvedCountMap.Aptitude / totals['Aptitude']) * 100 : 0,
+        CoreCS: totals['Core CS'] > 0 ? (solvedCountMap.CoreCS / totals['Core CS']) * 100 : 0,
+      });
+
+      // Calculate Readiness for Donut
+      const totalQuestions = (questionsResult.data || []).length;
+      const totalSolved = Object.values(solvedCountMap).reduce((a, b) => a + b, 0);
+      setQuizScore(totalQuestions > 0 ? Math.round((totalSolved / totalQuestions) * 100) : 0);
+
+      const { data: latestActivity } = await supabase
+        .from('user_progress')
+        .select('*, questions(title, category)')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+        .limit(4);
+
+      if (latestActivity) {
+        const activities = latestActivity.map((p: any) => ({
           id: p.id,
           title: p.questions?.title || 'Question',
           type: p.questions?.category || 'DSA',
@@ -90,21 +117,14 @@ function DashboardContent() {
           created_at: p.created_at,
         }));
         setRecentActivity(activities);
-
-        // Calculate "Today's" progress for the Weekly Goal widget
-        const today = new Date().toISOString().split('T')[0];
-        const todayProblems = progressResult.data.filter(
-          (p: any) => p.created_at?.startsWith(today)
-        ).length;
-        setTodayStats((prev) => ({ ...prev, problems: todayProblems }));
       }
 
-      if (quizResult.data && quizResult.data.length > 0) {
-        const avgScore =
-          quizResult.data.reduce((sum: number, q: any) => sum + q.score, 0) /
-          quizResult.data.length;
-        setQuizScore(Math.round(avgScore));
-      }
+      const today = new Date().toISOString().split('T')[0];
+      const todayProblemsCount = (latestActivity || []).filter(
+        (p: any) => p.created_at?.startsWith(today)
+      ).length;
+      setTodayStats((prev) => ({ ...prev, problems: todayProblemsCount }));
+
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -181,41 +201,56 @@ function DashboardContent() {
               </div>
             </div>
 
-            {/* Stats Breakdown */}
-            <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-[#111317] rounded-xl p-4 border border-gray-800/50 hover:border-gray-800 transition-colors">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-1.5 bg-emerald-500/10 rounded-lg">
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                  </div>
-                  <span className="text-zinc-400 text-sm font-medium">Problems Solved</span>
+            {/* Stats Breakdown - Domain Mastery (Expanded) */}
+            <div className="flex-1 w-full flex flex-col items-stretch h-full">
+              <div className=" flex-col justify-between h-full relative overflow-hidden">
+                <div className="flex items-center justify-between mb-12">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Layout className="w-4 h-4 text-zinc-400" />
+                    Domain Mastery
+                  </h3>
+                  <button className="text-[10px] text-emerald-500 hover:text-emerald-400 font-bold uppercase tracking-wider">Manage Tracks</button>
                 </div>
-                <div className="text-2xl font-bold">{stats?.problems_solved || 0} <span className="text-zinc-600 text-sm font-normal">/ 500</span></div>
-                <div className="w-full h-1 bg-[#2A2A35] mt-3 rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald-500 w-[15%] rounded-full"></div>
-                </div>
-              </div>
 
-              <div className="bg-[#111317] rounded-xl p-4 border border-gray-800/50 hover:border-gray-800 transition-colors">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-1.5 bg-[#4F0F93]/10 rounded-lg">
-                    <Brain className="w-4 h-4 text-[#A855F7]" />
+                <div className="space-y-8 flex-1 flex flex-col justify-center">
+                  {/* Domain Item 1: DSA */}
+                  <div className="group">
+                    <div className="flex justify-between mb-3">
+                      <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
+                        <Terminal className="w-4 h-4 text-[#A855F7]" /> Data Structures & Algorithms
+                      </span>
+                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.DSA)}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
+                      <div className="h-full bg-[#4F0F93] rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.DSA, 2)}%` }}></div>
+                    </div>
                   </div>
-                  <span className="text-zinc-400 text-sm font-medium">Avg Quiz Score</span>
-                </div>
-                <div className="text-2xl font-bold">{quizScore}%</div>
-                <div className="w-full h-1 bg-[#2A2A35] mt-3 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#4F0F93] rounded-full" style={{ width: `${quizScore}%` }}></div>
-                </div>
-              </div>
 
-              <div className="bg-[#111317] rounded-xl p-4 border border-gray-800/50 sm:col-span-2">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-zinc-400 text-xs uppercase tracking-wider font-semibold">Next Milestone: Arrays & Strings</span>
-                  <span className="text-white text-sm font-bold">4/15</span>
-                </div>
-                <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 w-[25%] rounded-full"></div>
+                  {/* Domain Item 2: SQL */}
+                  <div className="group">
+                    <div className="flex justify-between mb-3">
+                      <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
+                        <Database className="w-4 h-4 text-blue-500" /> SQL Queries & Optimization
+                      </span>
+                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.SQL)}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.SQL, 2)}%` }}></div>
+                    </div>
+                  </div>
+
+                  {/* Domain Item 3: Aptitude */}
+                  <div className="group">
+                    <div className="flex justify-between mb-3">
+                      <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
+                        <Brain className="w-4 h-4 text-emerald-500" /> Logical Aptitude
+                      </span>
+                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.Aptitude)}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.Aptitude, 2)}%` }}></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -270,60 +305,43 @@ function DashboardContent() {
       {/* 3. Middle Section: Domain Mastery & Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
 
-        {/* Domain Mastery Widget - Currently using STATIC visual data */}
-        <div className="lg:col-span-7 bg-[#111317] border border-gray-800 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Layout className="w-5 h-5 text-zinc-400" />
-              Domain Mastery
-            </h3>
-            <button className="text-xs text-emerald-500 hover:text-emerald-400 font-bold uppercase tracking-wider">Manage Tracks</button>
-          </div>
-
-          <div className="space-y-6">
-            {/* Domain Item 1: Essentials */}
-            <div className="group">
-              <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
-                  <Terminal className="w-4 h-4 text-[#A855F7]" /> Core Essentials (DSA, OS)
-                </span>
-                <span className="text-sm text-zinc-500 font-mono">65%</span>
-              </div>
-              {/* This array represents progress blocks. Replace with real data in future. */}
-              <div className="flex gap-1.5">
-                {[1, 1, 1, 1, 0, 0].map((active, i) => (
-                  <div key={i} className={`h-2.5 flex-1 rounded-sm transition-all duration-300 ${active ? 'bg-[#4F0F93] shadow-none' : 'bg-[#2A2A35]'}`}></div>
-                ))}
-              </div>
+        {/* Latest Notes Widget */}
+        <div className="lg:col-span-7 bg-[#111317] border border-gray-800 rounded-2xl p-6 flex flex-col justify-between hover:border-emerald-500/30 transition-colors">
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <FileText className="w-5 h-5 text-emerald-500" />
+                Latest Notes
+              </h3>
+              <button onClick={() => navigate('/notes')} className="text-xs text-emerald-500 hover:text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                View All <ChevronRight className="w-3 h-3" />
+              </button>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Note Item 1 */}
+              <div onClick={() => navigate('/notes')} className="bg-[#1A1C23] border border-gray-800/80 p-4 rounded-xl cursor-pointer hover:border-emerald-500/50 transition-colors group">
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="text-zinc-200 font-semibold group-hover:text-emerald-400 transition-colors">Binary Search Trees</h4>
+                  <span className="text-[10px] text-zinc-500 bg-black/20 px-2 py-0.5 rounded">DSA</span>
+                </div>
+                <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">Key concepts for insertion and deletion in BST. Remember the worst-case time complexity is O(N) unless it's balanced like an AVL tree.</p>
+                <div className="mt-4 flex items-center justify-between text-[10px] text-zinc-500 font-medium tracking-wide">
+                  <span>2 hrs ago</span>
+                  <span className="text-emerald-500/0 group-hover:text-emerald-500 transition-colors uppercase">Read &rarr;</span>
+                </div>
+              </div>
 
-            {/* Domain Item 2: Frontend */}
-            <div className="group">
-              <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
-                  <Code className="w-4 h-4 text-emerald-500" /> Frontend Development
-                </span>
-                <span className="text-sm text-zinc-500 font-mono">30%</span>
-              </div>
-              <div className="flex gap-1.5">
-                {[1, 1, 0, 0, 0, 0].map((active, i) => (
-                  <div key={i} className={`h-2.5 flex-1 rounded-sm transition-all duration-300 ${active ? 'bg-emerald-500 shadow-none' : 'bg-[#2A2A35]'}`}></div>
-                ))}
-              </div>
-            </div>
-
-            {/* Domain Item 3: Backend */}
-            <div className="group">
-              <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
-                  <Database className="w-4 h-4 text-blue-500" /> Backend Development
-                </span>
-                <span className="text-sm text-zinc-500 font-mono">0%</span>
-              </div>
-              <div className="flex gap-1.5">
-                {[0, 0, 0, 0, 0, 0].map((active, i) => (
-                  <div key={i} className={`h-2.5 flex-1 rounded-sm transition-all duration-300 ${active ? 'bg-blue-500' : 'bg-[#2A2A35]'}`}></div>
-                ))}
+              {/* Note Item 2 */}
+              <div onClick={() => navigate('/notes')} className="bg-[#1A1C23] border border-gray-800/80 p-4 rounded-xl cursor-pointer hover:border-[#A855F7]/50 transition-colors group hidden sm:block">
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="text-zinc-200 font-semibold group-hover:text-[#A855F7] transition-colors">SQL Window Functions</h4>
+                  <span className="text-[10px] text-zinc-500 bg-black/20 px-2 py-0.5 rounded">SQL</span>
+                </div>
+                <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">Using ROW_NUMBER(), RANK(), and DENSE_RANK(). Great for finding exactly top N records per group without complex self-joins.</p>
+                <div className="mt-4 flex items-center justify-between text-[10px] text-zinc-500 font-medium tracking-wide">
+                  <span>1 day ago</span>
+                  <span className="text-[#A855F7]/0 group-hover:text-[#A855F7] transition-colors uppercase">Read &rarr;</span>
+                </div>
               </div>
             </div>
           </div>
@@ -345,7 +363,7 @@ function DashboardContent() {
             <div className="w-10 h-10 bg-[#4F0F93]/10 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform border border-gray-800 relative z-10">
               <Brain className="w-5 h-5 text-[#A855F7]" />
             </div>
-            <h4 className="font-bold text-white mb-1 relative z-10">Take Quiz</h4>
+            <h4 className="font-bold text-white mb-1 relative z-10">Solve SQL</h4>
             <p className="text-xs text-zinc-500 relative z-10">Test your skills</p>
           </button>
 

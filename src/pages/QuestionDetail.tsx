@@ -1,21 +1,28 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Home, Clock, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Flag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import {
     trackView,
     updateTimeSpent,
-    markQuizCompleted,
     markInteractionCompleted,
     getQuestionProgress,
     markAsSolved,
     QuestionType,
 } from '../services/questionProgressService';
-import QuizContent from '../components/content/QuizContent';
 import CodeContent from '../components/content/CodeContent';
 import ImageContent from '../components/content/ImageContent';
 import TextContent from '../components/content/TextContent';
+import InteractiveCodeContent from '../components/content/InteractiveCodeContent';
+import InteractiveDSAUI from '../components/content/InteractiveDSAUI';
+import InteractiveSQLUI from '../components/content/InteractiveSQLUI';
+import FillInBlankCodeContent from '../components/content/FillInBlankCodeContent';
+import InteractiveMCQUI from '../components/content/InteractiveMCQUI';
+import FeedbackModal from '../components/FeedbackModal';
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -27,15 +34,38 @@ interface QuestionData {
     description: string;
     difficulty: string;
     explanation_text: string;
-    content_type: 'image' | 'code' | 'quiz' | 'text';
-    content_data: any;
-    has_quiz: boolean;
-    quiz_data: any;
+    content_type?: 'image' | 'code' | 'quiz' | 'text' | 'dsa_pseudocode' | 'sql_construct' | 'interactive_code' | 'fill_in_blank_code' | 'mcq';
+    content_data?: any;
+    has_quiz?: boolean;
+    quiz_data?: any;
+    content?: string;
+    solution_text?: string;
 }
 
 interface QuestionDetailProps {
     type: QuestionType;
 }
+
+const formatMarkdownText = (text: string) => {
+    if (!text) return '';
+    let formatted = text.replace(/\\n/g, '\n');
+
+    // Add newlines before headers
+    formatted = formatted.replace(/([^\n])(\s+##\s+)/g, '$1\n\n## ');
+
+    // Add newlines after known header titles if squished
+    formatted = formatted.replace(/(##\s+(?:Explanation|Difference Table|Real-World Analogy|Example|Answer|Code|Solution))\s+(?=[A-Z`*|\-+0-9])/gi, '$1\n\n');
+
+    // Fix table rows squished together `| |`
+    formatted = formatted.replace(/\|\s+\|/g, '|\n|');
+
+    // Fix code blocks
+    formatted = formatted.replace(/([^\n])(\s+```)/g, '$1\n$2');
+    // Ensure code block opening has newline after language
+    formatted = formatted.replace(/(```[a-z]*)\s+(?=[^\n])/gi, '$1\n');
+
+    return formatted;
+};
 
 export default function QuestionDetail({ type }: QuestionDetailProps) {
     const { questionId } = useParams<{ questionId: string }>();
@@ -45,23 +75,19 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
     const [loading, setLoading] = useState(true);
     const [allQuestions, setAllQuestions] = useState<string[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [quizCompleted, setQuizCompleted] = useState(false);
     const [interactionCompleted, setInteractionCompleted] = useState(false);
-    const [timeSpent, setTimeSpent] = useState(0);
-    const timeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [sessionCompleted, setSessionCompleted] = useState(false);
+    const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
     const startTimeRef = useRef<number>(Date.now());
 
     // Get table name based on type
     const getTableName = () => {
         switch (type) {
             case 'dsa':
-                return 'dsa_problems';
             case 'sql':
-                return 'sql_questions';
             case 'aptitude':
-                return 'aptitude_questions';
             case 'corecs':
-                return 'core_cs_questions';
+                return 'company_topic_questions';
             case 'interview':
                 return 'questions';
             default:
@@ -140,6 +166,74 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
                     .single();
 
                 if (error) throw error;
+
+                const explanationText =
+                    data.explanation_text ||
+                    data.explanation ||
+                    data.answer ||
+                    data.solution ||
+                    'No explanation available.';
+
+                let parsedContentData = data.content_data;
+
+                if (typeof parsedContentData === 'string' && (parsedContentData.startsWith('{') || parsedContentData.startsWith('['))) {
+                    try {
+                        parsedContentData = JSON.parse(parsedContentData);
+                    } catch (e) {
+                        console.error('Failed to parse content_data JSON:', e);
+                    }
+                }
+
+                let contentValue = parsedContentData;
+                let contentTypeValue = data.content_type;
+
+                if (contentValue && typeof contentValue === 'object' && typeof contentValue.code === 'string') {
+                    contentTypeValue = 'code';
+                    if (!contentValue.language) contentValue.language = data.language || 'java';
+                } else if (data.code) {
+                    contentTypeValue = 'code';
+                    contentValue = { code: data.code, language: data.language || 'java' };
+                } else if (contentValue && typeof contentValue === 'object' && (contentValue.url || contentValue.image_url)) {
+                    contentTypeValue = 'image';
+                } else if (contentValue && typeof contentValue === 'object' && contentValue.type === 'dsa_pseudocode') {
+                    contentTypeValue = 'dsa_pseudocode';
+                } else if (contentValue && typeof contentValue === 'object' && contentValue.type === 'sql_construct') {
+                    contentTypeValue = 'sql_construct';
+                } else if (contentValue && typeof contentValue === 'object' && contentValue.type === 'interactive_code') {
+                    contentTypeValue = 'interactive_code';
+                } else if (contentValue && typeof contentValue === 'object' && contentValue.type === 'fill_in_blank_code') {
+                    contentTypeValue = 'fill_in_blank_code';
+                } else if (contentValue && typeof contentValue === 'object' && Array.isArray(contentValue.options)) {
+                    contentTypeValue = 'mcq';
+                } else {
+                    if (contentValue && (contentValue.best_answer || contentValue.detailed_answer || contentValue.interview_style)) {
+                        const parts = [];
+                        if (contentValue.interview_style) parts.push(`### Interview Style\n${contentValue.interview_style}`);
+                        if (contentValue.best_answer) parts.push(`### Best Answer\n${contentValue.best_answer}`);
+                        if (contentValue.detailed_answer) parts.push(`### Detailed Answer\n${contentValue.detailed_answer}`);
+                        contentValue = { text: parts.join('\n\n') };
+                        contentTypeValue = 'text';
+                    } else if (typeof contentValue === 'string') {
+                        contentValue = { text: contentValue };
+                        contentTypeValue = 'text';
+                    } else if (contentValue && contentValue.text) {
+                        contentTypeValue = 'text';
+                    } else {
+                        if (contentValue) {
+                            contentValue = { text: JSON.stringify(contentValue, null, 2) };
+                        } else if (data.content) {
+                            contentValue = { text: data.content };
+                        } else {
+                            contentValue = { text: 'No additional content available.' };
+                        }
+                        contentTypeValue = 'text';
+                    }
+                }
+
+                data.explanation_text = explanationText;
+                data.content_type = contentTypeValue;
+                data.content_data = contentValue;
+
                 setQuestion(data);
 
                 // Track view
@@ -148,9 +242,8 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
 
                     // Get existing progress
                     const progress = await getQuestionProgress(user.id, questionId, type);
-                    setQuizCompleted(progress.quizCompleted);
                     setInteractionCompleted(progress.interactionCompleted);
-                    setTimeSpent(progress.timeSpent);
+                    setSessionCompleted(false); // Reset session completion on new question
                 }
             } catch (error) {
                 console.error('Error fetching question:', error);
@@ -169,19 +262,16 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
         startTimeRef.current = Date.now();
 
         // Update time every 10 seconds
-        timeIntervalRef.current = setInterval(async () => {
+        const timeIntervalRef = setInterval(async () => {
             const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
             if (elapsed >= 10) {
                 await updateTimeSpent(user.id, questionId, type, elapsed);
-                setTimeSpent((prev) => prev + elapsed);
                 startTimeRef.current = Date.now();
             }
         }, 10000);
 
         return () => {
-            if (timeIntervalRef.current) {
-                clearInterval(timeIntervalRef.current);
-            }
+            clearInterval(timeIntervalRef);
             // Save final time on unmount
             const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
             if (elapsed > 0 && user && questionId) {
@@ -190,12 +280,13 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
         };
     }, [user, questionId, type]);
 
-    // Handle quiz completion
-    const handleQuizComplete = async () => {
-        if (!user || !questionId) return;
 
-        setQuizCompleted(true);
-        await markQuizCompleted(user.id, questionId, type);
+
+    const handleComplete = async () => {
+        setSessionCompleted(true);
+        if (!user || !questionId || interactionCompleted) return;
+        setInteractionCompleted(true);
+        await markInteractionCompleted(user.id, questionId, type);
         await markAsSolved(user.id, questionId, type);
     };
 
@@ -203,10 +294,8 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
     const handleNext = async () => {
         if (!user || !questionId) return;
 
-        if (!question?.has_quiz && !interactionCompleted) {
-            setInteractionCompleted(true);
-            await markInteractionCompleted(user.id, questionId, type);
-            await markAsSolved(user.id, questionId, type);
+        if (!interactionCompleted) {
+            await handleComplete();
         }
 
         // Return to the list page instead of going to next question
@@ -235,19 +324,10 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [currentIndex, allQuestions, quizCompleted, interactionCompleted]);
+    }, [currentIndex, allQuestions, interactionCompleted]);
 
     const canGoNext = () => {
-        if (question?.has_quiz) {
-            return quizCompleted;
-        }
-        return true; // Can always go next for non-quiz questions
-    };
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
+        return true; // Can always go next
     };
 
     if (loading) {
@@ -278,43 +358,34 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
             <div className="border-b border-gray-800 bg-[#111317]/80 backdrop-blur-xl sticky top-0 z-10">
                 <div className="px-6 py-4">
                     <div className="flex items-center justify-between">
-                        {/* Breadcrumb */}
+                        {/* Left: Back Button */}
                         <div className="flex items-center gap-2 text-sm">
                             <button
                                 onClick={() => navigate(getRoutePath())}
-                                className="flex items-center gap-2 text-[#A0A0B0] hover:text-white transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 bg-zinc-800/50 hover:bg-[#2C2C2C] text-white rounded-lg transition-colors"
                             >
-                                <Home className="w-4 h-4" />
-                                <span>{getTypeName()}</span>
+                                <ChevronLeft className="w-4 h-4" />
+                                <span>Back</span>
                             </button>
+                            {/* Optional: Add spacing or minimal breadcrumb here if needed */}
+                        </div>
+
+                        {/* Center: Breadcrumb */}
+                        <div className="flex items-center gap-2 text-sm absolute left-1/2 transform -translate-x-1/2">
+                            <span className="text-[#A0A0B0]">{getTypeName()}</span>
                             <ChevronRight className="w-4 h-4 text-gray-600" />
                             <span className="text-white">
                                 Question {currentIndex + 1} of {allQuestions.length}
                             </span>
                         </div>
-
-                        {/* Stats */}
-                        <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2 text-sm text-[#A0A0B0]">
-                                <Clock className="w-4 h-4" />
-                                <span>{formatTime(timeSpent)}</span>
-                            </div>
-                            {(quizCompleted || interactionCompleted) && (
-                                <div className="flex items-center gap-2 text-sm text-green-400">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                    <span>Completed</span>
-                                </div>
-                            )}
-                            <span
-                                className={`px-3 py-1 text-xs font-medium rounded-full ${question.difficulty === 'Easy'
-                                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                    : question.difficulty === 'Medium'
-                                        ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                                        : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                                    }`}
+                        <div className="flex items-center justify-end w-20">
+                            <button
+                                onClick={() => setIsFeedbackModalOpen(true)}
+                                className="p-2 text-[#A0A0B0] hover:text-[#D0D0E0] hover:bg-zinc-800/50 rounded-lg transition-colors"
+                                title="Report an issue"
                             >
-                                {question.difficulty}
-                            </span>
+                                <Flag className="w-5 h-5" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -325,9 +396,21 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
                 {/* Left Panel - Explanation */}
                 <div className="bg-[#111317] border border-gray-800 rounded-xl p-8 h-[calc(100vh-200px)] overflow-auto">
                     <h1 className="text-2xl font-bold text-white mb-3">{question.title}</h1>
-                    <p className="text-[#A0A0B0] mb-6">{question.description}</p>
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-zinc-800/50 text-[#A0A0B0] border border-gray-800">
+                            <span>{(question as any).category || (question as any).topic || getTypeName()}</span>
+                        </div>
+                        <span className={`px-3 py-1 text-xs font-medium rounded-full border ${question.difficulty === 'Easy'
+                            ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                            : question.difficulty === 'Medium'
+                                ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                : 'bg-red-500/10 text-red-400 border-red-500/20'
+                            }`}>
+                            {question.difficulty}
+                        </span>
+                    </div>
 
-                    <div className="prose prose-invert prose-xl max-w-none text-[#D0D0E0] leading-relaxed">
+                    <div className={`transition-opacity duration-300 prose prose-invert prose-xl max-w-none text-[#D0D0E0] leading-relaxed`}>
                         <ReactMarkdown
                             remarkPlugins={[remarkGfm, remarkBreaks]}
                             components={{
@@ -340,6 +423,16 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
                                 li: ({ node, ...props }) => <li className="pl-1" {...props} />,
                                 strong: ({ node, ...props }) => <strong className="font-bold text-white" {...props} />,
                                 blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-[#4F0F93] pl-4 italic my-4 text-[#A0A0B0] bg-[#111317]/80 py-2 pr-2 rounded-r" {...props} />,
+                                table: ({ node, ...props }) => (
+                                    <div className="overflow-x-auto my-6 bg-[#111317]/80 rounded-lg border border-gray-800">
+                                        <table className="w-full text-left border-collapse text-sm" {...props} />
+                                    </div>
+                                ),
+                                thead: ({ node, ...props }) => <thead className="bg-zinc-800/50/80 text-gray-200 border-b border-gray-800" {...props} />,
+                                tbody: ({ node, ...props }) => <tbody className="divide-y divide-gray-800/50" {...props} />,
+                                tr: ({ node, ...props }) => <tr className="hover:bg-[#111317] transition-colors" {...props} />,
+                                th: ({ node, ...props }) => <th className="px-4 py-3 font-semibold" {...props} />,
+                                td: ({ node, ...props }) => <td className="px-4 py-3 text-[#D0D0E0]" {...props} />,
                                 code: ({ node, inline, className, children, ...props }: any) => {
                                     return inline ?
                                         <code className="bg-zinc-800/50 text-[#8970D6] px-1.5 py-0.5 rounded text-sm font-mono" {...props}>{children}</code> :
@@ -347,28 +440,54 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
                                 }
                             }}
                         >
-                            {(question.explanation_text || 'No explanation available.').replace(/\\n/g, '\n')}
+                            {formatMarkdownText(question.explanation_text || question.solution_text || question.content || 'No explanation available.')}
                         </ReactMarkdown>
                     </div>
                 </div>
 
                 {/* Right Panel - Interactive Content */}
                 <div className="h-[calc(100vh-200px)]">
-                    {question.has_quiz && question.quiz_data ? (
-                        <QuizContent
-                            quizData={question.quiz_data}
-                            onComplete={handleQuizComplete}
-                            isCompleted={quizCompleted}
+                    {question.content_type === 'fill_in_blank_code' ? (
+                        <FillInBlankCodeContent
+                            codeData={question.content_data}
+                            onComplete={handleComplete}
+                        />
+                    ) : question.content_type === 'interactive_code' ? (
+                        <InteractiveCodeContent codeData={question.content_data} />
+                    ) : question.content_type === 'sql_construct' ? (
+                        <InteractiveSQLUI
+                            sqlData={question.content_data}
+                            onComplete={handleComplete}
+                            isCompleted={sessionCompleted}
+                        />
+                    ) : question.content_type === 'mcq' ? (
+                        <InteractiveMCQUI
+                            mcqData={question.content_data}
+                            onComplete={handleComplete}
+                            isCompleted={sessionCompleted}
+                        />
+                    ) : question.content_type === 'dsa_pseudocode' ? (
+                        <InteractiveDSAUI
+                            dsaData={question.content_data}
+                            onComplete={handleComplete}
+                            isCompleted={sessionCompleted}
                         />
                     ) : question.content_type === 'code' && question.content_data ? (
                         <CodeContent codeData={question.content_data} />
                     ) : question.content_type === 'image' && question.content_data ? (
-                        <ImageContent imageData={question.content_data} />
+                        <ImageContent
+                            imageData={{
+                                ...question.content_data,
+                                url: question.content_data.url || question.content_data.image_url,
+                                alt: question.content_data.alt || question.content_data.title || 'Image',
+                                caption: question.content_data.caption || question.content_data.title
+                            }}
+                        />
                     ) : question.content_type === 'text' && question.content_data ? (
                         <TextContent content={question.content_data.text || question.content_data} />
                     ) : (
                         <div className="h-full flex items-center justify-center bg-[#111317]/80 backdrop-blur-xl border border-gray-800 rounded-xl">
-                            <p className="text-[#808090]">No additional content available</p>
+                            <p className="text-[#808090]">No content available</p>
                         </div>
                     )}
                 </div>
@@ -393,15 +512,20 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
 
                         <button
                             onClick={handleNext}
-                            disabled={!canGoNext()}
                             className="flex items-center gap-2 px-6 py-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <span>{question.has_quiz && !quizCompleted ? 'Complete Quiz First' : 'Complete & Return'}</span>
+                            <span>Complete & Return</span>
                             <ChevronRight className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
             </div>
+            <FeedbackModal
+                isOpen={isFeedbackModalOpen}
+                onClose={() => setIsFeedbackModalOpen(false)}
+                questionId={questionId || ''}
+                questionTitle={question.title}
+            />
         </div>
     );
 }

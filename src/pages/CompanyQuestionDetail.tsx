@@ -1,14 +1,20 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Tag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Tag, Flag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import QuizContent from '../components/content/QuizContent';
 import CodeContent from '../components/content/CodeContent';
 import ImageContent from '../components/content/ImageContent';
 import TextContent from '../components/content/TextContent';
 import InteractiveCodeContent from '../components/content/InteractiveCodeContent';
 import FillInBlankCodeContent from '../components/content/FillInBlankCodeContent';
+import InteractiveDSAUI from '../components/content/InteractiveDSAUI';
+import InteractiveSQLUI from '../components/content/InteractiveSQLUI';
+import InteractiveMCQUI from '../components/content/InteractiveMCQUI';
+import FeedbackModal from '../components/FeedbackModal';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -16,7 +22,7 @@ import remarkBreaks from 'remark-breaks';
 interface QuestionPage {
     pageNumber: number;
     explanation: string;
-    contentType: 'text' | 'code' | 'image' | 'interactive_code' | 'fill_in_blank_code' | 'quiz';
+    contentType: 'text' | 'code' | 'image' | 'interactive_code' | 'fill_in_blank_code' | 'dsa_pseudocode' | 'sql_construct' | 'mcq';
     content: any;
 }
 
@@ -30,6 +36,27 @@ interface CompanyQuestion {
     pages: QuestionPage[];
 }
 
+const formatMarkdownText = (text: string) => {
+    if (!text) return '';
+    let formatted = text.replace(/\\n/g, '\n');
+
+    // Add newlines before headers
+    formatted = formatted.replace(/([^\n])(\s+##\s+)/g, '$1\n\n## ');
+
+    // Add newlines after known header titles if squished
+    formatted = formatted.replace(/(##\s+(?:Explanation|Difference Table|Real-World Analogy|Example|Answer|Code|Solution))\s+(?=[A-Z`*|\-+0-9])/gi, '$1\n\n');
+
+    // Fix table rows squished together `| |`
+    formatted = formatted.replace(/\|\s+\|/g, '|\n|');
+
+    // Fix code blocks
+    formatted = formatted.replace(/([^\n])(\s+```)/g, '$1\n$2');
+    // Ensure code block opening has newline after language
+    formatted = formatted.replace(/(```[a-z]*)\s+(?=[^\n])/gi, '$1\n');
+
+    return formatted;
+};
+
 export default function CompanyQuestionDetail() {
     const { questionId } = useParams<{ questionId: string }>();
     const navigate = useNavigate();
@@ -38,7 +65,8 @@ export default function CompanyQuestionDetail() {
     const [question, setQuestion] = useState<CompanyQuestion | null>(null);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(0);
-    const [completed, setCompleted] = useState(false);
+    const [sessionCompleted, setSessionCompleted] = useState(false);
+    const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
     const [allQuestionIds, setAllQuestionIds] = useState<string[]>([]);
 
     useEffect(() => {
@@ -50,46 +78,106 @@ export default function CompanyQuestionDetail() {
 
         setLoading(true);
         try {
-            // Try company_interview_questions first
             let { data, error } = await supabase
-                .from('company_interview_questions')
+                .from('company_topic_questions')
                 .select('*')
                 .eq('id', questionId)
                 .single();
 
-            // If not found, try company_topic_questions
-            if (error || !data) {
-                const result = await supabase
-                    .from('company_topic_questions')
-                    .select('*')
-                    .eq('id', questionId)
-                    .single();
-                data = result.data;
-                error = result.error;
-            }
-
             if (error) throw error;
-
-            console.log('Fetched Question Data:', data);
-            console.log('Has Pages:', data.pages && data.pages.length > 0);
-            console.log('Legacy Content Type:', data.content_type);
-            console.log('Legacy Content Data:', data.content_data);
 
             // If pages don't exist, create a default single page
             if (!data.pages || data.pages.length === 0) {
+                const explanationText =
+                    data.explanation_text ||
+                    data.explanation ||
+                    data.answer ||
+                    data.solution ||
+                    'No explanation available.';
+
+                let parsedContentData = data.content_data;
+
+                // If content_data is a string that looks like JSON, try to parse it
+                if (typeof parsedContentData === 'string' && (parsedContentData.startsWith('{') || parsedContentData.startsWith('['))) {
+                    try {
+                        parsedContentData = JSON.parse(parsedContentData);
+                    } catch (e) {
+                        console.error('Failed to parse content_data JSON:', e);
+                    }
+                }
+
+                // Determine content type and value based on data structure
+                let contentValue = parsedContentData;
+                let contentTypeValue = data.content_type;
+
+                // 1. Check for Code (must have code string)
+                if (contentValue && typeof contentValue === 'object' && typeof contentValue.code === 'string') {
+                    contentTypeValue = 'code';
+                    if (!contentValue.language) contentValue.language = data.language || 'java';
+                }
+                // 2. Fallback to data.code column if content_data didn't have it
+                else if (data.code) {
+                    contentTypeValue = 'code';
+                    contentValue = { code: data.code, language: data.language || 'java' };
+                }
+                // 3. Check for Image (url or image_url)
+                else if (contentValue && typeof contentValue === 'object' && (contentValue.url || contentValue.image_url)) {
+                    contentTypeValue = 'image';
+                }
+                // 4. Check for DSA Pseudocode
+                else if (contentValue && typeof contentValue === 'object' && contentValue.type === 'dsa_pseudocode') {
+                    contentTypeValue = 'dsa_pseudocode';
+                }
+                // 5. Check for SQL Construct
+                else if (contentValue && typeof contentValue === 'object' && contentValue.type === 'sql_construct') {
+                    contentTypeValue = 'sql_construct';
+                }
+                // 5.5 Check for MCQ
+                else if (contentValue && typeof contentValue === 'object' && Array.isArray(contentValue.options)) {
+                    contentTypeValue = 'mcq';
+                }
+                // 6. Default to Text
+                else {
+                    if (contentValue && (contentValue.best_answer || contentValue.detailed_answer || contentValue.interview_style)) {
+                        const parts = [];
+                        if (contentValue.interview_style) parts.push(`### Interview Style\n${contentValue.interview_style}`);
+                        if (contentValue.best_answer) parts.push(`### Best Answer\n${contentValue.best_answer}`);
+                        if (contentValue.detailed_answer) parts.push(`### Detailed Answer\n${contentValue.detailed_answer}`);
+                        contentValue = { text: parts.join('\n\n') };
+                        contentTypeValue = 'text';
+                    } else if (typeof contentValue === 'string') {
+                        contentValue = { text: contentValue };
+                        contentTypeValue = 'text';
+                    } else if (contentValue && contentValue.text) {
+                        contentTypeValue = 'text';
+                    } else {
+                        if (contentValue) {
+                            contentValue = { text: JSON.stringify(contentValue, null, 2) };
+                        } else if (data.content) {
+                            contentValue = { text: data.content };
+                        } else {
+                            contentValue = { text: 'No additional content available.' };
+                        }
+                        contentTypeValue = 'text';
+                    }
+                }
+
                 data.pages = [
                     {
                         pageNumber: 1,
-                        explanation: data.explanation_text || 'No explanation available.',
-                        contentType: data.content_type || 'text',
-                        content: data.content_data || { text: data.content || 'No content available.' }
+                        explanation: explanationText,
+                        contentType: contentTypeValue,
+                        content: contentValue
                     }
                 ];
             }
 
+            if (!data.category && data.topic) {
+                data.category = data.topic;
+            }
+
             setQuestion(data);
 
-            // Check if user has completed this question
             if (user) {
                 const { data: progressData } = await supabase
                     .from('user_company_progress')
@@ -99,9 +187,10 @@ export default function CompanyQuestionDetail() {
                     .single();
 
                 if (progressData) {
-                    setCompleted(progressData.solved);
+                    // We don't need to restore completed state to prevent answer reveal bug
                 }
             }
+            setSessionCompleted(false);
         } catch (error) {
             console.error('Error fetching question:', error);
         } finally {
@@ -109,7 +198,6 @@ export default function CompanyQuestionDetail() {
         }
     };
 
-    // Fetch all questions for navigation (same company and topic)
     useEffect(() => {
         if (!question) return;
 
@@ -119,21 +207,14 @@ export default function CompanyQuestionDetail() {
                 const state = location.state as any;
                 const currentTab = state?.tab || (question.topic ? question.topic : 'Interview Questions');
 
-                console.log('Fetching questions for:', {
-                    company: question.company_name,
-                    tab: currentTab,
-                    questionTopic: question.topic,
-                    questionCategory: question.category
-                });
-
                 if (currentTab === 'Interview Questions') {
                     const { data } = await supabase
-                        .from('company_interview_questions')
+                        .from('company_topic_questions')
                         .select('id')
                         .eq('company_name', question.company_name)
+                        .in('topic', ['HR', 'Technical'])
                         .order('created_at');
                     ids = data?.map(q => q.id) || [];
-                    console.log('Interview questions found:', ids.length);
                 } else {
                     const { data } = await supabase
                         .from('company_topic_questions')
@@ -142,11 +223,9 @@ export default function CompanyQuestionDetail() {
                         .eq('topic', currentTab)
                         .order('created_at');
                     ids = data?.map(q => q.id) || [];
-                    console.log('Topic questions found:', ids.length, 'for topic:', currentTab);
                 }
 
                 setAllQuestionIds([...new Set(ids)]);
-                console.log('Set allQuestionIds:', ids);
             } catch (err) {
                 console.error("Error fetching question list:", err);
             }
@@ -155,48 +234,32 @@ export default function CompanyQuestionDetail() {
     }, [question, (location.state as any)?.tab]);
 
     const handleNextQuestion = () => {
-        console.log('handleNextQuestion called', { questionId, allQuestionIds });
-
         if (!questionId) {
-            console.log('No questionId, going back');
             handleBack();
             return;
         }
 
-        if (allQuestionIds.length === 0) {
-            console.log('allQuestionIds is empty, staying on page');
-            // Don't navigate if we don't have the question list yet
-            return;
-        }
+        if (allQuestionIds.length === 0) return;
 
         const currentIndex = allQuestionIds.indexOf(questionId);
-        console.log('Current index:', currentIndex, 'Total questions:', allQuestionIds.length);
-
         if (currentIndex !== -1 && currentIndex < allQuestionIds.length - 1) {
             const nextId = allQuestionIds[currentIndex + 1];
-            console.log('Navigating to next question:', nextId);
             navigate(`/companies/question/${nextId}`, {
                 state: location.state,
                 replace: true
             });
         } else {
-            console.log('Last question, going back to list');
             handleBack();
         }
     };
 
-
     const getReturnState = () => {
         const state = location.state as any;
-        // If we have state passed from previous page, trust it
         if (state?.company && state?.tab) {
             return { company: state.company, tab: state.tab };
         }
-
-        // Otherwise derive from question data
         if (question) {
             const company = question.company_name;
-            // If topic is present, it's a topic question. Otherwise default to 'Interview Questions'
             const tab = question.topic || 'Interview Questions';
             return { company, tab };
         }
@@ -207,7 +270,6 @@ export default function CompanyQuestionDetail() {
         navigate('/companies', { state: getReturnState() });
     };
 
-    // Keyboard navigation
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
             if (e.key === 'ArrowRight' && !isLastPage) {
@@ -224,26 +286,18 @@ export default function CompanyQuestionDetail() {
     }, [currentPage, question]);
 
     const handleComplete = async () => {
+        setSessionCompleted(true);
         if (!user || !questionId) return;
 
-        console.log('handleComplete called', { user: user.id, questionId, completed });
-
         try {
-            const { data, error } = await supabase.from('user_company_progress').upsert({
+            await supabase.from('user_company_progress').upsert({
                 user_id: user.id,
                 question_id: questionId,
                 solved: true,
                 updated_at: new Date().toISOString()
             }, {
                 onConflict: 'user_id,question_id'
-            }).select();
-
-            if (error) {
-                console.error('Error upserting progress:', error);
-            } else {
-                console.log('Successfully saved progress:', data);
-                setCompleted(true);
-            }
+            });
         } catch (error) {
             console.error('Error marking as complete:', error);
         }
@@ -267,7 +321,7 @@ export default function CompanyQuestionDetail() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-[#4F0F93] border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
@@ -275,10 +329,10 @@ export default function CompanyQuestionDetail() {
     if (!question) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen">
-                <p className="text-xl text-gray-400 mb-4">Question not found</p>
+                <p className="text-xl text-[#A0A0B0] mb-4">Question not found</p>
                 <button
                     onClick={handleBack}
-                    className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    className="px-6 py-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors"
                 >
                     Back to Companies
                 </button>
@@ -287,51 +341,48 @@ export default function CompanyQuestionDetail() {
     }
 
     const currentPageData = question.pages[currentPage];
-    console.log('Rendering Page Data:', currentPageData);
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white">
-            {/* Header */}
-            <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-xl sticky top-0 z-10">
+        <div className="min-h-screen bg-[#0F0F13] text-white">
+            <div className="bg-[#111317] sticky top-0 z-10">
                 <div className="px-6 py-4">
                     <div className="flex items-center justify-between">
-                        {/* Left: Back Button */}
                         <button
                             onClick={handleBack}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-zinc-800/50 hover:bg-[#2C2C2C] text-white rounded-lg transition-colors"
                         >
                             <ChevronLeft className="w-4 h-4" />
                             <span>Back</span>
                         </button>
 
-                        {/* Center: Breadcrumb */}
                         <div className="flex items-center gap-2 text-sm absolute left-1/2 transform -translate-x-1/2">
-                            <span className="text-gray-400">{question.company_name}</span>
+                            <span className="text-[#A0A0B0]">{question.company_name}</span>
                             <ChevronRight className="w-4 h-4 text-gray-600" />
                             <span className="text-white">
                                 Page {currentPage + 1} of {question.pages.length}
                             </span>
                         </div>
-
-                        {/* Right: Empty or minimal space */}
-                        <div className="w-20"></div>
+                        <div className="flex items-center justify-end w-20">
+                            <button
+                                onClick={() => setIsFeedbackModalOpen(true)}
+                                className="p-2 text-[#A0A0B0] hover:text-[#D0D0E0] hover:bg-zinc-800/50 rounded-lg transition-colors"
+                                title="Report an issue"
+                            >
+                                <Flag className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Main Content */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 max-w-[1800px] mx-auto">
-                {/* Left Panel - Explanation */}
-                <div className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-xl p-8 h-[calc(100vh-200px)] overflow-auto">
+                <div className="bg-[#111317] border border-gray-800 rounded-xl p-8 h-[calc(100vh-200px)] overflow-auto">
                     <h1 className="text-2xl font-bold text-white mb-3">{question.question}</h1>
                     <div className="flex items-center gap-3 mb-6">
-                        {/* Topic Badge */}
-                        <div className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-gray-800 text-gray-400 border border-gray-700">
+                        <div className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-zinc-800/50 text-[#A0A0B0] border border-gray-800">
                             <Tag className="w-3 h-3" />
                             <span>{question.category || question.topic}</span>
                         </div>
-
-                        {/* Difficulty Badge */}
                         <span className={`px-3 py-1 text-xs font-medium rounded-full border ${question.difficulty === 'Easy'
                             ? 'bg-green-500/10 text-green-400 border-green-500/20'
                             : question.difficulty === 'Medium'
@@ -342,33 +393,42 @@ export default function CompanyQuestionDetail() {
                         </span>
                     </div>
 
-                    <div className={`transition-opacity duration-300 prose prose-invert prose-xl max-w-none text-gray-300 leading-relaxed`}>
+                    <div className={`transition-opacity duration-300 prose prose-invert prose-xl max-w-none text-[#D0D0E0] leading-relaxed`}>
                         <ReactMarkdown
                             remarkPlugins={[remarkGfm, remarkBreaks]}
                             components={{
                                 h1: ({ node, ...props }) => <h1 className="text-2xl font-bold text-white mb-4 mt-6" {...props} />,
                                 h2: ({ node, ...props }) => <h2 className="text-xl font-bold text-white mb-3 mt-5" {...props} />,
                                 h3: ({ node, ...props }) => <h3 className="text-lg font-bold text-white mb-2 mt-4" {...props} />,
-                                p: ({ node, ...props }) => <p className="mb-4 text-gray-300 leading-relaxed" {...props} />,
-                                ul: ({ node, ...props }) => <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-300" {...props} />,
-                                ol: ({ node, ...props }) => <ol className="list-decimal pl-6 mb-4 space-y-2 text-gray-300" {...props} />,
+                                p: ({ node, ...props }) => <p className="mb-4 text-[#D0D0E0] leading-relaxed" {...props} />,
+                                ul: ({ node, ...props }) => <ul className="list-disc pl-6 mb-4 space-y-2 text-[#D0D0E0]" {...props} />,
+                                ol: ({ node, ...props }) => <ol className="list-decimal pl-6 mb-4 space-y-2 text-[#D0D0E0]" {...props} />,
                                 li: ({ node, ...props }) => <li className="pl-1" {...props} />,
                                 strong: ({ node, ...props }) => <strong className="font-bold text-white" {...props} />,
-                                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-purple-500 pl-4 italic my-4 text-gray-400 bg-gray-900/50 py-2 pr-2 rounded-r" {...props} />,
+                                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-[#4F0F93] pl-4 italic my-4 text-[#A0A0B0] bg-[#111317]/80 py-2 pr-2 rounded-r" {...props} />,
+                                table: ({ node, ...props }) => (
+                                    <div className="overflow-x-auto my-6 bg-[#111317]/80 rounded-lg border border-gray-800">
+                                        <table className="w-full text-left border-collapse text-sm" {...props} />
+                                    </div>
+                                ),
+                                thead: ({ node, ...props }) => <thead className="bg-zinc-800/50/80 text-gray-200 border-b border-gray-800" {...props} />,
+                                tbody: ({ node, ...props }) => <tbody className="divide-y divide-gray-800/50" {...props} />,
+                                tr: ({ node, ...props }) => <tr className="hover:bg-[#111317] transition-colors" {...props} />,
+                                th: ({ node, ...props }) => <th className="px-4 py-3 font-semibold" {...props} />,
+                                td: ({ node, ...props }) => <td className="px-4 py-3 text-[#D0D0E0]" {...props} />,
                                 code: ({ node, inline, className, children, ...props }: any) => {
                                     return inline ?
-                                        <code className="bg-gray-800 text-purple-300 px-1.5 py-0.5 rounded text-sm font-mono" {...props}>{children}</code> :
-                                        <code className="block bg-gray-900 p-4 rounded-lg overflow-x-auto font-mono text-sm text-gray-300 my-4 border border-gray-800" {...props}>{children}</code>;
+                                        <code className="bg-zinc-800/50 text-[#8970D6] px-1.5 py-0.5 rounded text-sm font-mono" {...props}>{children}</code> :
+                                        <code className="block bg-[#111317] p-4 rounded-lg overflow-x-auto font-mono text-sm text-[#D0D0E0] my-4 border border-gray-800" {...props}>{children}</code>;
                                 }
                             }}
                         >
-                            {currentPageData.explanation.replace(/\\n/g, '\n')}
+                            {formatMarkdownText(currentPageData.explanation)}
                         </ReactMarkdown>
                     </div>
-                </div >
+                </div>
 
-                {/* Right Panel - Interactive Content */}
-                < div className="h-[calc(100vh-200px)]" >
+                <div className="h-[calc(100vh-200px)]">
                     {
                         currentPageData.contentType === 'fill_in_blank_code' ? (
                             <FillInBlankCodeContent
@@ -377,6 +437,24 @@ export default function CompanyQuestionDetail() {
                             />
                         ) : currentPageData.contentType === 'interactive_code' ? (
                             <InteractiveCodeContent codeData={currentPageData.content} />
+                        ) : currentPageData.contentType === 'sql_construct' ? (
+                            <InteractiveSQLUI
+                                sqlData={currentPageData.content}
+                                onComplete={handleComplete}
+                                isCompleted={sessionCompleted}
+                            />
+                        ) : currentPageData.contentType === 'mcq' ? (
+                            <InteractiveMCQUI
+                                mcqData={currentPageData.content}
+                                onComplete={handleComplete}
+                                isCompleted={sessionCompleted}
+                            />
+                        ) : currentPageData.contentType === 'dsa_pseudocode' ? (
+                            <InteractiveDSAUI
+                                dsaData={currentPageData.content}
+                                onComplete={handleComplete}
+                                isCompleted={sessionCompleted}
+                            />
                         ) : currentPageData.contentType === 'code' ? (
                             <CodeContent codeData={currentPageData.content} />
                         ) : currentPageData.contentType === 'image' ? (
@@ -390,42 +468,36 @@ export default function CompanyQuestionDetail() {
                             />
                         ) : currentPageData.contentType === 'text' ? (
                             <TextContent content={currentPageData.content.text || currentPageData.content} />
-                        ) : (currentPageData.contentType === 'quiz') ? (
-                            <>
-                                {console.log('Quiz Data:', currentPageData.content)}
-                                <QuizContent
-                                    quizData={currentPageData.content}
-                                    onComplete={handleComplete}
-                                    isCompleted={completed}
-                                />
-                            </>
                         ) : (
-                            <div className="h-full flex items-center justify-center bg-gray-900/50 backdrop-blur-xl border border-purple-500/20 rounded-xl">
-                                <p className="text-gray-500">No content available</p>
+                            <div className="h-full flex items-center justify-center bg-[#111317]/80 backdrop-blur-xl border border-gray-800 rounded-xl">
+                                <p className="text-[#808090]">No content available</p>
                             </div>
                         )
                     }
-                </div >
-            </div >
+                </div>
+            </div>
 
-            {/* Navigation Footer */}
-            < div className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-gray-900/90 backdrop-blur-xl" >
+            <div className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-[#111317]/90 backdrop-blur-xl">
                 <div className="px-6 py-4 max-w-[1800px] mx-auto">
                     <div className="flex items-center justify-between">
-                        <div className="text-sm text-gray-400">
-                            {/* navigation text removed */}
-                        </div>
-
+                        <div className="text-sm text-[#A0A0B0]"></div>
                         <button
                             onClick={handleNextQuestion}
-                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                            className="flex items-center gap-2 px-6 py-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors"
                         >
                             <span>Next</span>
                             <ChevronRight className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
-            </div >
-        </div >
+            </div>
+
+            <FeedbackModal
+                isOpen={isFeedbackModalOpen}
+                onClose={() => setIsFeedbackModalOpen(false)}
+                questionId={questionId || ''}
+                questionTitle={question.question}
+            />
+        </div>
     );
 }

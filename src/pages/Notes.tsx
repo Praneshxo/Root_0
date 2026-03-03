@@ -11,58 +11,18 @@ interface Note {
   pdf_url: string;
 }
 
-// Mock notes data with generated preview images
-const MOCK_NOTES: Note[] = [
-  {
-    id: '1',
-    title: 'Operating Systems Complete Notes',
-    subject: 'OS',
-    preview_image_url: '/images/notes/os-notes.png',
-    pdf_url: 'https://example.com/os-notes.pdf'
-  },
-  {
-    id: '2',
-    title: 'DBMS Complete Notes',
-    subject: 'DBMS',
-    preview_image_url: '/images/notes/dbms-notes.png',
-    pdf_url: 'https://example.com/dbms-notes.pdf'
-  },
-  {
-    id: '3',
-    title: 'Computer Networks Notes',
-    subject: 'CN',
-    preview_image_url: '/images/notes/networks-notes.png',
-    pdf_url: 'https://example.com/cn-notes.pdf'
-  },
-  {
-    id: '4',
-    title: 'Data Structures & Algorithms',
-    subject: 'DSA',
-    preview_image_url: '/images/notes/dsa-notes.png',
-    pdf_url: 'https://example.com/dsa-notes.pdf'
-  },
-  {
-    id: '5',
-    title: 'Object Oriented Programming',
-    subject: 'OOP',
-    preview_image_url: '/images/notes/oop-notes.png',
-    pdf_url: 'https://example.com/oop-notes.pdf'
-  },
-  {
-    id: '6',
-    title: 'System Design Notes',
-    subject: 'System Design',
-    preview_image_url: '/images/notes/system-design-notes.png',
-    pdf_url: 'https://example.com/system-design-notes.pdf'
-  }
-];
+
 
 export default function Notes() {
   const { user } = useAuth();
-  const [notes] = useState<Note[]>(MOCK_NOTES);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'bookmarked'>('all');
   const [bookmarkedNotes, setBookmarkedNotes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchNotes();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -71,6 +31,20 @@ export default function Notes() {
       setLoading(false);
     }
   }, [user]);
+
+  const fetchNotes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('notes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setNotes(data || []);
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+    }
+  };
 
   const fetchBookmarks = async () => {
     if (!user) return;

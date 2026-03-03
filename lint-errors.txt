@@ -1,0 +1,144 @@
+
+> vite-react-typescript-starter@0.0.0 lint
+> eslint . --fix
+
+
+/home/hp/Documents/react/root_0/project/src/components/AIRing.tsx
+   11:12  error    '_' is assigned a value but never used                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  183:52  warning  The ref value 'containerRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'containerRef.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+
+/home/hp/Documents/react/root_0/project/src/components/content/InteractiveSQLUI.tsx
+  83:8  warning  React Hook useEffect has a missing dependency: 'totalSlots'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/hp/Documents/react/root_0/project/src/components/content/TextContent.tsx
+  46:36  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  47:36  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  48:36  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  49:35  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  50:36  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  51:36  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  52:36  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  53:40  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  54:44  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  55:39  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  60:39  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  61:39  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  62:36  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  63:36  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  64:36  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  65:38  error  'node' is defined but never used          @typescript-eslint/no-unused-vars
+  65:52  error  'className' is defined but never used     @typescript-eslint/no-unused-vars
+  65:85  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/hp/Documents/react/root_0/project/src/contexts/AuthContext.tsx
+  49:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/hp/Documents/react/root_0/project/src/pages/Aptitude.tsx
+   90:6  warning  React Hook useEffect has a missing dependency: 'fetchQuestions'. Either include it or remove the dependency array     react-hooks/exhaustive-deps
+   96:6  warning  React Hook useEffect has a missing dependency: 'fetchUserProgress'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  162:9  error    'toggleSolved' is assigned a value but never used                                                                     @typescript-eslint/no-unused-vars
+
+/home/hp/Documents/react/root_0/project/src/pages/Companies.tsx
+   42:6   warning  React Hook useEffect has a missing dependency: 'fetchQuestions'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   47:17  error    Unexpected any. Specify a different type                                                                           @typescript-eslint/no-explicit-any
+   48:18  error    Unexpected any. Specify a different type                                                                           @typescript-eslint/no-explicit-any
+  108:9   error    'toggleSolved' is assigned a value but never used                                                                  @typescript-eslint/no-unused-vars
+
+/home/hp/Documents/react/root_0/project/src/pages/CompanyQuestionDetail.tsx
+   21:14  error    Unexpected any. Specify a different type                                                                                                                                                  @typescript-eslint/no-explicit-any
+   68:8   warning  React Hook useEffect has a missing dependency: 'fetchQuestion'. Either include it or remove the dependency array                                                                          react-hooks/exhaustive-deps
+  208:49  error    Unexpected any. Specify a different type                                                                                                                                                  @typescript-eslint/no-explicit-any
+  234:8   warning  React Hook useEffect has a missing dependency: 'location.state'. Either include it or remove the dependency array                                                                         react-hooks/exhaustive-deps
+  234:19  warning  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked                                                  react-hooks/exhaustive-deps
+  234:38  error    Unexpected any. Specify a different type                                                                                                                                                  @typescript-eslint/no-explicit-any
+  257:41  error    Unexpected any. Specify a different type                                                                                                                                                  @typescript-eslint/no-explicit-any
+  286:8   warning  React Hook useEffect has missing dependencies: 'handleBack', 'handleNextPage', 'handlePreviousPage', 'isFirstPage', and 'isLastPage'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  392:40  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  393:40  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  394:40  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  395:39  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  396:40  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  397:40  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  398:40  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  399:44  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  400:48  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  401:43  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  406:43  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  407:43  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  408:40  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  409:40  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  410:40  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  411:42  error    'node' is defined but never used                                                                                                                                                          @typescript-eslint/no-unused-vars
+  411:56  error    'className' is defined but never used                                                                                                                                                     @typescript-eslint/no-unused-vars
+  411:89  error    Unexpected any. Specify a different type                                                                                                                                                  @typescript-eslint/no-explicit-any
+
+/home/hp/Documents/react/root_0/project/src/pages/CoreCS.tsx
+   62:6  warning  React Hook useEffect has a missing dependency: 'fetchQuestions'. Either include it or remove the dependency array     react-hooks/exhaustive-deps
+   68:6  warning  React Hook useEffect has a missing dependency: 'fetchUserProgress'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  134:9  error    'toggleSolved' is assigned a value but never used                                                                     @typescript-eslint/no-unused-vars
+
+/home/hp/Documents/react/root_0/project/src/pages/DSA.tsx
+   67:6   warning  React Hook useEffect has a missing dependency: 'fetchProblems'. Either include it or remove the dependency array      react-hooks/exhaustive-deps
+   73:6   warning  React Hook useEffect has a missing dependency: 'fetchUserProgress'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  153:9   error    'toggleSolved' is assigned a value but never used                                                                     @typescript-eslint/no-unused-vars
+  372:54  error    Unexpected any. Specify a different type                                                                              @typescript-eslint/no-explicit-any
+
+/home/hp/Documents/react/root_0/project/src/pages/Dashboard.tsx
+   55:6   warning  React Hook useEffect has a missing dependency: 'fetchDashboardData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   59:7   error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free    @typescript-eslint/ban-ts-comment
+   85:56  error    Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+   97:15  error    Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+  104:51  error    Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+
+/home/hp/Documents/react/root_0/project/src/pages/InterviewQuestions.tsx
+    3:10  error    'Search' is defined but never used                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+    3:81  error    'Folder' is defined but never used                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+   24:7   error    'ROLES' is assigned a value but never used                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+   51:21  error    'setActiveTab' is assigned a value but never used                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   63:10  error    'stats' is assigned a value but never used                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+   76:6   warning  React Hook useEffect has a missing dependency: 'fetchQuestions'. Either include it or remove the dependency array                                                                                                                       react-hooks/exhaustive-deps
+   80:6   warning  React Hook useEffect has a missing dependency: 'applyFilters'. Either include it or remove the dependency array. Outer scope values like 'searchQuery' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+  182:9   error    'toggleSolved' is assigned a value but never used                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  277:9   error    'getDifficultyColor' is assigned a value but never used                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+
+/home/hp/Documents/react/root_0/project/src/pages/Notes.tsx
+  73:6  warning  React Hook useEffect has a missing dependency: 'fetchBookmarks'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/hp/Documents/react/root_0/project/src/pages/PracticePage.tsx
+  25:6  warning  React Hook useEffect has a missing dependency: 'fetchQuestionsAndProgress'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/hp/Documents/react/root_0/project/src/pages/Projects.tsx
+  146:6  warning  React Hook useEffect has a missing dependency: 'fetchBookmarks'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/hp/Documents/react/root_0/project/src/pages/QuestionDetail.tsx
+   29:19  error    Unexpected any. Specify a different type                                                                                                                           @typescript-eslint/no-explicit-any
+   31:16  error    Unexpected any. Specify a different type                                                                                                                           @typescript-eslint/no-explicit-any
+  124:8   warning  React Hook useEffect has missing dependencies: 'getTableName' and 'questionId'. Either include them or remove the dependency array                                 react-hooks/exhaustive-deps
+  159:8   warning  React Hook useEffect has a missing dependency: 'getTableName'. Either include it or remove the dependency array                                                    react-hooks/exhaustive-deps
+  227:8   warning  React Hook useEffect has missing dependencies: 'getRoutePath', 'handleNext', 'handlePrevious', and 'navigate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  325:40  error    'node' is defined but never used                                                                                                                                   @typescript-eslint/no-unused-vars
+  326:40  error    'node' is defined but never used                                                                                                                                   @typescript-eslint/no-unused-vars
+  327:40  error    'node' is defined but never used                                                                                                                                   @typescript-eslint/no-unused-vars
+  328:39  error    'node' is defined but never used                                                                                                                                   @typescript-eslint/no-unused-vars
+  329:40  error    'node' is defined but never used                                                                                                                                   @typescript-eslint/no-unused-vars
+  330:40  error    'node' is defined but never used                                                                                                                                   @typescript-eslint/no-unused-vars
+  331:40  error    'node' is defined but never used                                                                                                                                   @typescript-eslint/no-unused-vars
+  332:44  error    'node' is defined but never used                                                                                                                                   @typescript-eslint/no-unused-vars
+  333:48  error    'node' is defined but never used                                                                                                                                   @typescript-eslint/no-unused-vars
+  334:42  error    'node' is defined but never used                                                                                                                                   @typescript-eslint/no-unused-vars
+  334:56  error    'className' is defined but never used                                                                                                                              @typescript-eslint/no-unused-vars
+  334:89  error    Unexpected any. Specify a different type                                                                                                                           @typescript-eslint/no-explicit-any
+
+/home/hp/Documents/react/root_0/project/src/pages/SQL.tsx
+   70:6  warning  React Hook useEffect has a missing dependency: 'fetchQuestions'. Either include it or remove the dependency array     react-hooks/exhaustive-deps
+   76:6  warning  React Hook useEffect has a missing dependency: 'fetchUserProgress'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  142:9  error    'toggleSolved' is assigned a value but never used                                                                     @typescript-eslint/no-unused-vars
+
+/home/hp/Documents/react/root_0/project/src/pages/SignUp.tsx
+  3:28  error  'User' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/hp/Documents/react/root_0/project/src/services/questionProgressService.ts
+  215:17  error  Unexpected lexical declaration in case block  no-case-declarations
+
+✖ 101 problems (76 errors, 25 warnings)
+

@@ -343,13 +343,25 @@ export default function InteractiveDSAUI({ dsaData, onComplete }: InteractiveDSA
                         )}
 
                         {/* Reveal — always on far right */}
-                        <button
-                            onClick={handleRevealSolution}
-                            className="ml-auto px-5 py-2.5 bg-transparent hover:bg-zinc-800/50 border border-gray-800 text-[#D0D0E0] font-medium rounded-lg transition-colors flex items-center gap-2"
-                        >
-                            <Eye size={16} />
-                            Reveal Answer
-                        </button>
+                        <div className="relative group ml-auto">
+                            <button
+                                onClick={hasValidated ? handleRevealSolution : undefined}
+                                disabled={!hasValidated}
+                                className={`px-5 py-2.5 border font-medium rounded-lg transition-colors flex items-center gap-2 ${hasValidated
+                                    ? 'bg-transparent hover:bg-zinc-800/50 border-gray-800 text-[#D0D0E0] cursor-pointer'
+                                    : 'bg-transparent border-gray-800/50 text-gray-600 cursor-not-allowed opacity-50'
+                                    }`}
+                            >
+                                <Eye size={16} />
+                                Reveal Answer
+                            </button>
+                            {!hasValidated && (
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-zinc-800 text-xs text-[#D0D0E0] rounded-md border border-gray-700 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg">
+                                    Try to solve once
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-zinc-800" />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

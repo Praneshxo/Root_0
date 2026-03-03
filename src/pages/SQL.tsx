@@ -1,17 +1,19 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ChevronDown, CheckCircle2, Circle, Bookmark, BookmarkCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import Pagination from '../components/Pagination';
 
-interface SQLQuestion {
+interface CompanyQuestion {
   id: string;
-  title: string;
-  description: string;
+  question: string;
+  explanation_text: string | null;
   difficulty: 'Easy' | 'Medium' | 'Hard';
-  category: string;
-  type: 'theory' | 'query';
-  solution_text: string | null;
+  content_type: string | null;
+  subcategory: string | null;
+  company_name: string;
 }
 
 interface UserProgress {
@@ -30,44 +32,39 @@ interface ProgressStats {
   solvedHard: number;
 }
 
-const SQL_CATEGORIES = [
-  'Aggregation', 'Basics', 'CASE', 'Constraints', 'CTE', 'Cursors',
-  'Database Design', 'Data Manipulation', 'Data Transformation', 'Data Types',
-  'Date Functions', 'DELETE', 'DISTINCT', 'Duplicates', 'Filtering',
-  'Functions', 'GROUP BY', 'Hierarchical Queries', 'Indexes', 'Joins',
-  'Normalization', 'Optimization', 'Pivoting', 'SELECT', 'Sorting',
-  'Stored Procedures', 'String Functions', 'Subqueries', 'Transactions',
-  'Triggers', 'UNION', 'UPDATE', 'Views', 'Window Functions'
-];
+
 
 export default function SQL() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [questions, setQuestions] = useState<SQLQuestion[]>([]);
+  const [questions, setQuestions] = useState<CompanyQuestion[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'solved' | 'revision'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('All Difficulties');
-  const [typeFilter, setTypeFilter] = useState('All Types');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [userProgress, setUserProgress] = useState<Record<string, UserProgress>>({});
   const [stats, setStats] = useState<ProgressStats>({
-    total: 160,
-    easy: 39,
-    medium: 74,
-    hard: 47,
+    total: 0,
+    easy: 0,
+    medium: 0,
+    hard: 0,
     solvedTotal: 0,
     solvedEasy: 0,
     solvedMedium: 0,
     solvedHard: 0
   });
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const [showDifficultyDropdown, setShowDifficultyDropdown] = useState(false);
-  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
 
   useEffect(() => {
     fetchQuestions();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, difficultyFilter, selectedCategory, activeTab]);
 
   useEffect(() => {
     if (user && questions.length > 0) {
@@ -79,17 +76,24 @@ export default function SQL() {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('sql_questions')
+        .from('company_topic_questions')
         .select('*')
+        .eq('topic', 'SQL')
         .order('created_at');
 
       if (error) throw error;
-      setQuestions(data || []);
-      calculateStats(data || [], {});
+
+      const fetchedQuestions = data || [];
+      setQuestions(fetchedQuestions);
+
+      const uniqueCategories = Array.from(new Set(fetchedQuestions.map(q => q.subcategory || 'Miscellaneous'))).sort();
+      setCategories(uniqueCategories);
+
+      calculateStats(fetchedQuestions, {});
     } catch (error) {
       console.error('Error fetching questions:', error);
     } finally {
-      setLoading(false);
+      if (!user) setLoading(false);
     }
   };
 
@@ -112,10 +116,12 @@ export default function SQL() {
       calculateStats(questions, progressMap);
     } catch (error) {
       console.error('Error fetching progress:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const calculateStats = (allQuestions: SQLQuestion[], progress: Record<string, UserProgress>) => {
+  const calculateStats = (allQuestions: CompanyQuestion[], progress: Record<string, UserProgress>) => {
     const newStats: ProgressStats = {
       total: allQuestions.length || 160,
       easy: allQuestions.filter(q => q.difficulty === 'Easy').length || 39,
@@ -205,14 +211,13 @@ export default function SQL() {
       (activeTab === 'solved' && userProgress[question.id]?.solved) ||
       (activeTab === 'revision' && userProgress[question.id]?.revision);
 
-    const matchesSearch = question.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      question.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = question.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (question.explanation_text || '').toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory = !selectedCategory || question.category === selectedCategory;
+    const matchesCategory = !selectedCategory || (question.subcategory || 'Miscellaneous') === selectedCategory;
     const matchesDifficulty = difficultyFilter === 'All Difficulties' || question.difficulty === difficultyFilter;
-    const matchesType = typeFilter === 'All Types' || question.type === typeFilter;
 
-    return matchesTab && matchesSearch && matchesCategory && matchesDifficulty && matchesType;
+    return matchesTab && matchesSearch && matchesCategory && matchesDifficulty;
   });
 
   const progressPercentage = stats.total > 0 ? Math.round((stats.solvedTotal / stats.total) * 100) : 0;
@@ -226,12 +231,6 @@ export default function SQL() {
             <div>
               <h1 className="text-3xl font-bold mb-2">SQL Interview Questions</h1>
               <p className="text-[#A0A0B0]">Practice SQL problems and prepare for technical interviews</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button className="px-3 py-1.5 bg-zinc-800/50 text-white border border-gray-800 rounded-lg hover:bg-[#2C2C2C] transition-colors flex items-center gap-2">
-                <span className="text-base">📊</span>
-                <span className="text-sm font-medium">My progress</span>
-              </button>
             </div>
           </div>
 
@@ -264,6 +263,35 @@ export default function SQL() {
             >
               Questions for Revision
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Category Pill Filter */}
+      <div className="border-b border-gray-800 bg-[#0F0F13]">
+        <div className="px-6 overflow-x-auto">
+          <div className="flex items-center gap-2 py-3">
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${!selectedCategory
+                ? 'bg-white text-black'
+                : 'bg-transparent text-[#A0A0B0] hover:text-white hover:bg-zinc-800/50'
+                }`}
+            >
+              All Questions
+            </button>
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selectedCategory === category
+                  ? 'bg-white text-black'
+                  : 'bg-transparent text-[#A0A0B0] hover:text-white hover:bg-zinc-800/50'
+                  }`}
+              >
+                {category}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -321,141 +349,33 @@ export default function SQL() {
           </div>
         </div>
 
-        {/* Search and Filters */}
-        <div className="bg-[#111317] border border-gray-800 rounded-lg p-4 mb-6">
+        {/* Search and Difficulty Filter */}
+        <div className="flex gap-3 items-center mb-6">
           {/* Search Bar */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#808090]" />
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A0A0B0]" />
             <input
               type="text"
               placeholder="Search SQL questions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#111317] border border-gray-800 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#4F0F93]/50"
+              className="w-full bg-[#111317]/80 border border-gray-800 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#4F0F93]/50"
             />
           </div>
 
-          {/* Filter Dropdowns */}
-          <div className="flex items-center gap-3">
-            {/* Category Filter */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowCategoryDropdown(!showCategoryDropdown);
-                  setShowDifficultyDropdown(false);
-                  setShowTypeDropdown(false);
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-[#111317] border border-gray-800 rounded-lg hover:border-[#4F0F93]/50 transition-colors"
-              >
-                <span className="text-sm">{selectedCategory || 'Question category'}</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              {showCategoryDropdown && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowCategoryDropdown(false)}
-                  />
-                  <div className="absolute top-full left-0 mt-2 w-56 bg-[#111317] border border-gray-800 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto">
-                    <button
-                      onClick={() => {
-                        setSelectedCategory(null);
-                        setShowCategoryDropdown(false);
-                      }}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-[#4F0F93]/10 transition-colors"
-                    >
-                      All Categories
-                    </button>
-                    {SQL_CATEGORIES.map(cat => (
-                      <button
-                        key={cat}
-                        onClick={() => {
-                          setSelectedCategory(cat);
-                          setShowCategoryDropdown(false);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-[#4F0F93]/10 transition-colors"
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Difficulty Filter */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowDifficultyDropdown(!showDifficultyDropdown);
-                  setShowCategoryDropdown(false);
-                  setShowTypeDropdown(false);
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-[#111317] border border-gray-800 rounded-lg hover:border-[#4F0F93]/50 transition-colors"
-              >
-                <span className="text-sm">{difficultyFilter}</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              {showDifficultyDropdown && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowDifficultyDropdown(false)}
-                  />
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-[#111317] border border-gray-800 rounded-lg shadow-xl z-50">
-                    {['All Difficulties', 'Easy', 'Medium', 'Hard'].map(diff => (
-                      <button
-                        key={diff}
-                        onClick={() => {
-                          setDifficultyFilter(diff);
-                          setShowDifficultyDropdown(false);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-[#4F0F93]/10 transition-colors"
-                      >
-                        {diff}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Type Filter */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowTypeDropdown(!showTypeDropdown);
-                  setShowCategoryDropdown(false);
-                  setShowDifficultyDropdown(false);
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-[#111317] border border-gray-800 rounded-lg hover:border-[#4F0F93]/50 transition-colors"
-              >
-                <span className="text-sm">{typeFilter}</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              {showTypeDropdown && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowTypeDropdown(false)}
-                  />
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-[#111317] border border-gray-800 rounded-lg shadow-xl z-50">
-                    {['All Types', 'theory', 'query'].map(type => (
-                      <button
-                        key={type}
-                        onClick={() => {
-                          setTypeFilter(type);
-                          setShowTypeDropdown(false);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-800/50 transition-colors capitalize"
-                      >
-                        {type === 'All Types' ? type : type}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+          {/* Difficulty Filter */}
+          <div className="relative">
+            <select
+              value={difficultyFilter}
+              onChange={(e) => setDifficultyFilter(e.target.value)}
+              className="appearance-none bg-[#111317]/80 border border-gray-800 rounded-lg px-4 py-2.5 pr-10 text-sm text-white focus:outline-none focus:border-[#4F0F93]/50 cursor-pointer"
+            >
+              <option>All Difficulties</option>
+              <option>Easy</option>
+              <option>Medium</option>
+              <option>Hard</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A0A0B0] pointer-events-none" />
           </div>
         </div>
 
@@ -486,21 +406,21 @@ export default function SQL() {
                   </td>
                 </tr>
               ) : (
-                filteredQuestions.map((question, index) => (
+                filteredQuestions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((question, index) => (
                   <tr
                     key={question.id}
                     onClick={() => navigate(`/sql/${question.id}`)}
                     className="border-b border-gray-800 hover:bg-[#111317] transition-colors cursor-pointer"
                   >
-                    <td className="px-6 py-4 text-[#808090]">{index + 1}</td>
+                    <td className="px-6 py-4 text-[#808090]">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                     <td className="px-6 py-4">
                       <div>
-                        <div className="font-medium text-white mb-1 line-clamp-1">{question.title}</div>
-                        <div className="text-sm text-[#A0A0B0] line-clamp-1">{question.description}</div>
+                        <div className="font-medium text-white mb-1 line-clamp-1">{question.question}</div>
+                        <div className="text-sm text-[#A0A0B0] line-clamp-1">{question.explanation_text}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-[#D0D0E0]">{question.category}</span>
+                      <span className="text-sm text-[#D0D0E0]">{question.subcategory || 'Miscellaneous'}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -515,7 +435,10 @@ export default function SQL() {
                       </span>
                     </td>
                     <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
-                      <div className="inline-flex items-center justify-center w-5 h-5 text-[#A0A0B0] relative group">
+                      <div
+                        className="inline-flex items-center justify-center w-5 h-5 text-[#A0A0B0] relative group cursor-pointer hover:text-green-500 transition-colors"
+                        onClick={() => toggleSolved(question.id)}
+                      >
                         {userProgress[question.id]?.solved ? (
                           <>
                             <CheckCircle2 className="w-5 h-5 text-green-500" />
@@ -527,7 +450,7 @@ export default function SQL() {
                           <>
                             <Circle className="w-5 h-5" />
                             <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                              Click row to view question
+                              Mark as solved
                             </div>
                           </>
                         )}
@@ -551,6 +474,14 @@ export default function SQL() {
             </tbody>
           </table>
         </div>
+
+        {filteredQuestions.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(filteredQuestions.length / itemsPerPage)}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );

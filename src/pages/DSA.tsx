@@ -97,22 +97,30 @@ export default function DSA() {
   const fetchUserProgress = async () => {
     if (!user) return;
     try {
-      const { data } = await supabase
-        .from('user_dsa_progress')
-        .select('problem_id, solved, revision')
+      const { data, error } = await supabase
+        .from('user_question_tracking')
+        .select('question_id, domain_page, revision')
         .eq('user_id', user.id);
+
+      if (error) {
+        console.error('CRITICAL: Error fetching progress from user_question_tracking:', error);
+        if (error.code === '42P01' || error.message?.includes('relation "public.user_question_tracking" does not exist')) {
+          alert('CRITICAL DATABASE ERROR: The table "user_question_tracking" does not exist in your Supabase database!\n\nPlease run the SQL migration script (20260306_fresh_progress_schema.sql) in your Supabase SQL Editor to fix this.');
+        }
+        throw error;
+      }
 
       const progressMap: Record<string, UserProgress> = {};
       data?.forEach(p => {
-        progressMap[p.problem_id] = {
-          solved: p.solved,
+        progressMap[p.question_id] = {
+          solved: p.domain_page,
           revision: p.revision
         };
       });
       setUserProgress(progressMap);
       calculateStats(problems, progressMap);
     } catch (error) {
-      console.error('Error fetching progress:', error);
+      console.error('Error in fetchUserProgress:', error);
     } finally {
       setLoading(false);
     }
@@ -142,30 +150,7 @@ export default function DSA() {
     setStats(newStats);
   };
 
-  const toggleSolved = async (problemId: string) => {
-    if (!user) return;
-    const currentStatus = userProgress[problemId]?.solved || false;
-    const newStatus = !currentStatus;
 
-    try {
-      await supabase.from('user_dsa_progress').upsert({
-        user_id: user.id,
-        problem_id: problemId,
-        solved: newStatus,
-        revision: userProgress[problemId]?.revision || false,
-        updated_at: new Date().toISOString()
-      });
-
-      const updatedProgress = {
-        ...userProgress,
-        [problemId]: { ...userProgress[problemId], solved: newStatus }
-      };
-      setUserProgress(updatedProgress);
-      calculateStats(problems, updatedProgress);
-    } catch (error) {
-      console.error('Error updating progress:', error);
-    }
-  };
 
   const toggleRevision = async (problemId: string) => {
     if (!user) return;
@@ -173,13 +158,14 @@ export default function DSA() {
     const newStatus = !currentStatus;
 
     try {
-      await supabase.from('user_dsa_progress').upsert({
+      await supabase.from('user_question_tracking').upsert({
         user_id: user.id,
-        problem_id: problemId,
-        solved: userProgress[problemId]?.solved || false,
+        question_id: problemId,
+        topic: 'dsa',
+        domain_page: userProgress[problemId]?.solved || false,
         revision: newStatus,
         updated_at: new Date().toISOString()
-      });
+      }, { onConflict: 'user_id,question_id' });
 
       setUserProgress(prev => ({
         ...prev,
@@ -423,25 +409,17 @@ export default function DSA() {
                         {problem.difficulty}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-center" onClick={(e) => e.stopPropagation()}>
-                      <div
-                        className="inline-flex items-center justify-center w-6 h-6 text-[#A0A0B0] relative group cursor-pointer hover:text-green-400 transition-colors"
-                        onClick={() => toggleSolved(problem.id)}
-                      >
+                    <td className="px-5 py-4 text-center">
+                      <div className="inline-flex items-center justify-center w-6 h-6 text-[#A0A0B0] relative group">
                         {userProgress[problem.id]?.solved ? (
                           <>
                             <CheckCircle2 className="w-6 h-6 text-green-400" />
-                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
                               Completed
                             </div>
                           </>
                         ) : (
-                          <>
-                            <Circle className="w-6 h-6" />
-                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                              Mark as solved
-                            </div>
-                          </>
+                          <Circle className="w-6 h-6" />
                         )}
                       </div>
                     </td>

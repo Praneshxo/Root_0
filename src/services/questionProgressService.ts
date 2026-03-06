@@ -34,17 +34,21 @@ export async function trackView(
 ): Promise<void> {
     try {
         const { error } = await supabase
-            .from('question_interactions')
-            .upsert({
-                user_id: userId,
-                question_id: questionId,
-                question_type: questionType,
-                viewed_at: new Date().toISOString(),
-            }, {
-                onConflict: 'user_id,question_id,question_type'
-            });
+            .from('user_question_tracking')
+            .upsert(
+                {
+                    user_id: userId,
+                    question_id: questionId,
+                    topic: questionType === 'interview' ? 'interview' : questionType,
+                    // We simply bump the updated_at timestamp as a "view"
+                    updated_at: new Date().toISOString()
+                },
+                { onConflict: 'user_id,question_id' }
+            );
 
-        if (error) throw error;
+        if (error) {
+            console.error('Error tracking view:', error);
+        }
     } catch (error) {
         console.error('Error tracking view:', error);
     }
@@ -54,39 +58,14 @@ export async function trackView(
  * Update time spent on a question
  */
 export async function updateTimeSpent(
-    userId: string,
-    questionId: string,
-    questionType: QuestionType,
-    seconds: number
+    _userId: string,
+    _questionId: string,
+    _questionType: QuestionType,
+    _additionalSeconds: number
 ): Promise<void> {
-    try {
-        // Get current time spent
-        const { data: existing } = await supabase
-            .from('question_interactions')
-            .select('time_spent')
-            .eq('user_id', userId)
-            .eq('question_id', questionId)
-            .eq('question_type', questionType)
-            .single();
-
-        const currentTime = existing?.time_spent || 0;
-
-        const { error } = await supabase
-            .from('question_interactions')
-            .upsert({
-                user_id: userId,
-                question_id: questionId,
-                question_type: questionType,
-                time_spent: currentTime + seconds,
-                updated_at: new Date().toISOString(),
-            }, {
-                onConflict: 'user_id,question_id,question_type'
-            });
-
-        if (error) throw error;
-    } catch (error) {
-        console.error('Error updating time spent:', error);
-    }
+    // Time tracking is no longer supported in the simplified user_question_tracking schema.
+    // Stubbing this function to prevent errors from existing callers.
+    return Promise.resolve();
 }
 
 /**
@@ -99,22 +78,23 @@ export async function markQuizCompleted(
 ): Promise<void> {
     try {
         const { error } = await supabase
-            .from('question_interactions')
-            .upsert({
-                user_id: userId,
-                question_id: questionId,
-                question_type: questionType,
-                quiz_completed: true,
-                interaction_completed: true,
-                completed_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-            }, {
-                onConflict: 'user_id,question_id,question_type'
-            });
+            .from('user_question_tracking')
+            .upsert(
+                {
+                    user_id: userId,
+                    question_id: questionId,
+                    topic: questionType === 'interview' ? 'interview' : questionType,
+                    domain_page: true,
+                    updated_at: new Date().toISOString()
+                },
+                { onConflict: 'user_id,question_id' }
+            );
 
-        if (error) throw error;
+        if (error) {
+            console.error('Error marking interaction completed:', error);
+        }
     } catch (error) {
-        console.error('Error marking quiz completed:', error);
+        console.error('Error marking interaction completed:', error);
     }
 }
 
@@ -128,21 +108,21 @@ export async function markInteractionCompleted(
 ): Promise<void> {
     try {
         const { error } = await supabase
-            .from('question_interactions')
+            .from('user_question_tracking')
             .upsert({
                 user_id: userId,
                 question_id: questionId,
-                question_type: questionType,
-                interaction_completed: true,
-                completed_at: new Date().toISOString(),
+                topic: questionType === 'interview' ? 'interview' : questionType,
+                domain_page: true, // Assuming interaction completion means domain_page is true
                 updated_at: new Date().toISOString(),
             }, {
-                onConflict: 'user_id,question_id,question_type'
+                onConflict: 'user_id,question_id'
             });
 
         if (error) throw error;
     } catch (error) {
         console.error('Error marking interaction completed:', error);
+        throw error;
     }
 }
 
@@ -152,27 +132,24 @@ export async function markInteractionCompleted(
 export async function canMarkAsSolved(
     userId: string,
     questionId: string,
-    questionType: QuestionType,
-    hasQuiz: boolean
+    _questionType: QuestionType,
+    _hasQuiz: boolean
 ): Promise<boolean> {
     try {
         const { data, error } = await supabase
-            .from('question_interactions')
-            .select('quiz_completed, interaction_completed')
+            .from('user_question_tracking')
+            .select('domain_page, companies_page') // Assuming these indicate completion
             .eq('user_id', userId)
             .eq('question_id', questionId)
-            .eq('question_type', questionType)
             .single();
 
-        if (error || !data) return false;
-
-        // For quiz questions, quiz must be completed
-        if (hasQuiz) {
-            return data.quiz_completed;
+        if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found
+            console.error('Error checking if can mark as solved:', error);
+            return false;
         }
 
-        // For non-quiz questions, interaction must be completed
-        return data.interaction_completed;
+        // If data exists and either domain_page or companies_page is true, it's considered completed
+        return !!(data?.domain_page || data?.companies_page);
     } catch (error) {
         console.error('Error checking if can mark as solved:', error);
         return false;
@@ -187,48 +164,42 @@ export async function markAsSolved(
     questionId: string,
     questionType: QuestionType
 ): Promise<void> {
+    console.log(`[questionProgressService] markAsSolved called with:`, { userId, questionId, questionType });
     try {
-        let tableName: string;
-        let columnName: string;
+        // Note: For company maps, companies_page is set in the component. We assume domain_page here based on the types
 
-        switch (questionType) {
-            case 'dsa':
-            case 'sql':
-            case 'aptitude':
-            case 'corecs':
-                tableName = 'user_company_progress';
-                columnName = 'question_id';
-                break;
-            case 'interview': {
-                tableName = 'user_progress';
-                columnName = 'question_id';
-                // For interview questions, we need to use status='solved'
-                const { error: interviewError } = await supabase
-                    .from(tableName)
-                    .upsert({
-                        user_id: userId,
-                        question_id: questionId,
-                        status: 'solved',
-                        updated_at: new Date().toISOString(),
-                    });
-                if (interviewError) throw interviewError;
-                return;
-            }
-        }
+        console.log(`[questionProgressService] Upserting to user_question_tracking:`, {
+            user_id: userId,
+            question_id: questionId,
+            topic: questionType === 'interview' ? 'interview' : questionType,
+            domain_page: true
+        });
 
-        // For other question types
-        const { error } = await supabase
-            .from(tableName)
+        const { error, data } = await supabase
+            .from('user_question_tracking')
             .upsert({
                 user_id: userId,
-                [columnName]: questionId,
-                solved: true,
+                question_id: questionId,
+                topic: questionType === 'interview' ? 'interview' : questionType,
+                domain_page: true,
                 updated_at: new Date().toISOString(),
-            });
+            }, {
+                onConflict: 'user_id,question_id'
+            })
+            .select();
 
-        if (error) throw error;
+        console.log(`[questionProgressService] Upsert returned:`, { error, data });
+
+        if (error) {
+            console.error('[questionProgressService] upsert error:', error);
+            if (error.code === '42P01' || error.message?.includes('does not exist')) {
+                alert('CRITICAL: The user_question_tracking table does not exist in your database! Please run the fresh_progress_schema.sql script in Supabase.');
+            }
+            throw error;
+        }
     } catch (error) {
-        console.error('Error marking as solved:', error);
+        console.error('[questionProgressService] Error marking as solved:', error);
+        throw error;
     }
 }
 
@@ -238,43 +209,33 @@ export async function markAsSolved(
 export async function getQuestionProgress(
     userId: string,
     questionId: string,
-    questionType: QuestionType
-): Promise<QuestionProgress> {
+    _questionType: QuestionType
+): Promise<{
+    hasViewed: boolean;
+    timeSpent: number;
+    interactionCompleted: boolean;
+}> {
     try {
         const { data, error } = await supabase
-            .from('question_interactions')
-            .select('*')
+            .from('user_question_tracking')
+            .select('domain_page, companies_page')
             .eq('user_id', userId)
             .eq('question_id', questionId)
-            .eq('question_type', questionType)
             .single();
 
-        if (error || !data) {
-            return {
-                viewed: false,
-                timeSpent: 0,
-                quizCompleted: false,
-                interactionCompleted: false,
-                canMarkAsSolved: false,
-            };
+        if (error && error.code !== 'PGRST116') {
+            console.error('Error getting question progress:', error);
+            return { hasViewed: false, timeSpent: 0, interactionCompleted: false };
         }
 
         return {
-            viewed: true,
-            timeSpent: data.time_spent,
-            quizCompleted: data.quiz_completed,
-            interactionCompleted: data.interaction_completed,
-            canMarkAsSolved: data.interaction_completed || data.quiz_completed,
+            hasViewed: !!data,
+            timeSpent: 0, // Time tracking removed in new schema
+            interactionCompleted: !!(data?.domain_page || data?.companies_page)
         };
     } catch (error) {
         console.error('Error getting question progress:', error);
-        return {
-            viewed: false,
-            timeSpent: 0,
-            quizCompleted: false,
-            interactionCompleted: false,
-            canMarkAsSolved: false,
-        };
+        return { hasViewed: false, timeSpent: 0, interactionCompleted: false };
     }
 }
 
@@ -284,15 +245,15 @@ export async function getQuestionProgress(
 export async function getUserInteractions(
     userId: string,
     questionType?: QuestionType
-): Promise<QuestionInteraction[]> {
+): Promise<any[]> {
     try {
         let query = supabase
-            .from('question_interactions')
+            .from('user_question_tracking')
             .select('*')
             .eq('user_id', userId);
 
         if (questionType) {
-            query = query.eq('question_type', questionType);
+            query = query.eq('topic', questionType === 'interview' ? 'interview' : questionType);
         }
 
         const { data, error } = await query;

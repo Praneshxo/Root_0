@@ -283,11 +283,24 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
 
 
     const handleComplete = async () => {
+        console.log(`[QuestionDetail] handleComplete triggered! sessionCompleted: ${sessionCompleted}, interactionCompleted: ${interactionCompleted}`);
         setSessionCompleted(true);
-        if (!user || !questionId || interactionCompleted) return;
+        if (!user || !questionId || interactionCompleted) {
+            console.log(`[QuestionDetail] handleComplete returning early! user: ${!!user}, questionId: ${!!questionId}, interactionCompleted: ${interactionCompleted}`);
+            return;
+        }
         setInteractionCompleted(true);
-        await markInteractionCompleted(user.id, questionId, type);
-        await markAsSolved(user.id, questionId, type);
+        console.log(`[QuestionDetail] Calling markInteractionCompleted and markAsSolved API...`);
+        try {
+            await markInteractionCompleted(user.id, questionId, type);
+            await markAsSolved(user.id, questionId, type);
+            console.log(`[QuestionDetail] API calls finished.`);
+        } catch (error: any) {
+            console.error('[QuestionDetail] handleComplete failed:', error);
+            alert(`Could not save your progress to the database!\n\n${error.message || 'Unknown error. Check the console.'}`);
+            setInteractionCompleted(false);
+            setSessionCompleted(false);
+        }
     };
 
     // Handle next button (for non-quiz questions)

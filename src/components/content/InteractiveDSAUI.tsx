@@ -197,6 +197,7 @@ export default function InteractiveDSAUI({ dsaData, onComplete }: InteractiveDSA
         if (allCorrect) {
             // Animate all steps green, then mark success
             animateGreenDown(correctCount, () => {
+                console.log('[InteractiveDSAUI] All steps correct. Triggering onComplete()');
                 setIsSuccess(true);
                 if (onComplete) onComplete();
             });

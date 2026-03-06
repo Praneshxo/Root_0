@@ -100,14 +100,14 @@ export default function Aptitude() {
     if (!user) return;
     try {
       const { data } = await supabase
-        .from('user_aptitude_progress')
-        .select('question_id, solved, revision')
+        .from('user_question_tracking')
+        .select('question_id, domain_page, revision')
         .eq('user_id', user.id);
 
       const progressMap: Record<string, UserProgress> = {};
       data?.forEach(p => {
         progressMap[p.question_id] = {
-          solved: p.solved,
+          solved: p.domain_page,
           revision: p.revision
         };
       });
@@ -144,35 +144,7 @@ export default function Aptitude() {
     setStats(newStats);
   };
 
-  const toggleSolved = async (questionId: string) => {
-    if (!user) return;
 
-    const currentProgress = userProgress[questionId];
-    const newSolved = !currentProgress?.solved;
-
-    try {
-      const { error } = await supabase
-        .from('user_aptitude_progress')
-        .upsert({
-          user_id: user.id,
-          question_id: questionId,
-          solved: newSolved,
-          revision: currentProgress?.revision || false
-        });
-
-      if (error) throw error;
-
-      setUserProgress(prev => ({
-        ...prev,
-        [questionId]: {
-          ...prev[questionId],
-          solved: newSolved
-        }
-      }));
-    } catch (error) {
-      console.error('Error updating progress:', error);
-    }
-  };
 
   const toggleRevision = async (questionId: string) => {
     if (!user) return;
@@ -182,13 +154,15 @@ export default function Aptitude() {
 
     try {
       const { error } = await supabase
-        .from('user_aptitude_progress')
+        .from('user_question_tracking')
         .upsert({
           user_id: user.id,
           question_id: questionId,
-          solved: currentProgress?.solved || false,
-          revision: newRevision
-        });
+          topic: 'aptitude',
+          domain_page: currentProgress?.solved || false,
+          revision: newRevision,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,question_id' });
 
       if (error) throw error;
 
@@ -433,25 +407,17 @@ export default function Aptitude() {
                         {question.difficulty}
                       </span>
                     </td>
-                    <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
-                      <div
-                        className="inline-flex items-center justify-center w-5 h-5 text-[#A0A0B0] relative group cursor-pointer hover:text-green-500 transition-colors"
-                        onClick={() => toggleSolved(question.id)}
-                      >
+                    <td className="px-6 py-4">
+                      <div className="inline-flex items-center justify-center w-5 h-5 text-[#A0A0B0] relative group">
                         {userProgress[question.id]?.solved ? (
                           <>
                             <CheckCircle2 className="w-5 h-5 text-green-500" />
-                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
                               Completed
                             </div>
                           </>
                         ) : (
-                          <>
-                            <Circle className="w-5 h-5" />
-                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                              Mark as solved
-                            </div>
-                          </>
+                          <Circle className="w-5 h-5" />
                         )}
                       </div>
                     </td>

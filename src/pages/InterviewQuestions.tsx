@@ -92,8 +92,8 @@ export default function InterviewQuestions() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user && questionsData && questionsData.length > 0) {
         const { data: progressData } = await supabase
-          .from('user_progress')
-          .select('question_id, status')
+          .from('user_question_tracking')
+          .select('question_id, domain_page, revision')
           .eq('user_id', user.id)
           .in('question_id', questionsData.map(q => q.id));
 
@@ -102,8 +102,8 @@ export default function InterviewQuestions() {
           if (!progressMap[p.question_id]) {
             progressMap[p.question_id] = { solved: false, bookmarked: false };
           }
-          if (p.status === 'solved') progressMap[p.question_id].solved = true;
-          if (p.status === 'bookmarked') progressMap[p.question_id].bookmarked = true;
+          if (p.domain_page) progressMap[p.question_id].solved = true;
+          if (p.revision) progressMap[p.question_id].bookmarked = true;
         });
         setUserProgress(progressMap);
 
@@ -175,46 +175,7 @@ export default function InterviewQuestions() {
     setFilteredQuestions(filtered);
   };
 
-  const toggleSolved = async (questionId: string) => {
-    const currentStatus = userProgress[questionId]?.solved || false;
-    const newStatus = !currentStatus;
 
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      if (newStatus) {
-        // Mark as solved
-        await supabase.from('user_progress').upsert({
-          user_id: user.id,
-          question_id: questionId,
-          status: 'solved',
-          updated_at: new Date().toISOString()
-        });
-      } else {
-        // Remove solved status
-        await supabase.from('user_progress')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('question_id', questionId)
-          .eq('status', 'solved');
-      }
-
-      setUserProgress(prev => ({
-        ...prev,
-        [questionId]: { ...prev[questionId], solved: newStatus }
-      }));
-
-      // Recalculate stats
-      const updatedProgress = {
-        ...userProgress,
-        [questionId]: { ...userProgress[questionId], solved: newStatus }
-      };
-      calculateStats(questions, updatedProgress);
-    } catch (error) {
-      console.error('Error updating progress:', error);
-    }
-  };
 
   const toggleRevision = async (questionId: string) => {
     const currentStatus = userProgress[questionId]?.bookmarked || false;
@@ -224,20 +185,17 @@ export default function InterviewQuestions() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      if (newStatus) {
-        await supabase.from('user_progress').upsert({
-          user_id: user.id,
-          question_id: questionId,
-          status: 'bookmarked',
-          updated_at: new Date().toISOString()
-        });
-      } else {
-        await supabase.from('user_progress')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('question_id', questionId)
-          .eq('status', 'bookmarked');
-      }
+      const question = questions.find(q => q.id === questionId);
+      const topic = question ? getRoleFromQuestion(question) : 'unknown';
+
+      await supabase.from('user_question_tracking').upsert({
+        user_id: user.id,
+        question_id: questionId,
+        topic: topic,
+        domain_page: userProgress[questionId]?.solved || false,
+        revision: newStatus,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,question_id' });
 
       setUserProgress(prev => ({
         ...prev,
@@ -359,25 +317,17 @@ export default function InterviewQuestions() {
                             {question.difficulty}
                           </span>
                         </td>
-                        <td className="px-5 py-4 text-center" onClick={(e) => e.stopPropagation()}>
-                          <div
-                            className="inline-flex items-center justify-center w-6 h-6 text-[#A0A0B0] relative group cursor-pointer hover:text-green-400 transition-colors"
-                            onClick={() => toggleSolved(question.id)}
-                          >
+                        <td className="px-5 py-4 text-center">
+                          <div className="inline-flex items-center justify-center w-6 h-6 text-[#A0A0B0] relative group">
                             {userProgress[question.id]?.solved ? (
                               <>
                                 <CheckCircle2 className="w-6 h-6 text-green-400" />
-                                <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                                <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
                                   Completed
                                 </div>
                               </>
                             ) : (
-                              <>
-                                <Circle className="w-6 h-6" />
-                                <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                                  Mark as solved
-                                </div>
-                              </>
+                              <Circle className="w-6 h-6" />
                             )}
                           </div>
                         </td>

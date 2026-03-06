@@ -15,7 +15,6 @@ import {
   ChevronRight,
   Crown,
   Database,
-  BrainCircuit,
   Layout,
   Terminal,
   FileText
@@ -62,66 +61,69 @@ function DashboardContent() {
     DSA: 0,
     SQL: 0,
     Aptitude: 0,
-    CoreCS: 0
+    CoreCS: 0,
+    Companies: 0,
   });
 
   const fetchDashboardData = async () => {
     try {
-      // @ts-ignore
-      const [statsResult, questionsResult, progressResult, sqlResult, coreResult, aptResult] = await Promise.all([
+      const [statsResult, readinessResult] = await Promise.all([
         supabase.from('user_stats').select('*').eq('user_id', user?.id).maybeSingle(),
-        supabase.from('questions').select('category'),
-        supabase.from('user_progress').select('question_id, status').eq('user_id', user?.id).eq('status', 'solved'),
-        supabase.from('user_sql_progress').select('question_id, solved').eq('user_id', user?.id).eq('solved', true),
-        supabase.from('user_core_cs_progress').select('question_id, solved').eq('user_id', user?.id).eq('solved', true),
-        supabase.from('user_aptitude_progress').select('question_id, solved').eq('user_id', user?.id).eq('solved', true),
+        supabase.from('user_dashboard_readiness').select('*').eq('user_id', user?.id).maybeSingle()
       ]);
 
       if (statsResult.data) {
         setStats(statsResult.data);
       }
 
-      // Calculate Solved Counts for Readiness
-      const solvedCountMap: Record<string, number> = {
-        DSA: (progressResult.data || []).length,
-        SQL: (sqlResult.data || []).length,
-        Aptitude: (aptResult.data || []).length,
-        CoreCS: (coreResult.data || []).length
-      };
-
-      setSkillGap({
-        DSA: totals['DSA'] > 0 ? (solvedCountMap.DSA / totals['DSA']) * 100 : 0,
-        SQL: totals['SQL'] > 0 ? (solvedCountMap.SQL / totals['SQL']) * 100 : 0,
-        Aptitude: totals['Aptitude'] > 0 ? (solvedCountMap.Aptitude / totals['Aptitude']) * 100 : 0,
-        CoreCS: totals['Core CS'] > 0 ? (solvedCountMap.CoreCS / totals['Core CS']) * 100 : 0,
-      });
-
-      // Calculate Readiness for Donut
-      const totalQuestions = (questionsResult.data || []).length;
-      const totalSolved = Object.values(solvedCountMap).reduce((a, b) => a + b, 0);
-      setQuizScore(totalQuestions > 0 ? Math.round((totalSolved / totalQuestions) * 100) : 0);
+      if (readinessResult.data) {
+        const r = readinessResult.data;
+        setSkillGap({
+          DSA: r.dsa_mastery_pct || 0,
+          SQL: r.sql_mastery_pct || 0,
+          Aptitude: r.aptitude_mastery_pct || 0,
+          CoreCS: r.corecs_mastery_pct || 0,
+          Companies: r.companies_mastery_pct || 0,
+        });
+        setQuizScore(r.overall_readiness_pct || 0);
+      } else {
+        setSkillGap({ DSA: 0, SQL: 0, Aptitude: 0, CoreCS: 0, Companies: 0 });
+        setQuizScore(0);
+      }
 
       const { data: latestActivity } = await supabase
-        .from('user_progress')
-        .select('*, questions(title, category)')
+        .from('user_question_tracking')
+        .select(`
+          *,
+          company_topic_questions:question_id (
+            question, subcategory
+          )
+        `)
         .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
+        .order('updated_at', { ascending: false })
         .limit(4);
 
       if (latestActivity) {
-        const activities = latestActivity.map((p: any) => ({
-          id: p.id,
-          title: p.questions?.title || 'Question',
-          type: p.questions?.category || 'DSA',
-          status: p.status.charAt(0).toUpperCase() + p.status.slice(1),
-          created_at: p.created_at,
-        }));
+        const activities = latestActivity.map((p: any) => {
+          const isCompleted = p.domain_page || p.companies_page;
+          const qData = p.company_topic_questions?.[0] || p.company_topic_questions;
+          return {
+            id: p.id || p.question_id,
+            title: qData?.question || 'Tracked Question',
+            type: p.topic || qData?.subcategory || 'Practice',
+            status: isCompleted ? 'Completed' : 'Attempted',
+            created_at: p.updated_at || p.created_at,
+          };
+        });
         setRecentActivity(activities);
       }
 
       const today = new Date().toISOString().split('T')[0];
       const todayProblemsCount = (latestActivity || []).filter(
-        (p: any) => p.created_at?.startsWith(today)
+        (p: any) => {
+          const dateStr = p.updated_at || p.created_at;
+          return dateStr && dateStr.startsWith(today);
+        }
       ).length;
       setTodayStats((prev) => ({ ...prev, problems: todayProblemsCount }));
 
@@ -217,12 +219,12 @@ function DashboardContent() {
                   <div className="group">
                     <div className="flex justify-between mb-3">
                       <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
-                        <Terminal className="w-4 h-4 text-[#A855F7]" /> Data Structures & Algorithms
+                        <Terminal className="w-4 h-4 text-[#A855F7]" /> Data Structures &amp; Algorithms
                       </span>
-                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.DSA)}%</span>
+                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.DSA)} solved</span>
                     </div>
                     <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
-                      <div className="h-full bg-[#4F0F93] rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.DSA, 2)}%` }}></div>
+                      <div className="h-full bg-[#4F0F93] rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.DSA > 0 ? Math.min(100, Math.round((skillGap.DSA / 200) * 100)) : 0, skillGap.DSA > 0 ? 4 : 0)}%` }}></div>
                     </div>
                   </div>
 
@@ -230,12 +232,12 @@ function DashboardContent() {
                   <div className="group">
                     <div className="flex justify-between mb-3">
                       <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
-                        <Database className="w-4 h-4 text-blue-500" /> SQL Queries & Optimization
+                        <Database className="w-4 h-4 text-blue-500" /> SQL Queries &amp; Optimization
                       </span>
-                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.SQL)}%</span>
+                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.SQL)} solved</span>
                     </div>
                     <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.SQL, 2)}%` }}></div>
+                      <div className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.SQL > 0 ? Math.min(100, Math.round((skillGap.SQL / 200) * 100)) : 0, skillGap.SQL > 0 ? 4 : 0)}%` }}></div>
                     </div>
                   </div>
 
@@ -245,10 +247,23 @@ function DashboardContent() {
                       <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
                         <Brain className="w-4 h-4 text-emerald-500" /> Logical Aptitude
                       </span>
-                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.Aptitude)}%</span>
+                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.Aptitude)} solved</span>
                     </div>
                     <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.Aptitude, 2)}%` }}></div>
+                      <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.Aptitude > 0 ? Math.min(100, Math.round((skillGap.Aptitude / 200) * 100)) : 0, skillGap.Aptitude > 0 ? 4 : 0)}%` }}></div>
+                    </div>
+                  </div>
+
+                  {/* Domain Item 4: Companies */}
+                  <div className="group">
+                    <div className="flex justify-between mb-3">
+                      <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
+                        <Map className="w-4 h-4 text-yellow-500" /> Companies Practice
+                      </span>
+                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.Companies)} solved</span>
+                    </div>
+                    <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
+                      <div className="h-full bg-yellow-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.Companies > 0 ? Math.min(100, Math.round((skillGap.Companies / 200) * 100)) : 0, skillGap.Companies > 0 ? 4 : 0)}%` }}></div>
                     </div>
                   </div>
                 </div>

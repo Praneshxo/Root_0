@@ -35,7 +35,10 @@ export default function InteractiveMCQUI({ mcqData, onComplete, isCompleted }: I
         setIsSubmitted(true);
         setHasAttempted(true);
         if (selectedOption === mcqData.correctAnswer) {
+            console.log('[InteractiveMCQUI] Correct answer selected. Triggering onComplete()');
             onComplete?.();
+        } else {
+            console.log('[InteractiveMCQUI] Incorrect answer selected.');
         }
     };
 

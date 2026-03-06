@@ -87,15 +87,15 @@ export default function Companies() {
         // If IDs are unique across tables (UUIDs usually are), this works fine.
 
         const { data: progressData } = await supabase
-          .from('user_company_progress')
-          .select('question_id, solved, revision')
+          .from('user_question_tracking')
+          .select('question_id, companies_page, revision')
           .eq('user_id', user.id)
           .in('question_id', data.map(q => q.id));
 
         const progressMap: Record<string, UserProgress> = {};
         progressData?.forEach(p => {
           progressMap[p.question_id] = {
-            solved: p.solved,
+            solved: p.companies_page,
             revision: p.revision
           };
         });
@@ -109,30 +109,7 @@ export default function Companies() {
     }
   };
 
-  const toggleSolved = async (questionId: string) => {
-    const currentStatus = userProgress[questionId]?.solved || false;
-    const newStatus = !currentStatus;
 
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      await supabase.from('user_company_progress').upsert({
-        user_id: user.id,
-        question_id: questionId,
-        solved: newStatus,
-        revision: userProgress[questionId]?.revision || false,
-        updated_at: new Date().toISOString()
-      });
-
-      setUserProgress(prev => ({
-        ...prev,
-        [questionId]: { ...prev[questionId], solved: newStatus }
-      }));
-    } catch (error) {
-      console.error('Error updating progress:', error);
-    }
-  };
 
   const toggleRevision = async (questionId: string) => {
     const currentStatus = userProgress[questionId]?.revision || false;
@@ -142,13 +119,16 @@ export default function Companies() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      await supabase.from('user_company_progress').upsert({
+      const question = questions.find(q => q.id === questionId);
+
+      await supabase.from('user_question_tracking').upsert({
         user_id: user.id,
         question_id: questionId,
-        solved: userProgress[questionId]?.solved || false,
+        topic: question?.category || 'unknown',
+        companies_page: userProgress[questionId]?.solved || false,
         revision: newStatus,
         updated_at: new Date().toISOString()
-      });
+      }, { onConflict: 'user_id,question_id' });
 
       setUserProgress(prev => ({
         ...prev,
@@ -275,25 +255,17 @@ export default function Companies() {
                         {question.difficulty}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-center" onClick={(e) => e.stopPropagation()}>
-                      <div
-                        className="inline-flex items-center justify-center w-6 h-6 text-[#A0A0B0] relative group cursor-pointer hover:text-green-400 transition-colors"
-                        onClick={() => toggleSolved(question.id)}
-                      >
+                    <td className="px-5 py-4 text-center">
+                      <div className="inline-flex items-center justify-center w-6 h-6 text-[#A0A0B0] relative group">
                         {userProgress[question.id]?.solved ? (
                           <>
                             <CheckCircle2 className="w-6 h-6 text-green-400" />
-                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
                               Completed
                             </div>
                           </>
                         ) : (
-                          <>
-                            <Circle className="w-6 h-6" />
-                            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-zinc-800/50 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                              Mark as solved
-                            </div>
-                          </>
+                          <Circle className="w-6 h-6" />
                         )}
                       </div>
                     </td>

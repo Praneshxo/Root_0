@@ -315,6 +315,7 @@ export default function InteractiveSQLUI({ sqlData, onComplete, isCompleted: ini
         setFeedback(newFeedback);
 
         if (allCorrect) {
+            console.log('[InteractiveSQLUI] All slots correct. Triggering onComplete()');
             setIsSuccess(true);
             // Animate all slots green pulse
             slotRefs.current.forEach((el) => {

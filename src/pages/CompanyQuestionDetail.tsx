@@ -180,8 +180,8 @@ export default function CompanyQuestionDetail() {
 
             if (user) {
                 const { data: progressData } = await supabase
-                    .from('user_company_progress')
-                    .select('solved')
+                    .from('user_question_tracking')
+                    .select('companies_page')
                     .eq('user_id', user.id)
                     .eq('question_id', questionId)
                     .single();
@@ -290,10 +290,11 @@ export default function CompanyQuestionDetail() {
         if (!user || !questionId) return;
 
         try {
-            await supabase.from('user_company_progress').upsert({
+            await supabase.from('user_question_tracking').upsert({
                 user_id: user.id,
                 question_id: questionId,
-                solved: true,
+                topic: question?.topic || question?.category || 'unknown',
+                companies_page: true,
                 updated_at: new Date().toISOString()
             }, {
                 onConflict: 'user_id,question_id'

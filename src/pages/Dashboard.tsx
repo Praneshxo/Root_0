@@ -26,16 +26,11 @@ import {
 
 
 // --- Interfaces ---
-interface UserStats {
-  problems_solved: number;
-  study_streak_days: number;
-  total_study_hours: number;
-  weekly_goal_progress?: number;
-  weekly_goal_target?: number;
-}
-
 interface RecentActivity {
   id: string;
+  question_id: string;
+  topic: string;
+  companiesPage: boolean;
   title: string;
   type: string;
   status: string;
@@ -45,11 +40,18 @@ interface RecentActivity {
 function DashboardContent() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [stats, setStats] = useState<UserStats | null>(null);
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [quizScore, setQuizScore] = useState<number>(0);
-  const [todayStats, setTodayStats] = useState({ problems: 0, quizzes: 0, hours: 0 });
   const [loading, setLoading] = useState(true);
+
+  // --- Streak & Weekly Goal state ---
+  const [streakData, setStreakData] = useState({
+    current: 0,
+    longest: 0,
+    weekly_count: 0,
+  });
+  const [showGoalPopup, setShowGoalPopup] = useState(false);
+  const WEEKLY_GOAL = 20;
 
   useEffect(() => {
     if (user?.id) {
@@ -67,22 +69,65 @@ function DashboardContent() {
 
   const fetchDashboardData = async () => {
     try {
-      const [statsResult, readinessResult] = await Promise.all([
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+      const [statsResult, readinessResult, streakResult, topicTotalsResult] = await Promise.all([
         supabase.from('user_stats').select('*').eq('user_id', user?.id).maybeSingle(),
-        supabase.from('user_dashboard_readiness').select('*').eq('user_id', user?.id).maybeSingle()
+        supabase.from('user_dashboard_readiness').select('*').eq('user_id', user?.id).maybeSingle(),
+        supabase.from('user_streak').select('current_streak, longest_streak, weekly_count').eq('user_id', user?.id).maybeSingle(),
+        // Fetch total question counts per topic to calculate real %
+        supabase.from('company_topic_questions').select('topic', { count: 'exact', head: false }),
       ]);
 
       if (statsResult.data) {
-        setStats(statsResult.data);
+        // stats fetched but used for future features
+        void statsResult.data;
+      }
+
+      // Streak
+      if (streakResult.data) {
+        const s = streakResult.data;
+        const newStreakData = {
+          current: s.current_streak || 0,
+          longest: s.longest_streak || 0,
+          weekly_count: s.weekly_count || 0,
+        };
+        setStreakData(newStreakData);
+
+        // Show weekly goal popup once per session when goal hit
+        const goalKey = `goal_celebrated_${new Date().toISOString().slice(0, 10)}`;
+        if (newStreakData.weekly_count >= WEEKLY_GOAL && !sessionStorage.getItem(goalKey)) {
+          sessionStorage.setItem(goalKey, '1');
+          setTimeout(() => setShowGoalPopup(true), 800);
+        }
       }
 
       if (readinessResult.data) {
         const r = readinessResult.data;
-        setSkillGap({
+        // resolved counts from readiness (raw solved count per topic)
+        const solved = {
           DSA: r.dsa_mastery_pct || 0,
           SQL: r.sql_mastery_pct || 0,
           Aptitude: r.aptitude_mastery_pct || 0,
           CoreCS: r.corecs_mastery_pct || 0,
+        };
+
+        // compute per-topic totals from query result
+        const topicRows: any[] = topicTotalsResult.data || [];
+        const topicCounts: Record<string, number> = {};
+        topicRows.forEach((row: any) => {
+          const t = (row.topic || '').toLowerCase();
+          topicCounts[t] = (topicCounts[t] || 0) + 1;
+        });
+
+        const pct = (solved: number, total: number) =>
+          total > 0 ? Math.min(100, Math.round((solved / total) * 100)) : 0;
+
+        setSkillGap({
+          DSA: pct(solved.DSA, topicCounts['dsa'] || 1),
+          SQL: pct(solved.SQL, topicCounts['sql'] || 1),
+          Aptitude: pct(solved.Aptitude, topicCounts['aptitude'] || 1),
+          CoreCS: pct(solved.CoreCS, topicCounts['corecs'] || 1),
           Companies: r.companies_mastery_pct || 0,
         });
         setQuizScore(r.overall_readiness_pct || 0);
@@ -91,46 +136,76 @@ function DashboardContent() {
         setQuizScore(0);
       }
 
-      const { data: latestActivity } = await supabase
+      // Recent Activity: fetch last 7 days of solved questions, sorted by most recently updated
+      const { data: rawActivity } = await supabase
         .from('user_question_tracking')
         .select(`
-          *,
-          company_topic_questions:question_id (
-            question, subcategory
-          )
+          id,
+          question_id,
+          topic,
+          domain_page,
+          companies_page,
+          updated_at
         `)
         .eq('user_id', user?.id)
+        .or('domain_page.eq.true,companies_page.eq.true')
+        .gte('updated_at', sevenDaysAgo)
         .order('updated_at', { ascending: false })
-        .limit(4);
+        .limit(20);
 
-      if (latestActivity) {
-        const activities = latestActivity.map((p: any) => {
-          const isCompleted = p.domain_page || p.companies_page;
-          const qData = p.company_topic_questions?.[0] || p.company_topic_questions;
-          return {
-            id: p.id || p.question_id,
-            title: qData?.question || 'Tracked Question',
-            type: p.topic || qData?.subcategory || 'Practice',
-            status: isCompleted ? 'Completed' : 'Attempted',
-            created_at: p.updated_at || p.created_at,
-          };
-        });
+      if (rawActivity) {
+        const solved = rawActivity.slice(0, 10);
+
+        // Batch fetch question texts from company_topic_questions
+        const questionIds = solved.map((p: any) => p.question_id).filter(Boolean);
+        let questionMap: Record<string, string> = {};
+        if (questionIds.length > 0) {
+          const { data: qData } = await supabase
+            .from('company_topic_questions')
+            .select('id, question')
+            .in('id', questionIds);
+          if (qData) {
+            qData.forEach((q: any) => {
+              questionMap[q.id] = q.question;
+            });
+          }
+        }
+
+        const activities = solved.map((p: any) => ({
+          id: p.id || p.question_id,
+          question_id: p.question_id,
+          topic: p.topic || '',
+          companiesPage: !!p.companies_page,
+          title: questionMap[p.question_id] || `Question #${(p.question_id || '').toString().slice(0, 8)}...`,
+          type: (p.topic || 'practice').toUpperCase(),
+          status: 'Completed',
+          created_at: p.updated_at || p.created_at,
+        }));
         setRecentActivity(activities);
       }
 
       const today = new Date().toISOString().split('T')[0];
-      const todayProblemsCount = (latestActivity || []).filter(
-        (p: any) => {
-          const dateStr = p.updated_at || p.created_at;
-          return dateStr && dateStr.startsWith(today);
-        }
-      ).length;
-      setTodayStats((prev) => ({ ...prev, problems: todayProblemsCount }));
+      void today; // todayStats removed — no longer displayed
+
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Build the correct URL to navigate to a specific question from recent activity
+  const getActivityUrl = (activity: RecentActivity): string => {
+    const id = activity.question_id;
+    if (activity.companiesPage) return `/companies/question/${id}`;
+    switch (activity.topic) {
+      case 'dsa': return `/dsa/${id}`;
+      case 'sql': return `/sql/${id}`;
+      case 'aptitude': return `/aptitude/${id}`;
+      case 'corecs': return `/core-cs/${id}`;
+      case 'interview': return `/interview-questions/${id}`;
+      default: return `/dsa/${id}`;
     }
   };
 
@@ -157,6 +232,27 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-[#0F0F13] text-white p-6 md:p-8 font-sans selection:bg-emerald-500/30">
+
+      {/* Weekly Goal Achievement Popup */}
+      {showGoalPopup && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-4 duration-500">
+          <div className="bg-[#111317] border border-emerald-500/50 rounded-2xl p-5 shadow-2xl shadow-emerald-900/30 flex items-center gap-4 min-w-[300px]">
+            <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/30 flex-shrink-0">
+              <span className="text-2xl">🏆</span>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-white">Weekly Goal Achieved!</p>
+              <p className="text-xs text-zinc-400 mt-0.5">You solved {WEEKLY_GOAL} questions this week. Amazing work! 🎉</p>
+            </div>
+            <button
+              onClick={() => setShowGoalPopup(false)}
+              className="text-zinc-600 hover:text-zinc-400 text-lg leading-none flex-shrink-0"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 1. Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -221,10 +317,10 @@ function DashboardContent() {
                       <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
                         <Terminal className="w-4 h-4 text-[#A855F7]" /> Data Structures &amp; Algorithms
                       </span>
-                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.DSA)} solved</span>
+                      <span className="text-sm text-zinc-500 font-mono">{skillGap.DSA}%</span>
                     </div>
                     <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
-                      <div className="h-full bg-[#4F0F93] rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.DSA > 0 ? Math.min(100, Math.round((skillGap.DSA / 200) * 100)) : 0, skillGap.DSA > 0 ? 4 : 0)}%` }}></div>
+                      <div className="h-full bg-[#4F0F93] rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.DSA, skillGap.DSA > 0 ? 2 : 0)}%` }}></div>
                     </div>
                   </div>
 
@@ -234,10 +330,10 @@ function DashboardContent() {
                       <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
                         <Database className="w-4 h-4 text-blue-500" /> SQL Queries &amp; Optimization
                       </span>
-                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.SQL)} solved</span>
+                      <span className="text-sm text-zinc-500 font-mono">{skillGap.SQL}%</span>
                     </div>
                     <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.SQL > 0 ? Math.min(100, Math.round((skillGap.SQL / 200) * 100)) : 0, skillGap.SQL > 0 ? 4 : 0)}%` }}></div>
+                      <div className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.SQL, skillGap.SQL > 0 ? 2 : 0)}%` }}></div>
                     </div>
                   </div>
 
@@ -247,23 +343,10 @@ function DashboardContent() {
                       <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
                         <Brain className="w-4 h-4 text-emerald-500" /> Logical Aptitude
                       </span>
-                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.Aptitude)} solved</span>
+                      <span className="text-sm text-zinc-500 font-mono">{skillGap.Aptitude}%</span>
                     </div>
                     <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.Aptitude > 0 ? Math.min(100, Math.round((skillGap.Aptitude / 200) * 100)) : 0, skillGap.Aptitude > 0 ? 4 : 0)}%` }}></div>
-                    </div>
-                  </div>
-
-                  {/* Domain Item 4: Companies */}
-                  <div className="group">
-                    <div className="flex justify-between mb-3">
-                      <span className="text-sm font-medium text-zinc-300 flex items-center gap-2 group-hover:text-white transition-colors">
-                        <Map className="w-4 h-4 text-yellow-500" /> Companies Practice
-                      </span>
-                      <span className="text-sm text-zinc-500 font-mono">{Math.round(skillGap.Companies)} solved</span>
-                    </div>
-                    <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
-                      <div className="h-full bg-yellow-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.Companies > 0 ? Math.min(100, Math.round((skillGap.Companies / 200) * 100)) : 0, skillGap.Companies > 0 ? 4 : 0)}%` }}></div>
+                      <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.max(skillGap.Aptitude, skillGap.Aptitude > 0 ? 2 : 0)}%` }}></div>
                     </div>
                   </div>
                 </div>
@@ -275,7 +358,7 @@ function DashboardContent() {
         {/* Right Column: Streaks & Goals */}
         <div className="flex flex-col gap-6">
           {/* Daily Streak */}
-          <div className="bg-[#111317] border border-gray-800 rounded-2xl p-6 flex-1 flex flex-col justify-center relative overflow-hidden group hover:border-orange-500/30 transition-colors">
+          <div className="bg-[#111317] border border-gray-800 rounded-2xl p-6 flex-1 flex flex-col justify-center relative overflow-hidden group hover:border-orange-300/10 transition-colors">
             <div className="absolute -top-6 -right-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity rotate-12">
               <Zap className="w-32 h-32 text-orange-500" />
             </div>
@@ -289,30 +372,47 @@ function DashboardContent() {
               </div>
             </div>
             <div className="mt-4 relative z-10 flex items-baseline gap-2">
-              <span className="text-5xl font-bold text-white tracking-tighter">{stats?.study_streak_days || 0}</span>
+              <span className="text-5xl font-bold text-white tracking-tighter">{streakData.current}</span>
               <span className="text-zinc-500 font-medium">Days</span>
             </div>
+            {streakData.longest > 0 && (
+              <div className="mt-2 text-xs text-zinc-600">Best: {streakData.longest} days</div>
+            )}
           </div>
 
           {/* Weekly Goal Widget */}
-          <div className="bg-[#111317] border border-gray-800 rounded-2xl p-6 flex-1 flex flex-col justify-center hover:border-blue-500/30 transition-colors">
+          <div className={`bg-[#111317] border rounded-2xl p-6 flex-1 flex flex-col justify-center transition-colors ${streakData.weekly_count >= WEEKLY_GOAL
+            ? 'border-emerald-500/40 hover:border-emerald-400/60'
+            : 'border-gray-800 hover:border-blue-500/30'
+            }`}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500/10 rounded-lg">
-                  <Target className="w-5 h-5 text-blue-500" />
+                <div className={`p-2 rounded-lg ${streakData.weekly_count >= WEEKLY_GOAL ? 'bg-emerald-500/10' : 'bg-blue-500/10'
+                  }`}>
+                  <Target className={`w-5 h-5 ${streakData.weekly_count >= WEEKLY_GOAL ? 'text-emerald-400' : 'text-blue-500'
+                    }`} />
                 </div>
                 <span className="font-semibold text-zinc-200">Weekly Goal</span>
               </div>
-              <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-1 rounded-md border border-blue-500/20 uppercase tracking-wide">Active</span>
+              {streakData.weekly_count >= WEEKLY_GOAL ? (
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20 uppercase tracking-wide">✓ Done!</span>
+              ) : (
+                <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-1 rounded-md border border-blue-500/20 uppercase tracking-wide">Active</span>
+              )}
             </div>
             <div className="mb-2 flex justify-between items-end">
-              {/* Uses todayStats.problems as a placeholder. Connect to DB `weekly_problems` later */}
-              <span className="text-2xl font-bold text-white">{todayStats.problems}</span>
-              <span className="text-sm text-zinc-500 mb-1 font-medium">/ 20 Problems</span>
+              <span className={`text-2xl font-bold ${streakData.weekly_count >= WEEKLY_GOAL ? 'text-emerald-400' : 'text-white'
+                }`}>{streakData.weekly_count}</span>
+              <span className="text-sm text-zinc-500 mb-1 font-medium">/ {WEEKLY_GOAL} Questions</span>
             </div>
             <div className="w-full h-2 bg-[#2A2A35] rounded-full overflow-hidden">
-              <div className="h-full bg-blue-500 rounded-full shadow-none" style={{ width: `${Math.min((todayStats.problems / 20) * 100, 100)}%` }}></div>
+              <div
+                className={`h-full rounded-full transition-all duration-1000 ease-out ${streakData.weekly_count >= WEEKLY_GOAL ? 'bg-emerald-500' : 'bg-blue-500'
+                  }`}
+                style={{ width: `${Math.min((streakData.weekly_count / WEEKLY_GOAL) * 100, 100)}%` }}
+              />
             </div>
+            <p className="text-xs text-zinc-600 mt-2">Resets every Monday</p>
           </div>
         </div>
       </div>
@@ -415,7 +515,8 @@ function DashboardContent() {
             recentActivity.map((activity) => (
               <div
                 key={activity.id}
-                className="flex items-center justify-between p-4 hover:bg-[#111317] rounded-xl transition-all group border border-transparent hover:border-gray-800/50"
+                onClick={() => navigate(getActivityUrl(activity))}
+                className="flex items-center justify-between p-4 hover:bg-[#111317] rounded-xl transition-all group border border-transparent hover:border-gray-800/50 cursor-pointer"
               >
                 <div className="flex items-center gap-4">
                   <div className={`w-2.5 h-2.5 rounded-full ring-2 ring-black ${activity.status === 'Completed' ? 'bg-emerald-500 shadow-none' : 'bg-yellow-500 shadow-none'}`}></div>

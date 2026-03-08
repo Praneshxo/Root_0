@@ -12,7 +12,7 @@ import Aptitude from './pages/Aptitude';
 import CoreCS from './pages/CoreCS';
 import InterviewQuestions from './pages/InterviewQuestions';
 import HRContacts from './pages/HRContacts';
-
+import LandingPage from './pages/LandingPage';
 import Notes from './pages/Notes';
 import Projects from './pages/Projects';
 import QuestionDetail from './pages/QuestionDetail';
@@ -27,15 +27,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
 
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Layout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            <Route path="dashboard" element={<Dashboard />} />
             <Route path="companies" element={<Companies />} />
             <Route path="companies/:questionId" element={<CompanyQuestionDetail />} />
             <Route path="companies/question/:questionId" element={<CompanyQuestionDetail />} />

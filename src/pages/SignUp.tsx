@@ -41,7 +41,7 @@ export default function SignUp() {
 
       setSuccess(true);
       setTimeout(() => {
-        navigate('/');
+        navigate('/dashboard');
       }, 2000);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred');

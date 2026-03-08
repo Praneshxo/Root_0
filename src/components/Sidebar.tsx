@@ -20,7 +20,7 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
   { icon: Building2, label: 'Companies', path: '/companies' },
   { icon: MessageSquare, label: 'Interview Questions', path: '/interview-questions' },
   { icon: Code, label: 'DSA Questions', path: '/dsa' },
@@ -39,7 +39,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   // Auto-collapse based on route
   useEffect(() => {
-    if (location.pathname === '/') {
+    if (location.pathname === '/dashboard') {
       setIsCollapsed(false); // Expanded on dashboard
     } else {
       setIsCollapsed(true); // Collapsed on other pages

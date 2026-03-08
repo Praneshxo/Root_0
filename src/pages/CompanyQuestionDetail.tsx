@@ -15,6 +15,7 @@ import InteractiveDSAUI from '../components/content/InteractiveDSAUI';
 import InteractiveSQLUI from '../components/content/InteractiveSQLUI';
 import InteractiveMCQUI from '../components/content/InteractiveMCQUI';
 import FeedbackModal from '../components/FeedbackModal';
+import { markCompanySolved, updateStreak } from '../services/questionProgressService';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -290,15 +291,12 @@ export default function CompanyQuestionDetail() {
         if (!user || !questionId) return;
 
         try {
-            await supabase.from('user_question_tracking').upsert({
-                user_id: user.id,
-                question_id: questionId,
-                topic: question?.topic || question?.category || 'unknown',
-                companies_page: true,
-                updated_at: new Date().toISOString()
-            }, {
-                onConflict: 'user_id,question_id'
-            });
+            await markCompanySolved(
+                user.id,
+                questionId,
+                question?.topic || question?.category || 'unknown'
+            );
+            await updateStreak(user.id);
         } catch (error) {
             console.error('Error marking as complete:', error);
         }

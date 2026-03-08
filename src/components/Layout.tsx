@@ -7,7 +7,7 @@ import Header from './Header';
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const isDashboard = location.pathname === '/';
+  const isDashboard = location.pathname === '/dashboard';
 
   return (
     <div className="min-h-screen bg-[#0F0F13] text-white flex">

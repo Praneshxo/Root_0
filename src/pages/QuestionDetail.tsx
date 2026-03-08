@@ -12,6 +12,7 @@ import {
     markInteractionCompleted,
     getQuestionProgress,
     markAsSolved,
+    updateStreak,
     QuestionType,
 } from '../services/questionProgressService';
 import CodeContent from '../components/content/CodeContent';
@@ -294,6 +295,7 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
         try {
             await markInteractionCompleted(user.id, questionId, type);
             await markAsSolved(user.id, questionId, type);
+            await updateStreak(user.id);
             console.log(`[QuestionDetail] API calls finished.`);
         } catch (error: any) {
             console.error('[QuestionDetail] handleComplete failed:', error);

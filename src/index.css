@@ -92,4 +92,21 @@
   /* NO glow effects - removed */
 
   /* NO gradient text - removed */
+  /* Custom drag utilities */
+  .draggable-item {
+    cursor: grab;
+  }
+
+  .draggable-item:active {
+    cursor: grabbing;
+  }
+
+  .drop-zone {
+    transition: all 0.3s ease;
+  }
+
+  .drop-zone:hover {
+    border-color: #4F46E5;
+    background-color: rgba(79, 70, 229, 0.05);
+  }
 }

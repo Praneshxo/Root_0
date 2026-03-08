@@ -1,0 +1,141 @@
+.landing-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.content {
+  position: relative;
+  text-align: center;
+  color: #fff;
+  z-index: 1;
+}
+
+.header-3d {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3rem;
+  margin-bottom: 2rem;
+  perspective: 800px;
+  transform-style: preserve-3d;
+  animation: rotate3d 8s infinite alternate ease-in-out;
+}
+
+@keyframes rotate3d {
+  from {
+    transform: rotateY(-10deg) rotateX(5deg);
+  }
+
+  to {
+    transform: rotateY(10deg) rotateX(-5deg);
+  }
+}
+
+.get-started {
+  padding: 0.75rem 2rem;
+  font-size: 1.2rem;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.get-started:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Hero Section Styles */
+.hero-section {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: url('/images/code.html') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: #fff;
+  max-width: 600px;
+  padding: 0 1rem;
+}
+
+.hero-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.hero-title .highlight {
+  color: #4F46E5;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.hero-cta {
+  padding: 0.75rem 2rem;
+  font-size: 1.2rem;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.abstract-blob {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle at 30% 30%, #4F46E5, transparent);
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: blob 8s infinite alternate ease-in-out;
+  top: 20%;
+  left: 10%;
+  z-index: 0;
+}
+
+@keyframes blob {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+
+  to {
+    transform: translate(30px, -30px) scale(1.2);
+  }
+}

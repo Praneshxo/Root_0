@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Lightbulb, CheckCircle2, Eye, RotateCcw } from 'lucide-react';
+import { motion } from 'framer-motion';
 import {
     DndContext,
     closestCenter,
@@ -24,12 +25,18 @@ const SortableItem = ({ id, text }: { id: string; text: string }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
     return (
-        <div
+        <motion.div
+            layout
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
             ref={setNodeRef}
-            style={{ transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : 1 }}
+            style={{
+                transform: CSS.Transform.toString(transform),
+                transition: transform ? transition : undefined,
+                zIndex: isDragging ? 10 : 1
+            }}
             {...attributes}
             {...listeners}
-            className={`flex items-center p-4 rounded-lg border transition-all duration-150
+            className={`flex items-center p-4 rounded-lg border
                 cursor-grab active:cursor-grabbing touch-none select-none
                 ${isDragging
                     ? 'bg-zinc-800/70 border-purple-500/60 shadow-xl opacity-90 scale-[1.02]'
@@ -40,7 +47,7 @@ const SortableItem = ({ id, text }: { id: string; text: string }) => {
                 <Lightbulb size={16} />
             </div>
             <div className="flex-1 text-[#D0D0E0] text-sm font-mono tracking-tight">{text}</div>
-        </div>
+        </motion.div>
     );
 };
 
@@ -216,15 +223,34 @@ export default function InteractiveDSAUI({ dsaData, onComplete }: InteractiveDSA
 
     // ── Reveal solution ───────────────────────────────────────────────────────
     const handleRevealSolution = () => {
-        setUserSteps([...correctSteps]);
         setFeedback(null);
         setHasValidated(true);
-        // Animate all green after a tick (so refs are updated)
-        setTimeout(() => {
-            animateGreenDown(correctSteps.length, () => {
-                setIsSuccess(true);
-            });
-        }, 50);
+
+        let currentSteps = [...userSteps];
+        const targetSteps = [...correctSteps];
+        let i = 0;
+
+        const nextSwap = () => {
+            if (i >= targetSteps.length) {
+                setTimeout(() => {
+                    animateGreenDown(targetSteps.length, () => {
+                        setIsSuccess(true);
+                    });
+                }, 100);
+                return;
+            }
+
+            if (currentSteps[i].id !== targetSteps[i].id) {
+                const targetIdx = currentSteps.findIndex(s => s.id === targetSteps[i].id);
+                currentSteps = arrayMove(currentSteps, targetIdx, i);
+                setUserSteps([...currentSteps]);
+            }
+
+            i++;
+            setTimeout(nextSwap, 250);
+        };
+
+        nextSwap();
         // Do NOT call onComplete() — reveal should not mark as completed
     };
 

@@ -214,7 +214,8 @@ export default function CompanyQuestionDetail() {
                         .select('id')
                         .eq('company_name', question.company_name)
                         .in('topic', ['HR', 'Technical'])
-                        .order('created_at');
+                        .order('created_at')
+                        .order('id');
                     ids = data?.map(q => q.id) || [];
                 } else {
                     const { data } = await supabase
@@ -222,7 +223,8 @@ export default function CompanyQuestionDetail() {
                         .select('id')
                         .eq('company_name', question.company_name)
                         .eq('topic', currentTab)
-                        .order('created_at');
+                        .order('created_at')
+                        .order('id');
                     ids = data?.map(q => q.id) || [];
                 }
 
@@ -236,7 +238,6 @@ export default function CompanyQuestionDetail() {
 
     const handleNextQuestion = () => {
         if (!questionId) {
-            handleBack();
             return;
         }
 
@@ -249,8 +250,6 @@ export default function CompanyQuestionDetail() {
                 state: location.state,
                 replace: true
             });
-        } else {
-            handleBack();
         }
     };
 
@@ -482,7 +481,8 @@ export default function CompanyQuestionDetail() {
                         <div className="text-sm text-[#A0A0B0]"></div>
                         <button
                             onClick={handleNextQuestion}
-                            className="flex items-center gap-2 px-6 py-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors"
+                            disabled={!questionId || allQuestionIds.indexOf(questionId) >= allQuestionIds.length - 1}
+                            className="flex items-center gap-2 px-6 py-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <span>Next</span>
                             <ChevronRight className="w-5 h-5" />

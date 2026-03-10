@@ -11,13 +11,22 @@ export default {
         "background-dark": "#0B0B0C",
         "surface-dark": "#161617",
         "border-dark": "#27272A",
-        "accent-purple": "#4F46E5",
+        "accent-purple": "#a855f7",
       },
       fontFamily: {
         "display": ["Outfit", "sans-serif"],
         "body": ["Outfit", "sans-serif"],
       },
       borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+      keyframes: {
+        scrollMarquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        }
+      },
+      animation: {
+        'marquee': 'scrollMarquee 20s linear infinite',
+      }
     },
   },
   plugins: [

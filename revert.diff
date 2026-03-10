@@ -1,0 +1,2267 @@
+diff --git a/package-lock.json b/package-lock.json
+index e4d2455..fc6118e 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -11,6 +11,8 @@
+         "@dnd-kit/core": "^6.3.1",
+         "@dnd-kit/sortable": "^10.0.0",
+         "@dnd-kit/utilities": "^3.2.2",
++        "@react-three/drei": "^9.122.0",
++        "@react-three/fiber": "^8.18.0",
+         "@supabase/supabase-js": "^2.57.4",
+         "@types/three": "^0.182.0",
+         "framer-motion": "^12.23.26",
+@@ -289,6 +291,15 @@
+         "@babel/core": "^7.0.0-0"
+       }
+     },
++    "node_modules/@babel/runtime": {
++      "version": "7.28.6",
++      "resolved": "https://registry.npmjs.org/@babel/runtime/-/runtime-7.28.6.tgz",
++      "integrity": "sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=6.9.0"
++      }
++    },
+     "node_modules/@babel/template": {
+       "version": "7.27.2",
+       "resolved": "https://registry.npmjs.org/@babel/template/-/template-7.27.2.tgz",
+@@ -1046,6 +1057,24 @@
+         "@jridgewell/sourcemap-codec": "^1.4.14"
+       }
+     },
++    "node_modules/@mediapipe/tasks-vision": {
++      "version": "0.10.17",
++      "resolved": "https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-0.10.17.tgz",
++      "integrity": "sha512-CZWV/q6TTe8ta61cZXjfnnHsfWIdFhms03M9T7Cnd5y2mdpylJM0rF1qRq+wsQVRMLz1OYPVEBU9ph2Bx8cxrg==",
++      "license": "Apache-2.0"
++    },
++    "node_modules/@monogrid/gainmap-js": {
++      "version": "3.4.0",
++      "resolved": "https://registry.npmjs.org/@monogrid/gainmap-js/-/gainmap-js-3.4.0.tgz",
++      "integrity": "sha512-2Z0FATFHaoYJ8b+Y4y4Hgfn3FRFwuU5zRrk+9dFWp4uGAdHGqVEdP7HP+gLA3X469KXHmfupJaUbKo1b/aDKIg==",
++      "license": "MIT",
++      "dependencies": {
++        "promise-worker-transferable": "^1.0.4"
++      },
++      "peerDependencies": {
++        "three": ">= 0.159.0"
++      }
++    },
+     "node_modules/@nodelib/fs.scandir": {
+       "version": "2.1.5",
+       "resolved": "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz",
+@@ -1084,6 +1113,195 @@
+         "node": ">= 8"
+       }
+     },
++    "node_modules/@react-spring/animated": {
++      "version": "9.7.5",
++      "resolved": "https://registry.npmjs.org/@react-spring/animated/-/animated-9.7.5.tgz",
++      "integrity": "sha512-Tqrwz7pIlsSDITzxoLS3n/v/YCUHQdOIKtOJf4yL6kYVSDTSmVK1LI1Q3M/uu2Sx4X3pIWF3xLUhlsA6SPNTNg==",
++      "license": "MIT",
++      "dependencies": {
++        "@react-spring/shared": "~9.7.5",
++        "@react-spring/types": "~9.7.5"
++      },
++      "peerDependencies": {
++        "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
++      }
++    },
++    "node_modules/@react-spring/core": {
++      "version": "9.7.5",
++      "resolved": "https://registry.npmjs.org/@react-spring/core/-/core-9.7.5.tgz",
++      "integrity": "sha512-rmEqcxRcu7dWh7MnCcMXLvrf6/SDlSokLaLTxiPlAYi11nN3B5oiCUAblO72o+9z/87j2uzxa2Inm8UbLjXA+w==",
++      "license": "MIT",
++      "dependencies": {
++        "@react-spring/animated": "~9.7.5",
++        "@react-spring/shared": "~9.7.5",
++        "@react-spring/types": "~9.7.5"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/react-spring/donate"
++      },
++      "peerDependencies": {
++        "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
++      }
++    },
++    "node_modules/@react-spring/rafz": {
++      "version": "9.7.5",
++      "resolved": "https://registry.npmjs.org/@react-spring/rafz/-/rafz-9.7.5.tgz",
++      "integrity": "sha512-5ZenDQMC48wjUzPAm1EtwQ5Ot3bLIAwwqP2w2owG5KoNdNHpEJV263nGhCeKKmuA3vG2zLLOdu3or6kuDjA6Aw==",
++      "license": "MIT"
++    },
++    "node_modules/@react-spring/shared": {
++      "version": "9.7.5",
++      "resolved": "https://registry.npmjs.org/@react-spring/shared/-/shared-9.7.5.tgz",
++      "integrity": "sha512-wdtoJrhUeeyD/PP/zo+np2s1Z820Ohr/BbuVYv+3dVLW7WctoiN7std8rISoYoHpUXtbkpesSKuPIw/6U1w1Pw==",
++      "license": "MIT",
++      "dependencies": {
++        "@react-spring/rafz": "~9.7.5",
++        "@react-spring/types": "~9.7.5"
++      },
++      "peerDependencies": {
++        "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
++      }
++    },
++    "node_modules/@react-spring/three": {
++      "version": "9.7.5",
++      "resolved": "https://registry.npmjs.org/@react-spring/three/-/three-9.7.5.tgz",
++      "integrity": "sha512-RxIsCoQfUqOS3POmhVHa1wdWS0wyHAUway73uRLp3GAL5U2iYVNdnzQsep6M2NZ994BlW8TcKuMtQHUqOsy6WA==",
++      "license": "MIT",
++      "dependencies": {
++        "@react-spring/animated": "~9.7.5",
++        "@react-spring/core": "~9.7.5",
++        "@react-spring/shared": "~9.7.5",
++        "@react-spring/types": "~9.7.5"
++      },
++      "peerDependencies": {
++        "@react-three/fiber": ">=6.0",
++        "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
++        "three": ">=0.126"
++      }
++    },
++    "node_modules/@react-spring/types": {
++      "version": "9.7.5",
++      "resolved": "https://registry.npmjs.org/@react-spring/types/-/types-9.7.5.tgz",
++      "integrity": "sha512-HVj7LrZ4ReHWBimBvu2SKND3cDVUPWKLqRTmWe/fNY6o1owGOX0cAHbdPDTMelgBlVbrTKrre6lFkhqGZErK/g==",
++      "license": "MIT"
++    },
++    "node_modules/@react-three/drei": {
++      "version": "9.122.0",
++      "resolved": "https://registry.npmjs.org/@react-three/drei/-/drei-9.122.0.tgz",
++      "integrity": "sha512-SEO/F/rBCTjlLez7WAlpys+iGe9hty4rNgjZvgkQeXFSiwqD4Hbk/wNHMAbdd8vprO2Aj81mihv4dF5bC7D0CA==",
++      "license": "MIT",
++      "dependencies": {
++        "@babel/runtime": "^7.26.0",
++        "@mediapipe/tasks-vision": "0.10.17",
++        "@monogrid/gainmap-js": "^3.0.6",
++        "@react-spring/three": "~9.7.5",
++        "@use-gesture/react": "^10.3.1",
++        "camera-controls": "^2.9.0",
++        "cross-env": "^7.0.3",
++        "detect-gpu": "^5.0.56",
++        "glsl-noise": "^0.0.0",
++        "hls.js": "^1.5.17",
++        "maath": "^0.10.8",
++        "meshline": "^3.3.1",
++        "react-composer": "^5.0.3",
++        "stats-gl": "^2.2.8",
++        "stats.js": "^0.17.0",
++        "suspend-react": "^0.1.3",
++        "three-mesh-bvh": "^0.7.8",
++        "three-stdlib": "^2.35.6",
++        "troika-three-text": "^0.52.0",
++        "tunnel-rat": "^0.1.2",
++        "utility-types": "^3.11.0",
++        "zustand": "^5.0.1"
++      },
++      "peerDependencies": {
++        "@react-three/fiber": "^8",
++        "react": "^18",
++        "react-dom": "^18",
++        "three": ">=0.137"
++      },
++      "peerDependenciesMeta": {
++        "react-dom": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/@react-three/fiber": {
++      "version": "8.18.0",
++      "resolved": "https://registry.npmjs.org/@react-three/fiber/-/fiber-8.18.0.tgz",
++      "integrity": "sha512-FYZZqD0UUHUswKz3LQl2Z7H24AhD14XGTsIRw3SJaXUxyfVMi+1yiZGmqTcPt/CkPpdU7rrxqcyQ1zJE5DjvIQ==",
++      "license": "MIT",
++      "dependencies": {
++        "@babel/runtime": "^7.17.8",
++        "@types/react-reconciler": "^0.26.7",
++        "@types/webxr": "*",
++        "base64-js": "^1.5.1",
++        "buffer": "^6.0.3",
++        "its-fine": "^1.0.6",
++        "react-reconciler": "^0.27.0",
++        "react-use-measure": "^2.1.7",
++        "scheduler": "^0.21.0",
++        "suspend-react": "^0.1.3",
++        "zustand": "^3.7.1"
++      },
++      "peerDependencies": {
++        "expo": ">=43.0",
++        "expo-asset": ">=8.4",
++        "expo-file-system": ">=11.0",
++        "expo-gl": ">=11.0",
++        "react": ">=18 <19",
++        "react-dom": ">=18 <19",
++        "react-native": ">=0.64",
++        "three": ">=0.133"
++      },
++      "peerDependenciesMeta": {
++        "expo": {
++          "optional": true
++        },
++        "expo-asset": {
++          "optional": true
++        },
++        "expo-file-system": {
++          "optional": true
++        },
++        "expo-gl": {
++          "optional": true
++        },
++        "react-dom": {
++          "optional": true
++        },
++        "react-native": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/@react-three/fiber/node_modules/scheduler": {
++      "version": "0.21.0",
++      "resolved": "https://registry.npmjs.org/scheduler/-/scheduler-0.21.0.tgz",
++      "integrity": "sha512-1r87x5fz9MXqswA2ERLo0EbOAU74DpIUO090gIasYTqlVoJeMcl+Z1Rg7WHz+qtPujhS/hGIt9kxZOYBV3faRQ==",
++      "license": "MIT",
++      "dependencies": {
++        "loose-envify": "^1.1.0"
++      }
++    },
++    "node_modules/@react-three/fiber/node_modules/zustand": {
++      "version": "3.7.2",
++      "resolved": "https://registry.npmjs.org/zustand/-/zustand-3.7.2.tgz",
++      "integrity": "sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=12.7.0"
++      },
++      "peerDependencies": {
++        "react": ">=16.8"
++      },
++      "peerDependenciesMeta": {
++        "react": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/@rolldown/pluginutils": {
+       "version": "1.0.0-beta.27",
+       "resolved": "https://registry.npmjs.org/@rolldown/pluginutils/-/pluginutils-1.0.0-beta.27.tgz",
+@@ -1566,6 +1784,12 @@
+         "@types/ms": "*"
+       }
+     },
++    "node_modules/@types/draco3d": {
++      "version": "1.4.10",
++      "resolved": "https://registry.npmjs.org/@types/draco3d/-/draco3d-1.4.10.tgz",
++      "integrity": "sha512-AX22jp8Y7wwaBgAixaSvkoG4M/+PlAcm3Qs4OW8yT9DM4xUpWKeFhLueTAyZF39pviAdcDdeJoACapiAceqNcw==",
++      "license": "MIT"
++    },
+     "node_modules/@types/estree": {
+       "version": "1.0.8",
+       "resolved": "https://registry.npmjs.org/@types/estree/-/estree-1.0.8.tgz",
+@@ -1621,6 +1845,12 @@
+         "undici-types": "~7.16.0"
+       }
+     },
++    "node_modules/@types/offscreencanvas": {
++      "version": "2019.7.3",
++      "resolved": "https://registry.npmjs.org/@types/offscreencanvas/-/offscreencanvas-2019.7.3.tgz",
++      "integrity": "sha512-ieXiYmgSRXUDeOntE1InxjWyvEelZGP63M+cGuquuRLuIKKT1osnkXjxev9B7d1nXSug5vpunx+gNlbVxMlC9A==",
++      "license": "MIT"
++    },
+     "node_modules/@types/phoenix": {
+       "version": "1.6.7",
+       "resolved": "https://registry.npmjs.org/@types/phoenix/-/phoenix-1.6.7.tgz",
+@@ -1653,6 +1883,15 @@
+         "@types/react": "^18.0.0"
+       }
+     },
++    "node_modules/@types/react-reconciler": {
++      "version": "0.26.7",
++      "resolved": "https://registry.npmjs.org/@types/react-reconciler/-/react-reconciler-0.26.7.tgz",
++      "integrity": "sha512-mBDYl8x+oyPX/VBb3E638N0B7xG+SPk/EAMcVPeexqus/5aTpTphQi0curhhshOqRrc9t6OPoJfEUkbymse/lQ==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/react": "*"
++      }
++    },
+     "node_modules/@types/stats.js": {
+       "version": "0.17.4",
+       "resolved": "https://registry.npmjs.org/@types/stats.js/-/stats.js-0.17.4.tgz",
+@@ -1970,6 +2209,24 @@
+       "integrity": "sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==",
+       "license": "ISC"
+     },
++    "node_modules/@use-gesture/core": {
++      "version": "10.3.1",
++      "resolved": "https://registry.npmjs.org/@use-gesture/core/-/core-10.3.1.tgz",
++      "integrity": "sha512-WcINiDt8WjqBdUXye25anHiNxPc0VOrlT8F6LLkU6cycrOGUDyY/yyFmsg3k8i5OLvv25llc0QC45GhR/C8llw==",
++      "license": "MIT"
++    },
++    "node_modules/@use-gesture/react": {
++      "version": "10.3.1",
++      "resolved": "https://registry.npmjs.org/@use-gesture/react/-/react-10.3.1.tgz",
++      "integrity": "sha512-Yy19y6O2GJq8f7CHf7L0nxL8bf4PZCPaVOCgJrusOeFHY1LvHgYXnmnXg6N5iwAnbgbZCDjo60SiM6IPJi9C5g==",
++      "license": "MIT",
++      "dependencies": {
++        "@use-gesture/core": "10.3.1"
++      },
++      "peerDependencies": {
++        "react": ">= 16.8.0"
++      }
++    },
+     "node_modules/@vitejs/plugin-react": {
+       "version": "4.7.0",
+       "resolved": "https://registry.npmjs.org/@vitejs/plugin-react/-/plugin-react-4.7.0.tgz",
+@@ -2142,6 +2399,26 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/base64-js": {
++      "version": "1.5.1",
++      "resolved": "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz",
++      "integrity": "sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==",
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/feross"
++        },
++        {
++          "type": "patreon",
++          "url": "https://www.patreon.com/feross"
++        },
++        {
++          "type": "consulting",
++          "url": "https://feross.org/support"
++        }
++      ],
++      "license": "MIT"
++    },
+     "node_modules/baseline-browser-mapping": {
+       "version": "2.9.11",
+       "resolved": "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.9.11.tgz",
+@@ -2152,6 +2429,15 @@
+         "baseline-browser-mapping": "dist/cli.js"
+       }
+     },
++    "node_modules/bidi-js": {
++      "version": "1.0.3",
++      "resolved": "https://registry.npmjs.org/bidi-js/-/bidi-js-1.0.3.tgz",
++      "integrity": "sha512-RKshQI1R3YQ+n9YJz2QQ147P66ELpa1FQEg20Dk8oW9t2KgLbpDLLp9aGZ7y8WHSshDknG0bknqGw5/tyCs5tw==",
++      "license": "MIT",
++      "dependencies": {
++        "require-from-string": "^2.0.2"
++      }
++    },
+     "node_modules/binary-extensions": {
+       "version": "2.3.0",
+       "resolved": "https://registry.npmjs.org/binary-extensions/-/binary-extensions-2.3.0.tgz",
+@@ -2223,6 +2509,30 @@
+         "node": "^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7"
+       }
+     },
++    "node_modules/buffer": {
++      "version": "6.0.3",
++      "resolved": "https://registry.npmjs.org/buffer/-/buffer-6.0.3.tgz",
++      "integrity": "sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==",
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/feross"
++        },
++        {
++          "type": "patreon",
++          "url": "https://www.patreon.com/feross"
++        },
++        {
++          "type": "consulting",
++          "url": "https://feross.org/support"
++        }
++      ],
++      "license": "MIT",
++      "dependencies": {
++        "base64-js": "^1.3.1",
++        "ieee754": "^1.2.1"
++      }
++    },
+     "node_modules/callsites": {
+       "version": "3.1.0",
+       "resolved": "https://registry.npmjs.org/callsites/-/callsites-3.1.0.tgz",
+@@ -2243,6 +2553,15 @@
+         "node": ">= 6"
+       }
+     },
++    "node_modules/camera-controls": {
++      "version": "2.10.1",
++      "resolved": "https://registry.npmjs.org/camera-controls/-/camera-controls-2.10.1.tgz",
++      "integrity": "sha512-KnaKdcvkBJ1Irbrzl8XD6WtZltkRjp869Jx8c0ujs9K+9WD+1D7ryBsCiVqJYUqt6i/HR5FxT7RLASieUD+Q5w==",
++      "license": "MIT",
++      "peerDependencies": {
++        "three": ">=0.126.1"
++      }
++    },
+     "node_modules/caniuse-lite": {
+       "version": "1.0.30001761",
+       "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001761.tgz",
+@@ -2436,11 +2755,28 @@
+         "url": "https://opencollective.com/express"
+       }
+     },
++    "node_modules/cross-env": {
++      "version": "7.0.3",
++      "resolved": "https://registry.npmjs.org/cross-env/-/cross-env-7.0.3.tgz",
++      "integrity": "sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==",
++      "license": "MIT",
++      "dependencies": {
++        "cross-spawn": "^7.0.1"
++      },
++      "bin": {
++        "cross-env": "src/bin/cross-env.js",
++        "cross-env-shell": "src/bin/cross-env-shell.js"
++      },
++      "engines": {
++        "node": ">=10.14",
++        "npm": ">=6",
++        "yarn": ">=1"
++      }
++    },
+     "node_modules/cross-spawn": {
+       "version": "7.0.6",
+       "resolved": "https://registry.npmjs.org/cross-spawn/-/cross-spawn-7.0.6.tgz",
+       "integrity": "sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "path-key": "^3.1.0",
+@@ -2516,6 +2852,15 @@
+         "node": ">=6"
+       }
+     },
++    "node_modules/detect-gpu": {
++      "version": "5.0.70",
++      "resolved": "https://registry.npmjs.org/detect-gpu/-/detect-gpu-5.0.70.tgz",
++      "integrity": "sha512-bqerEP1Ese6nt3rFkwPnGbsUF9a4q+gMmpTVVOEzoCyeCc+y7/RvJnQZJx1JwhgQI5Ntg0Kgat8Uu7XpBqnz1w==",
++      "license": "MIT",
++      "dependencies": {
++        "webgl-constants": "^1.1.1"
++      }
++    },
+     "node_modules/devlop": {
+       "version": "1.1.0",
+       "resolved": "https://registry.npmjs.org/devlop/-/devlop-1.1.0.tgz",
+@@ -2543,6 +2888,12 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/draco3d": {
++      "version": "1.5.7",
++      "resolved": "https://registry.npmjs.org/draco3d/-/draco3d-1.5.7.tgz",
++      "integrity": "sha512-m6WCKt/erDXcw+70IJXnG7M3awwQPAsZvJGX5zY7beBqpELw6RDGkYVU0W43AFxye4pDZ5i2Lbyc/NNGqwjUVQ==",
++      "license": "Apache-2.0"
++    },
+     "node_modules/electron-to-chromium": {
+       "version": "1.5.267",
+       "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.267.tgz",
+@@ -3038,6 +3389,12 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/glsl-noise": {
++      "version": "0.0.0",
++      "resolved": "https://registry.npmjs.org/glsl-noise/-/glsl-noise-0.0.0.tgz",
++      "integrity": "sha512-b/ZCF6amfAUb7dJM/MxRs7AetQEahYzJ8PtgfrmEdtw6uyGOr+ZSGtgjFm6mfsBkxJ4d2W7kg+Nlqzqvn3Bc0w==",
++      "license": "MIT"
++    },
+     "node_modules/gsap": {
+       "version": "3.14.2",
+       "resolved": "https://registry.npmjs.org/gsap/-/gsap-3.14.2.tgz",
+@@ -3107,6 +3464,12 @@
+         "url": "https://opencollective.com/unified"
+       }
+     },
++    "node_modules/hls.js": {
++      "version": "1.6.15",
++      "resolved": "https://registry.npmjs.org/hls.js/-/hls.js-1.6.15.tgz",
++      "integrity": "sha512-E3a5VwgXimGHwpRGV+WxRTKeSp2DW5DI5MWv34ulL3t5UNmyJWCQ1KmLEHbYzcfThfXG8amBL+fCYPneGHC4VA==",
++      "license": "Apache-2.0"
++    },
+     "node_modules/html-url-attributes": {
+       "version": "3.0.1",
+       "resolved": "https://registry.npmjs.org/html-url-attributes/-/html-url-attributes-3.0.1.tgz",
+@@ -3126,6 +3489,26 @@
+         "node": ">=20.0.0"
+       }
+     },
++    "node_modules/ieee754": {
++      "version": "1.2.1",
++      "resolved": "https://registry.npmjs.org/ieee754/-/ieee754-1.2.1.tgz",
++      "integrity": "sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==",
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/feross"
++        },
++        {
++          "type": "patreon",
++          "url": "https://www.patreon.com/feross"
++        },
++        {
++          "type": "consulting",
++          "url": "https://feross.org/support"
++        }
++      ],
++      "license": "BSD-3-Clause"
++    },
+     "node_modules/ignore": {
+       "version": "5.3.2",
+       "resolved": "https://registry.npmjs.org/ignore/-/ignore-5.3.2.tgz",
+@@ -3136,6 +3519,12 @@
+         "node": ">= 4"
+       }
+     },
++    "node_modules/immediate": {
++      "version": "3.0.6",
++      "resolved": "https://registry.npmjs.org/immediate/-/immediate-3.0.6.tgz",
++      "integrity": "sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==",
++      "license": "MIT"
++    },
+     "node_modules/import-fresh": {
+       "version": "3.3.1",
+       "resolved": "https://registry.npmjs.org/import-fresh/-/import-fresh-3.3.1.tgz",
+@@ -3287,13 +3676,39 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/is-promise": {
++      "version": "2.2.2",
++      "resolved": "https://registry.npmjs.org/is-promise/-/is-promise-2.2.2.tgz",
++      "integrity": "sha512-+lP4/6lKUBfQjZ2pdxThZvLUAafmZb8OAxFb8XXtiQmS35INgr85hdOGoEs124ez1FCnZJt6jau/T+alh58QFQ==",
++      "license": "MIT"
++    },
+     "node_modules/isexe": {
+       "version": "2.0.0",
+       "resolved": "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz",
+       "integrity": "sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==",
+-      "dev": true,
+       "license": "ISC"
+     },
++    "node_modules/its-fine": {
++      "version": "1.2.5",
++      "resolved": "https://registry.npmjs.org/its-fine/-/its-fine-1.2.5.tgz",
++      "integrity": "sha512-fXtDA0X0t0eBYAGLVM5YsgJGsJ5jEmqZEPrGbzdf5awjv0xE7nqv3TVnvtUF060Tkes15DbDAKW/I48vsb6SyA==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/react-reconciler": "^0.28.0"
++      },
++      "peerDependencies": {
++        "react": ">=18.0"
++      }
++    },
++    "node_modules/its-fine/node_modules/@types/react-reconciler": {
++      "version": "0.28.9",
++      "resolved": "https://registry.npmjs.org/@types/react-reconciler/-/react-reconciler-0.28.9.tgz",
++      "integrity": "sha512-HHM3nxyUZ3zAylX8ZEyrDNd2XZOnQ0D5XfunJF5FLQnZbHHYq4UWvW1QfelQNXv1ICNkwYhfxjwfnqivYB6bFg==",
++      "license": "MIT",
++      "peerDependencies": {
++        "@types/react": "*"
++      }
++    },
+     "node_modules/jiti": {
+       "version": "1.21.7",
+       "resolved": "https://registry.npmjs.org/jiti/-/jiti-1.21.7.tgz",
+@@ -3394,6 +3809,15 @@
+         "node": ">= 0.8.0"
+       }
+     },
++    "node_modules/lie": {
++      "version": "3.3.0",
++      "resolved": "https://registry.npmjs.org/lie/-/lie-3.3.0.tgz",
++      "integrity": "sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==",
++      "license": "MIT",
++      "dependencies": {
++        "immediate": "~3.0.5"
++      }
++    },
+     "node_modules/lilconfig": {
+       "version": "3.1.3",
+       "resolved": "https://registry.npmjs.org/lilconfig/-/lilconfig-3.1.3.tgz",
+@@ -3478,6 +3902,16 @@
+         "react": "^16.5.1 || ^17.0.0 || ^18.0.0"
+       }
+     },
++    "node_modules/maath": {
++      "version": "0.10.8",
++      "resolved": "https://registry.npmjs.org/maath/-/maath-0.10.8.tgz",
++      "integrity": "sha512-tRvbDF0Pgqz+9XUa4jjfgAQ8/aPKmQdWXilFu2tMy4GWj4NOsx99HlULO4IeREfbO3a0sA145DZYyvXPkybm0g==",
++      "license": "MIT",
++      "peerDependencies": {
++        "@types/three": ">=0.134.0",
++        "three": ">=0.134.0"
++      }
++    },
+     "node_modules/markdown-table": {
+       "version": "3.0.4",
+       "resolved": "https://registry.npmjs.org/markdown-table/-/markdown-table-3.0.4.tgz",
+@@ -3794,6 +4228,15 @@
+         "node": ">= 8"
+       }
+     },
++    "node_modules/meshline": {
++      "version": "3.3.1",
++      "resolved": "https://registry.npmjs.org/meshline/-/meshline-3.3.1.tgz",
++      "integrity": "sha512-/TQj+JdZkeSUOl5Mk2J7eLcYTLiQm2IDzmlSvYm7ov15anEcDJ92GHqqazxTSreeNgfnYu24kiEvvv0WlbCdFQ==",
++      "license": "MIT",
++      "peerDependencies": {
++        "three": ">=0.137"
++      }
++    },
+     "node_modules/meshoptimizer": {
+       "version": "0.22.0",
+       "resolved": "https://registry.npmjs.org/meshoptimizer/-/meshoptimizer-0.22.0.tgz",
+@@ -4470,7 +4913,6 @@
+       "version": "4.1.1",
+       "resolved": "https://registry.npmjs.org/object-assign/-/object-assign-4.1.1.tgz",
+       "integrity": "sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">=0.10.0"
+@@ -4588,7 +5030,6 @@
+       "version": "3.1.1",
+       "resolved": "https://registry.npmjs.org/path-key/-/path-key-3.1.1.tgz",
+       "integrity": "sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">=8"
+@@ -4804,6 +5245,12 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/potpack": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/potpack/-/potpack-1.0.2.tgz",
++      "integrity": "sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==",
++      "license": "ISC"
++    },
+     "node_modules/prelude-ls": {
+       "version": "1.2.1",
+       "resolved": "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz",
+@@ -4814,6 +5261,27 @@
+         "node": ">= 0.8.0"
+       }
+     },
++    "node_modules/promise-worker-transferable": {
++      "version": "1.0.4",
++      "resolved": "https://registry.npmjs.org/promise-worker-transferable/-/promise-worker-transferable-1.0.4.tgz",
++      "integrity": "sha512-bN+0ehEnrXfxV2ZQvU2PetO0n4gqBD4ulq3MI1WOPLgr7/Mg9yRQkX5+0v1vagr74ZTsl7XtzlaYDo2EuCeYJw==",
++      "license": "Apache-2.0",
++      "dependencies": {
++        "is-promise": "^2.1.0",
++        "lie": "^3.0.2"
++      }
++    },
++    "node_modules/prop-types": {
++      "version": "15.8.1",
++      "resolved": "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz",
++      "integrity": "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==",
++      "license": "MIT",
++      "dependencies": {
++        "loose-envify": "^1.4.0",
++        "object-assign": "^4.1.1",
++        "react-is": "^16.13.1"
++      }
++    },
+     "node_modules/property-information": {
+       "version": "7.1.0",
+       "resolved": "https://registry.npmjs.org/property-information/-/property-information-7.1.0.tgz",
+@@ -4867,6 +5335,18 @@
+         "node": ">=0.10.0"
+       }
+     },
++    "node_modules/react-composer": {
++      "version": "5.0.3",
++      "resolved": "https://registry.npmjs.org/react-composer/-/react-composer-5.0.3.tgz",
++      "integrity": "sha512-1uWd07EME6XZvMfapwZmc7NgCZqDemcvicRi3wMJzXsQLvZ3L7fTHVyPy1bZdnWXM4iPjYuNE+uJ41MLKeTtnA==",
++      "license": "MIT",
++      "dependencies": {
++        "prop-types": "^15.6.0"
++      },
++      "peerDependencies": {
++        "react": "^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0"
++      }
++    },
+     "node_modules/react-dom": {
+       "version": "18.3.1",
+       "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-18.3.1.tgz",
+@@ -4880,6 +5360,12 @@
+         "react": "^18.3.1"
+       }
+     },
++    "node_modules/react-is": {
++      "version": "16.13.1",
++      "resolved": "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz",
++      "integrity": "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==",
++      "license": "MIT"
++    },
+     "node_modules/react-markdown": {
+       "version": "10.1.0",
+       "resolved": "https://registry.npmjs.org/react-markdown/-/react-markdown-10.1.0.tgz",
+@@ -4907,6 +5393,31 @@
+         "react": ">=18"
+       }
+     },
++    "node_modules/react-reconciler": {
++      "version": "0.27.0",
++      "resolved": "https://registry.npmjs.org/react-reconciler/-/react-reconciler-0.27.0.tgz",
++      "integrity": "sha512-HmMDKciQjYmBRGuuhIaKA1ba/7a+UsM5FzOZsMO2JYHt9Jh8reCb7j1eDC95NOyUlKM9KRyvdx0flBuDvYSBoA==",
++      "license": "MIT",
++      "dependencies": {
++        "loose-envify": "^1.1.0",
++        "scheduler": "^0.21.0"
++      },
++      "engines": {
++        "node": ">=0.10.0"
++      },
++      "peerDependencies": {
++        "react": "^18.0.0"
++      }
++    },
++    "node_modules/react-reconciler/node_modules/scheduler": {
++      "version": "0.21.0",
++      "resolved": "https://registry.npmjs.org/scheduler/-/scheduler-0.21.0.tgz",
++      "integrity": "sha512-1r87x5fz9MXqswA2ERLo0EbOAU74DpIUO090gIasYTqlVoJeMcl+Z1Rg7WHz+qtPujhS/hGIt9kxZOYBV3faRQ==",
++      "license": "MIT",
++      "dependencies": {
++        "loose-envify": "^1.1.0"
++      }
++    },
+     "node_modules/react-refresh": {
+       "version": "0.17.0",
+       "resolved": "https://registry.npmjs.org/react-refresh/-/react-refresh-0.17.0.tgz",
+@@ -4955,6 +5466,21 @@
+         "react-dom": ">=18"
+       }
+     },
++    "node_modules/react-use-measure": {
++      "version": "2.1.7",
++      "resolved": "https://registry.npmjs.org/react-use-measure/-/react-use-measure-2.1.7.tgz",
++      "integrity": "sha512-KrvcAo13I/60HpwGO5jpW7E9DfusKyLPLvuHlUyP5zqnmAPhNc6qTRjUQrdTADl0lpPpDVU2/Gg51UlOGHXbdg==",
++      "license": "MIT",
++      "peerDependencies": {
++        "react": ">=16.13",
++        "react-dom": ">=16.13"
++      },
++      "peerDependenciesMeta": {
++        "react-dom": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/read-cache": {
+       "version": "1.0.0",
+       "resolved": "https://registry.npmjs.org/read-cache/-/read-cache-1.0.0.tgz",
+@@ -5059,6 +5585,15 @@
+         "url": "https://opencollective.com/unified"
+       }
+     },
++    "node_modules/require-from-string": {
++      "version": "2.0.2",
++      "resolved": "https://registry.npmjs.org/require-from-string/-/require-from-string-2.0.2.tgz",
++      "integrity": "sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.10.0"
++      }
++    },
+     "node_modules/resolve": {
+       "version": "1.22.11",
+       "resolved": "https://registry.npmjs.org/resolve/-/resolve-1.22.11.tgz",
+@@ -5196,7 +5731,6 @@
+       "version": "2.0.0",
+       "resolved": "https://registry.npmjs.org/shebang-command/-/shebang-command-2.0.0.tgz",
+       "integrity": "sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "shebang-regex": "^3.0.0"
+@@ -5209,7 +5743,6 @@
+       "version": "3.0.0",
+       "resolved": "https://registry.npmjs.org/shebang-regex/-/shebang-regex-3.0.0.tgz",
+       "integrity": "sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">=8"
+@@ -5235,6 +5768,32 @@
+         "url": "https://github.com/sponsors/wooorm"
+       }
+     },
++    "node_modules/stats-gl": {
++      "version": "2.4.2",
++      "resolved": "https://registry.npmjs.org/stats-gl/-/stats-gl-2.4.2.tgz",
++      "integrity": "sha512-g5O9B0hm9CvnM36+v7SFl39T7hmAlv541tU81ME8YeSb3i1CIP5/QdDeSB3A0la0bKNHpxpwxOVRo2wFTYEosQ==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/three": "*",
++        "three": "^0.170.0"
++      },
++      "peerDependencies": {
++        "@types/three": "*",
++        "three": "*"
++      }
++    },
++    "node_modules/stats-gl/node_modules/three": {
++      "version": "0.170.0",
++      "resolved": "https://registry.npmjs.org/three/-/three-0.170.0.tgz",
++      "integrity": "sha512-FQK+LEpYc0fBD+J8g6oSEyyNzjp+Q7Ks1C568WWaoMRLW+TkNNWmenWeGgJjV105Gd+p/2ql1ZcjYvNiPZBhuQ==",
++      "license": "MIT"
++    },
++    "node_modules/stats.js": {
++      "version": "0.17.0",
++      "resolved": "https://registry.npmjs.org/stats.js/-/stats.js-0.17.0.tgz",
++      "integrity": "sha512-hNKz8phvYLPEcRkeG1rsGmV5ChMjKDAWU7/OJJdDErPBNChQXxCo3WZurGpnWc6gZhAzEPFad1aVgyOANH1sMw==",
++      "license": "MIT"
++    },
+     "node_modules/stringify-entities": {
+       "version": "4.0.4",
+       "resolved": "https://registry.npmjs.org/stringify-entities/-/stringify-entities-4.0.4.tgz",
+@@ -5329,6 +5888,15 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/suspend-react": {
++      "version": "0.1.3",
++      "resolved": "https://registry.npmjs.org/suspend-react/-/suspend-react-0.1.3.tgz",
++      "integrity": "sha512-aqldKgX9aZqpoDp3e8/BZ8Dm7x1pJl+qI3ZKxDN0i/IQTWUwBx/ManmlVJ3wowqbno6c2bmiIfs+Um6LbsjJyQ==",
++      "license": "MIT",
++      "peerDependencies": {
++        "react": ">=17.0"
++      }
++    },
+     "node_modules/tailwindcss": {
+       "version": "3.4.19",
+       "resolved": "https://registry.npmjs.org/tailwindcss/-/tailwindcss-3.4.19.tgz",
+@@ -5396,6 +5964,39 @@
+       "integrity": "sha512-GbHabT+Irv+ihI1/f5kIIsZ+Ef9Sl5A1Y7imvS5RQjWgtTPfPnZ43JmlYI7NtCRDK9zir20lQpfg8/9Yd02OvQ==",
+       "license": "MIT"
+     },
++    "node_modules/three-mesh-bvh": {
++      "version": "0.7.8",
++      "resolved": "https://registry.npmjs.org/three-mesh-bvh/-/three-mesh-bvh-0.7.8.tgz",
++      "integrity": "sha512-BGEZTOIC14U0XIRw3tO4jY7IjP7n7v24nv9JXS1CyeVRWOCkcOMhRnmENUjuV39gktAw4Ofhr0OvIAiTspQrrw==",
++      "deprecated": "Deprecated due to three.js version incompatibility. Please use v0.8.0, instead.",
++      "license": "MIT",
++      "peerDependencies": {
++        "three": ">= 0.151.0"
++      }
++    },
++    "node_modules/three-stdlib": {
++      "version": "2.36.1",
++      "resolved": "https://registry.npmjs.org/three-stdlib/-/three-stdlib-2.36.1.tgz",
++      "integrity": "sha512-XyGQrFmNQ5O/IoKm556ftwKsBg11TIb301MB5dWNicziQBEs2g3gtOYIf7pFiLa0zI2gUwhtCjv9fmjnxKZ1Cg==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/draco3d": "^1.4.0",
++        "@types/offscreencanvas": "^2019.6.4",
++        "@types/webxr": "^0.5.2",
++        "draco3d": "^1.4.1",
++        "fflate": "^0.6.9",
++        "potpack": "^1.0.1"
++      },
++      "peerDependencies": {
++        "three": ">=0.128.0"
++      }
++    },
++    "node_modules/three-stdlib/node_modules/fflate": {
++      "version": "0.6.10",
++      "resolved": "https://registry.npmjs.org/fflate/-/fflate-0.6.10.tgz",
++      "integrity": "sha512-IQrh3lEPM93wVCEczc9SaAOvkmcoQn/G8Bo1e8ZPlY3X3bnAxWaBdvTdvM1hP62iZp0BXWDy4vTAy4fF0+Dlpg==",
++      "license": "MIT"
++    },
+     "node_modules/tinyglobby": {
+       "version": "0.2.15",
+       "resolved": "https://registry.npmjs.org/tinyglobby/-/tinyglobby-0.2.15.tgz",
+@@ -5467,6 +6068,36 @@
+         "url": "https://github.com/sponsors/wooorm"
+       }
+     },
++    "node_modules/troika-three-text": {
++      "version": "0.52.4",
++      "resolved": "https://registry.npmjs.org/troika-three-text/-/troika-three-text-0.52.4.tgz",
++      "integrity": "sha512-V50EwcYGruV5rUZ9F4aNsrytGdKcXKALjEtQXIOBfhVoZU9VAqZNIoGQ3TMiooVqFAbR1w15T+f+8gkzoFzawg==",
++      "license": "MIT",
++      "dependencies": {
++        "bidi-js": "^1.0.2",
++        "troika-three-utils": "^0.52.4",
++        "troika-worker-utils": "^0.52.0",
++        "webgl-sdf-generator": "1.1.1"
++      },
++      "peerDependencies": {
++        "three": ">=0.125.0"
++      }
++    },
++    "node_modules/troika-three-utils": {
++      "version": "0.52.4",
++      "resolved": "https://registry.npmjs.org/troika-three-utils/-/troika-three-utils-0.52.4.tgz",
++      "integrity": "sha512-NORAStSVa/BDiG52Mfudk4j1FG4jC4ILutB3foPnfGbOeIs9+G5vZLa0pnmnaftZUGm4UwSoqEpWdqvC7zms3A==",
++      "license": "MIT",
++      "peerDependencies": {
++        "three": ">=0.125.0"
++      }
++    },
++    "node_modules/troika-worker-utils": {
++      "version": "0.52.0",
++      "resolved": "https://registry.npmjs.org/troika-worker-utils/-/troika-worker-utils-0.52.0.tgz",
++      "integrity": "sha512-W1CpvTHykaPH5brv5VHLfQo9D1OYuo0cSBEUQFFT/nBUzM8iD6Lq2/tgG/f1OelbAS1WtaTPQzE5uM49egnngw==",
++      "license": "MIT"
++    },
+     "node_modules/trough": {
+       "version": "2.2.0",
+       "resolved": "https://registry.npmjs.org/trough/-/trough-2.2.0.tgz",
+@@ -5503,6 +6134,43 @@
+       "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==",
+       "license": "0BSD"
+     },
++    "node_modules/tunnel-rat": {
++      "version": "0.1.2",
++      "resolved": "https://registry.npmjs.org/tunnel-rat/-/tunnel-rat-0.1.2.tgz",
++      "integrity": "sha512-lR5VHmkPhzdhrM092lI2nACsLO4QubF0/yoOhzX7c+wIpbN1GjHNzCc91QlpxBi+cnx8vVJ+Ur6vL5cEoQPFpQ==",
++      "license": "MIT",
++      "dependencies": {
++        "zustand": "^4.3.2"
++      }
++    },
++    "node_modules/tunnel-rat/node_modules/zustand": {
++      "version": "4.5.7",
++      "resolved": "https://registry.npmjs.org/zustand/-/zustand-4.5.7.tgz",
++      "integrity": "sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==",
++      "license": "MIT",
++      "dependencies": {
++        "use-sync-external-store": "^1.2.2"
++      },
++      "engines": {
++        "node": ">=12.7.0"
++      },
++      "peerDependencies": {
++        "@types/react": ">=16.8",
++        "immer": ">=9.0.6",
++        "react": ">=16.8"
++      },
++      "peerDependenciesMeta": {
++        "@types/react": {
++          "optional": true
++        },
++        "immer": {
++          "optional": true
++        },
++        "react": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/type-check": {
+       "version": "0.4.0",
+       "resolved": "https://registry.npmjs.org/type-check/-/type-check-0.4.0.tgz",
+@@ -5688,6 +6356,15 @@
+         "punycode": "^2.1.0"
+       }
+     },
++    "node_modules/use-sync-external-store": {
++      "version": "1.6.0",
++      "resolved": "https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.6.0.tgz",
++      "integrity": "sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==",
++      "license": "MIT",
++      "peerDependencies": {
++        "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
++      }
++    },
+     "node_modules/util-deprecate": {
+       "version": "1.0.2",
+       "resolved": "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz",
+@@ -5695,6 +6372,15 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/utility-types": {
++      "version": "3.11.0",
++      "resolved": "https://registry.npmjs.org/utility-types/-/utility-types-3.11.0.tgz",
++      "integrity": "sha512-6Z7Ma2aVEWisaL6TvBCy7P8rm2LQoPv6dJ7ecIaIixHcwfbJ0x7mWdbcwlIM5IGQxPZSFYeqRCqlOOeKoJYMkw==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 4"
++      }
++    },
+     "node_modules/vfile": {
+       "version": "6.0.3",
+       "resolved": "https://registry.npmjs.org/vfile/-/vfile-6.0.3.tgz",
+@@ -5783,11 +6469,21 @@
+         }
+       }
+     },
++    "node_modules/webgl-constants": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/webgl-constants/-/webgl-constants-1.1.1.tgz",
++      "integrity": "sha512-LkBXKjU5r9vAW7Gcu3T5u+5cvSvh5WwINdr0C+9jpzVB41cjQAP5ePArDtk/WHYdVj0GefCgM73BA7FlIiNtdg=="
++    },
++    "node_modules/webgl-sdf-generator": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/webgl-sdf-generator/-/webgl-sdf-generator-1.1.1.tgz",
++      "integrity": "sha512-9Z0JcMTFxeE+b2x1LJTdnaT8rT8aEp7MVxkNwoycNmJWwPdzoXzMh0BjJSh/AEFP+KPYZUli814h8bJZFIZ2jA==",
++      "license": "MIT"
++    },
+     "node_modules/which": {
+       "version": "2.0.2",
+       "resolved": "https://registry.npmjs.org/which/-/which-2.0.2.tgz",
+       "integrity": "sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==",
+-      "dev": true,
+       "license": "ISC",
+       "dependencies": {
+         "isexe": "^2.0.0"
+@@ -5850,6 +6546,35 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/zustand": {
++      "version": "5.0.11",
++      "resolved": "https://registry.npmjs.org/zustand/-/zustand-5.0.11.tgz",
++      "integrity": "sha512-fdZY+dk7zn/vbWNCYmzZULHRrss0jx5pPFiOuMZ/5HJN6Yv3u+1Wswy/4MpZEkEGhtNH+pwxZB8OKgUBPzYAGg==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=12.20.0"
++      },
++      "peerDependencies": {
++        "@types/react": ">=18.0.0",
++        "immer": ">=9.0.6",
++        "react": ">=18.0.0",
++        "use-sync-external-store": ">=1.2.0"
++      },
++      "peerDependenciesMeta": {
++        "@types/react": {
++          "optional": true
++        },
++        "immer": {
++          "optional": true
++        },
++        "react": {
++          "optional": true
++        },
++        "use-sync-external-store": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/zwitch": {
+       "version": "2.0.4",
+       "resolved": "https://registry.npmjs.org/zwitch/-/zwitch-2.0.4.tgz",
+diff --git a/package.json b/package.json
+index fb3f7ba..634e443 100644
+--- a/package.json
++++ b/package.json
+@@ -14,6 +14,8 @@
+     "@dnd-kit/core": "^6.3.1",
+     "@dnd-kit/sortable": "^10.0.0",
+     "@dnd-kit/utilities": "^3.2.2",
++    "@react-three/drei": "^9.122.0",
++    "@react-three/fiber": "^8.18.0",
+     "@supabase/supabase-js": "^2.57.4",
+     "@types/three": "^0.182.0",
+     "framer-motion": "^12.23.26",
+diff --git a/src/components/content/InteractiveDSAUI.tsx b/src/components/content/InteractiveDSAUI.tsx
+index 2b82546..f13dfc5 100644
+--- a/src/components/content/InteractiveDSAUI.tsx
++++ b/src/components/content/InteractiveDSAUI.tsx
+@@ -1,5 +1,6 @@
+ import { useState, useEffect, useRef } from 'react';
+ import { Lightbulb, CheckCircle2, Eye, RotateCcw } from 'lucide-react';
++import { motion } from 'framer-motion';
+ import {
+     DndContext,
+     closestCenter,
+@@ -24,12 +25,18 @@ const SortableItem = ({ id, text }: { id: string; text: string }) => {
+     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+ 
+     return (
+-        <div
++        <motion.div
++            layout
++            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+             ref={setNodeRef}
+-            style={{ transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : 1 }}
++            style={{
++                transform: CSS.Transform.toString(transform),
++                transition: transform ? transition : undefined,
++                zIndex: isDragging ? 10 : 1
++            }}
+             {...attributes}
+             {...listeners}
+-            className={`flex items-center p-4 rounded-lg border transition-all duration-150
++            className={`flex items-center p-4 rounded-lg border
+                 cursor-grab active:cursor-grabbing touch-none select-none
+                 ${isDragging
+                     ? 'bg-zinc-800/70 border-purple-500/60 shadow-xl opacity-90 scale-[1.02]'
+@@ -40,7 +47,7 @@ const SortableItem = ({ id, text }: { id: string; text: string }) => {
+                 <Lightbulb size={16} />
+             </div>
+             <div className="flex-1 text-[#D0D0E0] text-sm font-mono tracking-tight">{text}</div>
+-        </div>
++        </motion.div>
+     );
+ };
+ 
+@@ -216,15 +223,34 @@ export default function InteractiveDSAUI({ dsaData, onComplete }: InteractiveDSA
+ 
+     // ── Reveal solution ───────────────────────────────────────────────────────
+     const handleRevealSolution = () => {
+-        setUserSteps([...correctSteps]);
+         setFeedback(null);
+         setHasValidated(true);
+-        // Animate all green after a tick (so refs are updated)
+-        setTimeout(() => {
+-            animateGreenDown(correctSteps.length, () => {
+-                setIsSuccess(true);
+-            });
+-        }, 50);
++
++        let currentSteps = [...userSteps];
++        const targetSteps = [...correctSteps];
++        let i = 0;
++
++        const nextSwap = () => {
++            if (i >= targetSteps.length) {
++                setTimeout(() => {
++                    animateGreenDown(targetSteps.length, () => {
++                        setIsSuccess(true);
++                    });
++                }, 100);
++                return;
++            }
++
++            if (currentSteps[i].id !== targetSteps[i].id) {
++                const targetIdx = currentSteps.findIndex(s => s.id === targetSteps[i].id);
++                currentSteps = arrayMove(currentSteps, targetIdx, i);
++                setUserSteps([...currentSteps]);
++            }
++
++            i++;
++            setTimeout(nextSwap, 250);
++        };
++
++        nextSwap();
+         // Do NOT call onComplete() — reveal should not mark as completed
+     };
+ 
+diff --git a/src/components/content/InteractiveSQLUI.tsx b/src/components/content/InteractiveSQLUI.tsx
+index 404fcf7..662c05f 100644
+--- a/src/components/content/InteractiveSQLUI.tsx
++++ b/src/components/content/InteractiveSQLUI.tsx
+@@ -47,7 +47,7 @@ function shuffle<T>(arr: T[]): T[] {
+ 
+ // ─── Component ────────────────────────────────────────────────────
+ 
+-export default function InteractiveSQLUI({ sqlData, onComplete, isCompleted: initialCompleted }: InteractiveSQLUIProps) {
++export default function InteractiveSQLUI({ sqlData, onComplete }: InteractiveSQLUIProps) {
+     // Flatten the correct tokens (order-preserved) and build slot model
+     const allCorrectTokens = sqlData.queryLines.flat();
+     const totalSlots = allCorrectTokens.length;
+@@ -80,7 +80,7 @@ export default function InteractiveSQLUI({ sqlData, onComplete, isCompleted: ini
+         setFeedback(Array(totalSlots).fill(null));
+         setIsSuccess(false);
+         setHasAttempted(false);
+-    }, [sqlData, initialCompleted]);
++    }, [sqlData]);
+ 
+     // ── Find the first empty slot index ──
+     const firstEmptySlot = useCallback(() => {
+@@ -343,31 +343,45 @@ export default function InteractiveSQLUI({ sqlData, onComplete, isCompleted: ini
+     };
+ 
+     const handleReveal = () => {
+-        setSlots([...allCorrectTokens]);
+-        const correctCopy = [...allCorrectTokens];
+-        setPool(prev => {
+-            const remaining = [...prev];
+-            const currentSlotTokens = slots.filter(s => s !== '');
+-            const allAvailable = [...remaining, ...currentSlotTokens];
+-            const result = [...allAvailable];
+-            correctCopy.forEach(tok => {
+-                const idx = result.indexOf(tok);
+-                if (idx !== -1) result.splice(idx, 1);
+-            });
+-            return result;
+-        });
+-        setFeedback(allCorrectTokens.map(() => true));
+-        setIsSuccess(true);
+         setHasAttempted(true);
+-        // Animate reveal
+-        requestAnimationFrame(() => {
+-            slotRefs.current.forEach((el, idx) => {
+-                gsap.fromTo(el,
+-                    { scale: 0.6, opacity: 0 },
+-                    { scale: 1, opacity: 1, duration: 0.35, delay: idx * 0.04, ease: 'back.out(1.4)' }
+-                );
+-            });
+-        });
++
++        const targetSlots = [...allCorrectTokens];
++        const allAvailableTokens = [...pool, ...slots.filter(s => s !== '')];
++
++        setSlots(Array(totalSlots).fill(''));
++        setPool(allAvailableTokens);
++        setFeedback(Array(totalSlots).fill(null));
++
++        let currentPool = [...allAvailableTokens];
++        let currentSlots = Array(totalSlots).fill('');
++        let i = 0;
++
++        const nextStep = () => {
++            if (i >= totalSlots) {
++                setFeedback(allCorrectTokens.map(() => true));
++                setIsSuccess(true);
++                return;
++            }
++
++            const token = targetSlots[i];
++            const poolIdx = currentPool.indexOf(token);
++            if (poolIdx !== -1) {
++                currentPool.splice(poolIdx, 1);
++            }
++
++            currentSlots[i] = token;
++
++            setSlots([...currentSlots]);
++            setPool([...currentPool]);
++
++            requestAnimationFrame(() => animateSlotFill(i));
++
++            i++;
++            setTimeout(nextStep, 150);
++        };
++
++        // start after a beat
++        setTimeout(nextStep, 300);
+         // NOTE: We do NOT call onComplete() here so reveal doesn't mark as completed
+     };
+ 
+@@ -453,7 +467,9 @@ export default function InteractiveSQLUI({ sqlData, onComplete, isCompleted: ini
+                                                     ? 'border-[#a855f7] bg-[#a855f7]/10 border-solid scale-105'
+                                                     : filled
+                                                         ? fb === true
+-                                                            ? 'bg-emerald-600/20 border-emerald-500/60 text-emerald-300 border-solid'
++                                                            ? isSymbolToken(slots[globalIdx])
++                                                                ? 'bg-yellow-600/15 border-emerald-500/40 text-yellow-400 border-solid shadow-[0_0_8px_rgba(16,185,129,0.15)]'
++                                                                : 'bg-zinc-800/50 border-emerald-500/40 text-[#d0d0e0] border-solid shadow-[0_0_8px_rgba(16,185,129,0.15)]'
+                                                             : fb === false
+                                                                 ? 'bg-red-600/20 border-red-500/60 text-red-300 border-solid'
+                                                                 : isSymbolToken(slots[globalIdx])
+diff --git a/src/main.tsx b/src/main.tsx
+index ea9e363..f155445 100644
+--- a/src/main.tsx
++++ b/src/main.tsx
+@@ -1,10 +1,28 @@
+-import { StrictMode } from 'react';
+-import { createRoot } from 'react-dom/client';
+-import App from './App.tsx';
+-import './index.css';
++import { StrictMode, Component, ReactNode } from 'react'
++import { createRoot } from 'react-dom/client'
++import App from './App.tsx'
++import './index.css'
++
++class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean, error: any }> {
++  constructor(props: { children: ReactNode }) {
++    super(props);
++    this.state = { hasError: false, error: null };
++  }
++  static getDerivedStateFromError(error: any) {
++    return { hasError: true, error };
++  }
++  render() {
++    if (this.state.hasError) {
++      return <div style={{ padding: 20, color: 'red', background: 'black', height: '100vh', width: '100vw' }}><h1>Something went wrong.</h1><pre>{this.state.error?.toString()}</pre></div>;
++    }
++    return this.props.children;
++  }
++}
+ 
+ createRoot(document.getElementById('root')!).render(
+   <StrictMode>
+-    <App />
+-  </StrictMode>
++    <ErrorBoundary>
++      <App />
++    </ErrorBoundary>
++  </StrictMode>,
+ );
+diff --git a/src/pages/Aptitude.tsx b/src/pages/Aptitude.tsx
+index 1a94c81..a97631c 100644
+--- a/src/pages/Aptitude.tsx
++++ b/src/pages/Aptitude.tsx
+@@ -78,7 +78,8 @@ export default function Aptitude() {
+         .from('company_topic_questions')
+         .select('*')
+         .eq('topic', 'Aptitude')
+-        .order('created_at');
++        .order('created_at')
++        .order('id');
+ 
+       if (error) throw error;
+ 
+diff --git a/src/pages/Companies.tsx b/src/pages/Companies.tsx
+index 2c04f6f..6b66068 100644
+--- a/src/pages/Companies.tsx
++++ b/src/pages/Companies.tsx
+@@ -53,7 +53,8 @@ export default function Companies() {
+           .select('*')
+           .eq('company_name', activeCompany)
+           .in('topic', ['HR', 'Technical'])
+-          .order('created_at');
++          .order('created_at')
++          .order('id');
+         data = (result.data || []).map(q => ({
+           ...q,
+           category: q.topic // Map topic to category for display interface
+@@ -65,7 +66,8 @@ export default function Companies() {
+           .select('*')
+           .eq('company_name', activeCompany)
+           .eq('topic', activeTab)
+-          .order('created_at');
++          .order('created_at')
++          .order('id');
+ 
+         // Map 'topic' to 'category' for UI consistency if needed, though we display category below
+         data = (result.data || []).map(q => ({
+diff --git a/src/pages/CompanyQuestionDetail.tsx b/src/pages/CompanyQuestionDetail.tsx
+index 4516ae3..8d60fb9 100644
+--- a/src/pages/CompanyQuestionDetail.tsx
++++ b/src/pages/CompanyQuestionDetail.tsx
+@@ -214,7 +214,8 @@ export default function CompanyQuestionDetail() {
+                         .select('id')
+                         .eq('company_name', question.company_name)
+                         .in('topic', ['HR', 'Technical'])
+-                        .order('created_at');
++                        .order('created_at')
++                        .order('id');
+                     ids = data?.map(q => q.id) || [];
+                 } else {
+                     const { data } = await supabase
+@@ -222,7 +223,8 @@ export default function CompanyQuestionDetail() {
+                         .select('id')
+                         .eq('company_name', question.company_name)
+                         .eq('topic', currentTab)
+-                        .order('created_at');
++                        .order('created_at')
++                        .order('id');
+                     ids = data?.map(q => q.id) || [];
+                 }
+ 
+@@ -236,7 +238,6 @@ export default function CompanyQuestionDetail() {
+ 
+     const handleNextQuestion = () => {
+         if (!questionId) {
+-            handleBack();
+             return;
+         }
+ 
+@@ -249,8 +250,6 @@ export default function CompanyQuestionDetail() {
+                 state: location.state,
+                 replace: true
+             });
+-        } else {
+-            handleBack();
+         }
+     };
+ 
+@@ -482,7 +481,8 @@ export default function CompanyQuestionDetail() {
+                         <div className="text-sm text-[#A0A0B0]"></div>
+                         <button
+                             onClick={handleNextQuestion}
+-                            className="flex items-center gap-2 px-6 py-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors"
++                            disabled={!questionId || allQuestionIds.indexOf(questionId) >= allQuestionIds.length - 1}
++                            className="flex items-center gap-2 px-6 py-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                         >
+                             <span>Next</span>
+                             <ChevronRight className="w-5 h-5" />
+diff --git a/src/pages/CoreCS.tsx b/src/pages/CoreCS.tsx
+index aca5070..dcfe883 100644
+--- a/src/pages/CoreCS.tsx
++++ b/src/pages/CoreCS.tsx
+@@ -76,7 +76,8 @@ export default function CoreCS() {
+         .from('company_topic_questions')
+         .select('*')
+         .eq('topic', 'Core CS')
+-        .order('created_at');
++        .order('created_at')
++        .order('id');
+ 
+       if (error) throw error;
+ 
+diff --git a/src/pages/DSA.tsx b/src/pages/DSA.tsx
+index 1be2322..72c30d3 100644
+--- a/src/pages/DSA.tsx
++++ b/src/pages/DSA.tsx
+@@ -75,7 +75,8 @@ export default function DSA() {
+         .from('company_topic_questions')
+         .select('*')
+         .eq('topic', 'DSA')
+-        .order('created_at');
++        .order('created_at')
++        .order('id');
+ 
+       if (error) throw error;
+ 
+diff --git a/src/pages/InterviewQuestions.tsx b/src/pages/InterviewQuestions.tsx
+index bb95264..a706b30 100644
+--- a/src/pages/InterviewQuestions.tsx
++++ b/src/pages/InterviewQuestions.tsx
+@@ -82,8 +82,9 @@ export default function InterviewQuestions() {
+       const { data: questionsData, error } = await supabase
+         .from('questions')
+         .select('*')
+-        .in('category', ['HR', 'Technical', 'Managerial'])
+-        .order('created_at');
++        .in('topic', ['HR', 'Technical'])
++        .order('created_at')
++        .order('id');
+ 
+       if (error) throw error;
+       setQuestions(questionsData || []);
+diff --git a/src/pages/LandingPage.tsx b/src/pages/LandingPage.tsx
+index a5621ad..2e2943f 100644
+--- a/src/pages/LandingPage.tsx
++++ b/src/pages/LandingPage.tsx
+@@ -1,10 +1,59 @@
+-import React, { useEffect } from 'react';
++import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
+ import { useNavigate } from 'react-router-dom';
+ import { useAuth } from '../contexts/AuthContext';
++import gsap from 'gsap';
++import { ScrollTrigger } from "gsap/ScrollTrigger";
++import InteractiveHands from '../components/InteractiveHands';
+ 
++gsap.registerPlugin(ScrollTrigger);
+ const LandingPage: React.FC = () => {
+     const navigate = useNavigate();
+     const { user, loading } = useAuth();
++    const [activeTier, setActiveTier] = useState("PRO");
++    const [openFaq, setOpenFaq] = useState<number | null>(0);
++
++    // GSAP Refs
++    const heroContentRef = useRef<HTMLDivElement>(null);
++    const horizontalScrollRef = useRef<HTMLElement>(null);
++    const scrollContainerRef = useRef<HTMLDivElement>(null);
++
++    useLayoutEffect(() => {
++        let ctx = gsap.context(() => {
++            const getScrollAmount = () => {
++                let sWidth = scrollContainerRef.current?.scrollWidth || 0;
++                return -(sWidth - window.innerWidth);
++            };
++
++            if (getScrollAmount() < 0) {
++                const tween = gsap.to(scrollContainerRef.current, {
++                    x: getScrollAmount,
++                    ease: "none"
++                });
++
++                ScrollTrigger.create({
++                    trigger: horizontalScrollRef.current,
++                    start: "top top",
++                    end: () => `+=${getScrollAmount() * -1}`,
++                    pin: true,
++                    animation: tween,
++                    scrub: 1,
++                    invalidateOnRefresh: true,
++                });
++            }
++        });
++        return () => ctx.revert();
++    }, []);
++
++    // Initial Animations
++    useEffect(() => {
++        if (heroContentRef.current) {
++            const elements = heroContentRef.current.children;
++            gsap.fromTo(elements,
++                { y: 50, opacity: 0 },
++                { y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "power3.out", delay: 0.5 }
++            );
++        }
++    }, []);
+ 
+     // Redirect authenticated users to dashboard
+     useEffect(() => {
+@@ -17,300 +66,385 @@ const LandingPage: React.FC = () => {
+         navigate('/signup');
+     };
+ 
++
++    const courses = [
++        { title: "System Design Masterclass", desc: "Scaling architectures for 100M+ users. Load balancing, sharding, and caching strategies.", modules: "12 MODULES" },
++        { title: "Advanced Data Structures", desc: "Moving beyond binary trees. Segment trees, Fenwick trees, and advanced graph theory.", modules: "20 MODULES" },
++        { title: "Full-Stack Development", desc: "From zero to production. Next.js, Go, PostgreSQL, and AWS deployment pipelines.", modules: "15 MODULES" },
++        { title: "Machine Learning", desc: "Deploying predictive models in production environments.", modules: "10 MODULES" }
++    ];
++
++    const faqs = [
++        { q: "How do the visual builders work?", a: "Our proprietary visual builders represent syntax as logical blocks that can be manipulated in real-time, helping you grasp complex algorithms intuitively." },
++        { q: "Are the HR contacts really verified?", a: "Yes, our database is updated weekly through direct integrations and manual verifications to ensure you're reaching out to active decision-makers." },
++        { q: "Can I cancel my subscription anytime?", a: "Absolutely. No long-term commitments required. You can manage your subscription directly from the billing dashboard." },
++        { q: "Do you offer university group discounts?", a: "We do. Please contact our support team with your university email to get a personalized quote for your cohort." }
++    ];
++
++    const companies = ["GOOGLE", "AMAZON", "META", "APPLE", "MICROSOFT", "NETFLIX", "TESLA", "ORACLE"];
++
+     return (
+         <div className="dark">
+-            <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-200 font-display antialiased overflow-x-hidden min-h-screen">
++            <div className="bg-[#0b0b0c] text-slate-200 font-display antialiased overflow-x-hidden min-h-screen selection:bg-accent-purple/30 selection:text-white">
+                 <div className="relative flex min-h-screen w-full flex-col group/design-root">
+-                    <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-dark bg-background-dark/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4 md:px-10">
+-                        <div className="flex items-center gap-4 text-white">
+-                            <div className="size-6 text-accent-purple">
+-                                <span className="material-symbols-outlined !text-2xl">layers</span>
+-                            </div>
+-                            <h2 className="text-white text-lg font-medium leading-tight tracking-wide">MASTER<span className="text-accent-purple">.AI</span></h2>
++
++                    {/* Header */}
++                    <header className="flex items-center justify-between whitespace-nowrap border-b border-gray-100 bg-[#fafafa]/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4 md:px-10">
++                        <div className="flex items-center gap-4 text-black">
++                            <h2 className="text-black text-xl font-medium leading-tight tracking-wide">Monolith AI</h2>
+                         </div>
+-                        <div className="hidden md:flex flex-1 justify-end gap-8 items-center">
+-                            <nav className="flex items-center gap-9">
+-                                <a className="text-gray-400 hover:text-white transition-colors text-sm font-light leading-normal" href="#">Curriculum</a>
+-                                <a className="text-gray-400 hover:text-white transition-colors text-sm font-light leading-normal" href="#">Challenge Mode</a>
+-                                <a className="text-gray-400 hover:text-white transition-colors text-sm font-light leading-normal" href="#">Pricing</a>
++                        <div className="hidden md:flex flex-1 justify-start ml-12 items-center">
++                            <nav className="flex items-center gap-8">
++                                <a className="text-gray-500 hover:text-black transition-colors text-sm font-medium" href="#">Pricing</a>
++                                <a className="text-gray-500 hover:text-black transition-colors text-sm font-medium" href="#">About Us</a>
+                             </nav>
+-                            <button onClick={handleGetStarted} className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-9 px-5 border border-border-dark bg-transparent text-white hover:border-accent-purple transition-colors text-sm font-medium leading-normal tracking-wide">
+-                                <span className="truncate">Get Started</span>
+-                            </button>
+                         </div>
+-                        <div className="md:hidden text-white">
+-                            <span className="material-symbols-outlined cursor-pointer">menu</span>
++                        <div className="flex items-center gap-4">
++                            <button onClick={handleGetStarted} className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-lg border border-gray-300 h-10 px-6 bg-white text-black hover:bg-gray-50 transition-colors text-sm font-medium shadow-sm">
++                                Sign In
++                            </button>
+                         </div>
+                     </header>
++
+                     <main className="flex flex-col grow">
+-                        <section className="flex flex-col lg:flex-row items-center justify-between px-6 py-20 lg:py-32 xl:py-40 bg-background-dark relative overflow-hidden min-h-[90vh]">
+-                            <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)', backgroundSize: '50px 50px' }}></div>
+-                            <div className="relative z-10 flex flex-col items-start max-w-2xl text-left gap-8 lg:w-1/2 lg:pr-12">
+-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-dark bg-surface-dark/50 backdrop-blur-sm">
+-                                    <span className="size-1.5 rounded-full bg-accent-purple animate-pulse"></span>
+-                                    <span className="text-xs font-medium text-gray-400 uppercase tracking-widest">AI-Resistant Skills</span>
+-                                </div>
+-                                <h1 className="text-white text-5xl md:text-6xl lg:text-7xl font-extralight leading-[1.1] tracking-tight">
+-                                    Master Placements in the <br /><span className="font-normal text-white border-b-2 border-accent-purple pb-1">Age of AI</span>
++
++                        {/* Hero Section */}
++                        <section className="flex flex-col lg:flex-row items-center justify-between px-6 py-20 lg:py-32 xl:py-40 relative flex-1 min-h-[85vh] overflow-hidden bg-[#fafafa]">
++                            <div className="absolute inset-y-0 right-0 w-full lg:w-[60%] z-0 pointer-events-auto">
++                                <InteractiveHands />
++                            </div>
++                            <div ref={heroContentRef} className="relative z-10 flex flex-col items-start max-w-2xl text-left gap-6 lg:w-1/2 lg:pl-16">
++                                <h1 className="text-slate-900 text-5xl md:text-6xl lg:text-[4.5rem] font-medium leading-[1.1] tracking-tight">
++                                    Placement Preparation<br />in the AI Era
+                                 </h1>
+-                                <p className="text-gray-400 text-lg md:text-xl font-light leading-relaxed max-w-lg">
+-                                    Secure your future by mastering the skills AI can't replicate. Deep problem solving, system architecture, and human-centric engineering.
++                                <p className="text-slate-600 text-lg md:text-xl font-light leading-relaxed max-w-lg mt-2">
++                                    Get ready for fast, intelligent placements in the evolving world of Artificial Intelligence.
+                                 </p>
+-                                <div className="flex flex-wrap gap-4 mt-4">
+-                                    <button onClick={handleGetStarted} className="flex min-w-[160px] cursor-pointer items-center justify-center rounded-lg h-12 px-6 bg-white text-black hover:bg-gray-100 transition-all text-sm font-medium tracking-wide">
+-                                        Start Assessment
+-                                    </button>
+-                                    <button className="flex min-w-[160px] cursor-pointer items-center justify-center rounded-lg h-12 px-6 bg-transparent border border-border-dark text-white hover:border-accent-purple transition-all text-sm font-medium tracking-wide group">
+-                                        Explore Syllabus <span className="material-symbols-outlined ml-2 text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
++                                <div className="flex flex-wrap gap-6 mt-4 pointer-events-auto">
++                                    <button onClick={handleGetStarted} className="flex min-w-[180px] cursor-pointer items-center justify-center rounded-lg h-14 px-8 bg-[#3b5bdb] text-white hover:bg-[#364fc7] transition-all text-base font-medium shadow-lg shadow-blue-500/30">
++                                        Get Started
+                                     </button>
+                                 </div>
+                             </div>
+-                            <div className="relative z-10 lg:w-1/2 h-[500px] w-full mt-16 lg:mt-0 flex items-center justify-center">
+-                                <div className="relative w-full h-full max-w-md mx-auto perspective-1000">
+-                                    <div className="absolute inset-0 bg-gradient-to-tr from-accent-purple/10 to-transparent rounded-full blur-3xl opacity-30"></div>
+-                                    <div className="relative w-full h-full rounded-2xl overflow-hidden border border-border-dark/50 shadow-2xl bg-surface-dark/20 backdrop-blur-sm group hover:scale-[1.02] transition-transform duration-700 ease-out">
+-                                        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCKOuoS_jELCIhXijZSuME3QuB4qb6jGkbhE0np8VIBj5dIbRxbz4-QiXhyvlq4ba6_MIkb8yWnHr0ecGW3NTGioIGiH67XF1oUiGMnod7McLpFpHfKDp1ax_qUI_TVNa33T8oGrQ4qHZSHgf_cnat0Y6AT16Xw66HCUYnXnb-rmgS5hAsiwjCXZJHOfGePbjtYJVze-MpxmLGmrMy3NbL_9daxLSO2801Tk6far8_2x1PrJUGASMweC-uB-WtlKCCe8qTHCgMrPulg')", opacity: 0.9, filter: 'contrast(1.2) brightness(0.8)' }}></div>
+-                                        <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent"></div>
+-                                        <div className="absolute bottom-10 left-10 right-10 p-6 rounded-xl border border-white/10 bg-black/40 backdrop-blur-md">
+-                                            <div className="flex justify-between items-center mb-4">
+-                                                <div className="text-xs text-gray-400 uppercase tracking-wider">System Status</div>
+-                                                <div className="text-accent-purple text-xs font-bold">OPTIMAL</div>
+-                                            </div>
+-                                            <div className="h-1 w-full bg-gray-800 rounded-full overflow-hidden">
+-                                                <div className="h-full bg-white w-3/4"></div>
+-                                            </div>
+-                                            <div className="mt-4 flex justify-between text-white font-light text-sm">
+-                                                <span>Architecture</span>
+-                                                <span>98%</span>
+-                                            </div>
+-                                        </div>
++                        </section>
++
++                        {/* Video Demo Section */}
++                        <section className="py-24 bg-[#fafafa] border-t border-gray-100 flex flex-col items-center justify-center">
++                            <div className="w-full max-w-4xl px-6">
++                                <div className="w-full aspect-video bg-gray-100 border border-gray-200 rounded-2xl flex items-center justify-center shadow-xl relative overflow-hidden group cursor-pointer">
++                                    {/* Video Placeholder */}
++                                    <div className="absolute inset-0 bg-gradient-to-tr from-gray-200 to-gray-50 opacity-50"></div>
++                                    <div className="relative z-10 w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110">
++                                        <div className="w-0 h-0 border-t-[12px] border-t-transparent border-l-[20px] border-l-[#ff3b30] border-b-[12px] border-b-transparent ml-2"></div>
+                                     </div>
++                                    {/* Subtle pattern overlay */}
++                                    <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+                                 </div>
+                             </div>
++                            <div className="mt-12 text-center max-w-2xl px-6">
++                                <h3 className="text-2xl font-light text-slate-800">Super fast interactive learning</h3>
++                                <p className="text-slate-500 mt-2 text-sm leading-relaxed">Experience learning that feels like play. Connect concepts seamlessly with our intuitive engine.</p>
++                            </div>
+                         </section>
+-                        <section className="py-32 bg-surface-dark border-y border-border-dark relative">
+-                            <div className="max-w-[1200px] mx-auto px-6">
+-                                <div className="mb-16 text-center">
+-                                    <h2 className="text-3xl font-light text-white mb-4">Interactive <span className="text-accent-purple">Live Preview</span></h2>
+-                                    <p className="text-gray-400 font-light max-w-xl mx-auto">Don't just watch. Build. Drag the correct data structure to complete the optimal solution pattern.</p>
++
++                        {/* Horizontal Scroll Section */}
++                        <section ref={horizontalScrollRef} className="h-screen w-full bg-[#fafafa] flex items-center overflow-hidden border-t border-gray-100 relative">
++                            <div className="text-3xl md:text-4xl lg:text-5xl font-light text-slate-800 absolute top-20 left-10 md:left-20 z-10 w-[300px]">
++                                What are the things<br />you will learn
++                            </div>
++                            <div className="absolute bottom-20 left-10 md:left-20 z-10 flex gap-8 md:gap-12 font-medium text-slate-500 text-sm">
++                                <div className="text-center">
++                                    <div className="text-xl md:text-2xl text-slate-800 font-bold">200k+</div>
++                                    active learners
+                                 </div>
+-                                <div className="flex flex-col lg:flex-row gap-12 items-stretch min-h-[500px]">
+-                                    <div className="flex-1 bg-background-dark border border-border-dark rounded-xl p-8 shadow-2xl flex flex-col">
+-                                        <div className="flex items-center gap-2 mb-6 border-b border-border-dark pb-4">
+-                                            <span className="size-3 rounded-full bg-red-500/20 border border-red-500/50"></span>
+-                                            <span className="size-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></span>
+-                                            <span className="size-3 rounded-full bg-green-500/20 border border-green-500/50"></span>
+-                                            <span className="ml-4 text-xs text-gray-500 font-mono">problem_solver.py</span>
+-                                        </div>
+-                                        <div className="font-mono text-sm leading-loose text-gray-300 flex-1">
+-                                            <div className="text-gray-500 mb-4"># Task: Cache recent items efficiently</div>
+-                                            <div><span className="text-purple-400">class</span> <span className="text-yellow-200">LRUCache</span>:</div>
+-                                            <div className="pl-4"><span className="text-purple-400">def</span> <span className="text-blue-300">__init__</span>(self, capacity):</div>
+-                                            <div className="pl-8 text-gray-500"># TODO: Choose structure for O(1) access</div>
+-                                            <div className="pl-8 flex items-center gap-3 my-2">
+-                                                <span>self.cache = </span>
+-                                                <div className="h-10 w-48 border-2 border-dashed border-gray-700 bg-gray-800/50 rounded flex items-center justify-center text-xs text-gray-500 drop-zone">
+-                                                    Drag Structure Here
+-                                                </div>
+-                                            </div>
+-                                            <div className="pl-8 text-gray-500"># TODO: Choose structure for O(1) ordering</div>
+-                                            <div className="pl-8 flex items-center gap-3 my-2">
+-                                                <span>self.order = </span>
+-                                                <div className="h-10 w-48 border-2 border-dashed border-gray-700 bg-gray-800/50 rounded flex items-center justify-center text-xs text-gray-500 drop-zone">
+-                                                    Drag Structure Here
+-                                                </div>
+-                                            </div>
+-                                        </div>
+-                                        <div className="mt-6 flex justify-end">
+-                                            <button className="px-6 py-2 bg-accent-purple/10 text-accent-purple border border-accent-purple/20 rounded-lg text-sm hover:bg-accent-purple hover:text-white transition-colors">Run Tests</button>
++                                <div className="text-center">
++                                    <div className="text-xl md:text-2xl text-slate-800 font-bold">20+</div>
++                                    companies
++                                </div>
++                                <div className="text-center">
++                                    <div className="text-xl md:text-2xl text-slate-800 font-bold">50+</div>
++                                    roadmaps
++                                </div>
++                            </div>
++
++                            {/* Card Container that Scrolls */}
++                            <div ref={scrollContainerRef} className="flex gap-8 px-10 md:px-[40vw] h-[55vh] mt-10 w-max">
++                                {/* Card 1 */}
++                                <div className="w-[350px] md:w-[450px] h-full bg-white rounded-3xl border border-gray-200 shadow-xl shrink-0 flex flex-col p-8 md:p-10 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
++                                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full blur-3xl -mr-10 -mt-10"></div>
++                                    <h3 className="text-2xl font-bold text-slate-800 mb-2 md:mb-4 z-10">User Journey</h3>
++                                    <p className="text-slate-500 mb-6 md:mb-8 z-10 text-sm md:text-base">Follow a crafted path from absolute basics to advanced architectures. Your progress is mapped every step of the way.</p>
++                                    <div className="flex-1 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-6 z-10 min-h-[150px]">
++                                        <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl relative overflow-hidden">
++                                            {/* Dummy Graph */}
++                                            <div className="absolute bottom-4 left-4 right-4 h-1 bg-gray-200 rounded-full"></div>
++                                            <div className="absolute bottom-4 left-4 h-1 w-1/3 bg-blue-500 rounded-full"></div>
++                                            <div className="absolute bottom-3 left-[33%] w-3 h-3 bg-blue-600 rounded-full border-2 border-white"></div>
+                                         </div>
+                                     </div>
+-                                    <div className="lg:w-1/3 flex flex-col gap-6 justify-center">
+-                                        <div className="text-sm text-gray-400 mb-2 uppercase tracking-wider font-medium">Data Structures</div>
+-                                        <div className="draggable-item bg-background-dark p-4 rounded-lg border border-border-dark hover:border-accent-purple group transition-all shadow-lg hover:shadow-accent-purple/10">
+-                                            <div className="flex items-center gap-3">
+-                                                <span className="material-symbols-outlined text-accent-purple">data_object</span>
+-                                                <div>
+-                                                    <h4 className="text-white font-medium text-sm">HashMap (Dict)</h4>
+-                                                    <p className="text-xs text-gray-500">Key-value mapping, O(1) access</p>
+-                                                </div>
+-                                            </div>
++                                </div>
++
++                                {/* Card 2 */}
++                                <div className="w-[350px] md:w-[450px] h-full bg-white rounded-3xl border border-gray-200 shadow-xl shrink-0 flex flex-col p-8 md:p-10 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
++                                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-full blur-3xl -mr-10 -mt-10"></div>
++                                    <h3 className="text-2xl font-bold text-slate-800 mb-2 md:mb-4 z-10">Company Roadmap</h3>
++                                    <p className="text-slate-500 mb-6 md:mb-8 z-10 text-sm md:text-base">Target specific companies with tailored curricula. Google, MAANG, and fast-growing startups.</p>
++                                    <div className="flex-1 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-6 z-10 min-h-[150px]">
++                                        <div className="w-full h-full flex flex-col gap-3 justify-center">
++                                            <div className="w-3/4 h-8 bg-purple-100 rounded flex items-center px-4 text-xs font-semibold text-purple-700"><span className="w-2 h-2 rounded-full bg-purple-500 mr-2"></span> Amazon</div>
++                                            <div className="w-full h-8 bg-blue-100 rounded flex items-center px-4 text-xs font-semibold text-blue-700"><span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span> Google</div>
++                                            <div className="w-5/6 h-8 bg-rose-100 rounded flex items-center px-4 text-xs font-semibold text-rose-700"><span className="w-2 h-2 rounded-full bg-rose-500 mr-2"></span> Meta</div>
+                                         </div>
+-                                        <div className="draggable-item bg-background-dark p-4 rounded-lg border border-border-dark hover:border-accent-purple group transition-all shadow-lg hover:shadow-accent-purple/10">
+-                                            <div className="flex items-center gap-3">
+-                                                <span className="material-symbols-outlined text-accent-purple">link</span>
+-                                                <div>
+-                                                    <h4 className="text-white font-medium text-sm">Doubly Linked List</h4>
+-                                                    <p className="text-xs text-gray-500">Ordered nodes, O(1) insertion/deletion</p>
+-                                                </div>
+-                                            </div>
++                                    </div>
++                                </div>
++
++                                {/* Card 3 */}
++                                <div className="w-[350px] md:w-[450px] h-full bg-white rounded-3xl border border-gray-200 shadow-xl shrink-0 flex flex-col p-8 md:p-10 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
++                                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full blur-3xl -mr-10 -mt-10"></div>
++                                    <h3 className="text-2xl font-bold text-slate-800 mb-2 md:mb-4 z-10">DSA & SQL</h3>
++                                    <p className="text-slate-500 mb-6 md:mb-8 z-10 text-sm md:text-base">Interactive visualizers for data structures and a sandbox for writing production-grade SQL.</p>
++                                    <div className="flex-1 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-6 z-10 min-h-[150px]">
++                                        <div className="flex gap-4 items-end h-full w-full pb-0">
++                                            <div className="w-1/4 h-1/3 bg-emerald-400 rounded-t-lg"></div>
++                                            <div className="w-1/4 h-2/3 bg-emerald-500 rounded-t-lg"></div>
++                                            <div className="w-1/4 h-1/2 bg-emerald-300 rounded-t-lg"></div>
++                                            <div className="w-1/4 h-full bg-emerald-600 rounded-t-lg"></div>
+                                         </div>
+-                                        <div className="draggable-item bg-background-dark p-4 rounded-lg border border-border-dark hover:border-gray-600 group transition-all shadow-lg opacity-50">
+-                                            <div className="flex items-center gap-3">
+-                                                <span className="material-symbols-outlined text-gray-500">view_array</span>
+-                                                <div>
+-                                                    <h4 className="text-gray-300 font-medium text-sm">Dynamic Array</h4>
+-                                                    <p className="text-xs text-gray-600">Contiguous memory, O(n) shift</p>
+-                                                </div>
+-                                            </div>
++                                    </div>
++                                </div>
++
++                                {/* Card 4 */}
++                                <div className="w-[350px] md:w-[450px] h-full bg-white rounded-3xl border border-gray-200 shadow-xl shrink-0 flex flex-col p-8 md:p-10 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
++                                    <h3 className="text-2xl font-bold text-slate-800 mb-2 md:mb-4 z-10">PYQ & Crack Jobs</h3>
++                                    <p className="text-slate-500 mb-6 md:mb-8 z-10 text-sm md:text-base">Previous year questions and direct company referrals from verified human resources contacts.</p>
++                                    <div className="flex-1 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-6 z-10 min-h-[150px]">
++                                        <div className="w-full h-full border border-dashed border-gray-300 rounded flex items-center justify-center text-gray-400 font-medium text-sm">
++                                            Database Connected
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                         </section>
+-                        <section className="py-40 bg-background-dark">
+-                            <div className="max-w-[1200px] mx-auto px-6 flex flex-col gap-40">
+-                                <div className="group flex flex-col md:flex-row gap-20 items-center">
+-                                    <div className="flex-1 space-y-8 order-2 md:order-1 max-w-md">
+-                                        <div className="flex items-center gap-3">
+-                                            <div className="h-px w-8 bg-accent-purple"></div>
+-                                            <span className="text-accent-purple text-sm font-medium tracking-widest uppercase">Foundation</span>
++
++                        {/* Testimonial Section (New) */}
++                        <section className="py-24 bg-white border-t border-gray-100 flex flex-col items-center justify-center">
++                            <div className="max-w-3xl px-6 text-center">
++                                <div className="bg-[#fafafa] border border-gray-200 rounded-3xl p-10 md:p-16 shadow-lg shadow-gray-100/50 relative">
++                                    <div className="absolute top-8 left-8 text-6xl text-gray-200 font-serif leading-none">"</div>
++                                    <p className="text-xl md:text-3xl text-slate-700 font-light leading-relaxed italic relative z-10 mb-8">
++                                        This project is so good we love this and super cool interactions. The platform feels like it's from the future.
++                                    </p>
++                                    <div className="flex flex-col items-center justify-center gap-4">
++                                        <div className="w-16 h-16 bg-yellow-100 rounded-full border-4 border-white shadow-md flex items-center justify-center text-yellow-600 font-bold text-xl">
++                                            A
+                                         </div>
+-                                        <h3 className="text-white text-3xl font-light">Algorithmic Intuition</h3>
+-                                        <p className="text-gray-400 leading-relaxed font-light text-lg">
+-                                            Stop memorizing code. Visualize the execution flow. Our timeline debugger lets you scrub through algorithm states frame-by-frame.
+-                                        </p>
+-                                        <ul className="space-y-4 pt-4 border-l border-border-dark pl-6">
+-                                            <li className="text-sm text-gray-300">
+-                                                <span className="text-accent-purple mr-2">•</span> Time-Travel Debugging
+-                                            </li>
+-                                            <li className="text-sm text-gray-300">
+-                                                <span className="text-accent-purple mr-2">•</span> Memory Stack Visualization
+-                                            </li>
+-                                            <li className="text-sm text-gray-300">
+-                                                <span className="text-accent-purple mr-2">•</span> Pattern Recognition Engine
+-                                            </li>
+-                                        </ul>
++                                        <div className="text-sm font-medium text-slate-800">Alex Student</div>
++                                        <button className="text-sm text-blue-600 font-medium hover:text-blue-700 hover:underline flex items-center gap-1 mt-2">
++                                            see more reviews <span className="material-symbols-outlined text-sm">arrow_forward</span>
++                                        </button>
+                                     </div>
+-                                    <div className="flex-1 w-full order-1 md:order-2">
+-                                        <div className="aspect-[4/3] w-full bg-surface-dark rounded-lg overflow-hidden border border-border-dark relative shadow-2xl">
+-                                            <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBfyDpBXdm8bcvVMUjhX9AmcuaxmnetXI7ueTfsdBWSBSTEnBB8q-S2ob3hfz3iEzo8i7LDcvdxdC55Qck3AJUQcevtmyHmFPY6jKJMVE8mxUw7v6iGKFk02vaMIIkiGyyfntVwwFS_bSQQlwfWOZrjQay63-Ysf8-J-4r2PYucK1bUoTTyfCmnAc3vrUDDv0dp3jvK33foaMbhNZA_Tk_ZBOESwoR3YxV5ZX50ZTfMsCkBqLRomyny3r9UDGga4DlYTl-0SQHP-tH-')" }}></div>
+-                                            <div className="absolute inset-0 flex items-center justify-center">
+-                                                <div className="size-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 cursor-pointer hover:scale-110 transition-transform">
+-                                                    <span className="material-symbols-outlined text-white text-3xl">play_arrow</span>
+-                                                </div>
++                                </div>
++                            </div>
++                        </section>
++
++                        {/* Companies & Courses Carousel */}
++                        <section className="py-20 bg-[#fafafa] border-t border-gray-100">
++                            <div className="w-full overflow-hidden flex mb-20 whitespace-nowrap opacity-60 hover:opacity-100 transition-opacity relative before:absolute before:left-0 before:top-0 before:w-32 before:h-full before:bg-gradient-to-r before:from-[#fafafa] before:to-transparent before:z-10 after:absolute after:right-0 after:top-0 after:w-32 after:h-full after:bg-gradient-to-l after:from-[#fafafa] after:to-transparent after:z-10">
++                                <div className="flex animate-marquee gap-32 px-16 items-center">
++                                    {[...companies, ...companies].map((c, i) => (
++                                        <span key={i} className="text-2xl md:text-3xl font-extralight text-slate-400 tracking-[0.2em]">{c}</span>
++                                    ))}
++                                </div>
++                            </div>
++
++                            <div className="max-w-[1400px] mx-auto px-6">
++                                <h3 className="text-slate-800 text-3xl font-light mb-12">Advanced Specializations</h3>
++                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
++                                    {courses.map((course, i) => (
++                                        <div key={i} className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl min-h-[250px] flex flex-col justify-between group hover:border-blue-300 hover:shadow-md transition-all cursor-pointer">
++                                            <div>
++                                                <h4 className="text-slate-800 font-medium text-lg mb-4">{course.title}</h4>
++                                                <p className="text-slate-500 text-sm leading-relaxed">{course.desc}</p>
+                                             </div>
+-                                            <div className="absolute bottom-6 left-6 right-6 h-1 bg-gray-700 rounded-full overflow-hidden">
+-                                                <div className="h-full bg-accent-purple w-1/3"></div>
++                                            <div className="flex items-center justify-between mt-8">
++                                                <span className="text-blue-600 text-xs font-bold tracking-widest">{course.modules}</span>
++                                                <span className="material-symbols-outlined text-slate-300 group-hover:text-blue-600 transition-colors">arrow_forward</span>
+                                             </div>
+                                         </div>
+-                                    </div>
++                                    ))}
++                                </div>
++                            </div>
++                        </section>
++
++                        {/* Custom Pricing Accordion */}
++                        <section className="py-24 bg-white">
++                            <div className="max-w-[1000px] mx-auto px-4 md:px-6">
++                                <div className="text-center mb-16">
++                                    <h2 className="text-slate-800 text-4xl font-light mb-4">Choose Your Vector</h2>
++                                    <p className="text-slate-500 text-lg font-light">Simple, transparent pricing for every stage of your career.</p>
+                                 </div>
+-                                <div className="group flex flex-col md:flex-row gap-20 items-center">
+-                                    <div className="flex-1 w-full order-1">
+-                                        <div className="aspect-[4/3] w-full bg-surface-dark rounded-lg overflow-hidden border border-border-dark relative shadow-2xl">
+-                                            <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD1bweuEzL2BxZubBFjr9RDwCmgFHnDZxw-FCLbqALbjUgP6doMKw0YbAQyB1Ye2v3m6pbJDjY0w0pTL3iXzHkb5VtsysRdGbpYbaqNatlB5fbsA1wVGbRPq01OQCwpNS-6JwhN90yM0uwdo58ek_qFVbLO39j3ZSdluV0nbKznXtpW4RgnzINBBe-p7oYuWOH-xQUC3G2JRPdFkJZTFunY1xLsIR5xidmmwzoOgN_XVIdveXfjCGJEWq62n_PFwIx8CwYHIL-A-LLw')" }}></div>
+-                                            <div className="absolute top-6 right-6 bg-black/60 backdrop-blur-md px-4 py-2 rounded border border-white/10 text-xs text-white font-mono">
+-                                                Latency: 12ms <span className="text-green-400">●</span>
++
++                                <div className="flex w-full h-[600px] rounded-2xl overflow-hidden bg-slate-50 border border-gray-200 shadow-xl shadow-gray-100/50">
++                                    {/* --- BASIC TIER --- */}
++                                    <div
++                                        onClick={() => setActiveTier("BASIC")}
++                                        className={`relative transition-all duration-500 ease-in-out border-r border-gray-200 cursor-pointer overflow-hidden group ${activeTier === "BASIC" ? "flex-[1_1_80%]" : "flex-[0_0_80px] md:flex-[0_0_100px]"}`}
++                                    >
++                                        <div className="absolute left-0 top-0 w-[80px] md:w-[100px] h-full bg-slate-50 z-10 flex flex-col items-center justify-center border-r-2 border-transparent transition-colors group-hover:bg-slate-100">
++                                            <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(59, 130, 246, 0.2) 2px, rgba(59, 130, 246, 0.2) 4px)' }}></div>
++                                            {activeTier === "BASIC" && <div className="absolute left-[30%] top-1/2 -translate-y-1/2 w-[40px] h-[150px] opacity-40 pointer-events-none transition-all duration-300" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(59, 130, 246, 0.4) 2px, rgba(59, 130, 246, 0.4) 6px, transparent 6px, transparent 8px)' }}></div>}
++                                            <span className={`[writing-mode:vertical-rl] rotate-180 tracking-[0.5em] font-semibold text-xs md:text-sm mt-4 whitespace-nowrap transition-colors duration-300 ${activeTier === "BASIC" ? "text-slate-300" : "text-blue-500/70"}`}>B A S I C</span>
++                                        </div>
++                                        <div className={`absolute top-0 left-[80px] md:left-[100px] w-[calc(100%-80px)] md:w-[calc(100%-100px)] h-full bg-white p-8 md:p-12 transition-all duration-300 delay-100 flex flex-col ${activeTier === "BASIC" ? "opacity-100 visible translate-x-0" : "opacity-0 invisible -translate-x-8"}`}>
++                                            <div className="flex-1">
++                                                <h3 className="text-3xl font-bold mb-8 text-blue-600">BASIC</h3>
++                                                <div className="text-5xl font-extrabold text-slate-800 mb-6">Rs.0</div>
++                                                <p className="text-slate-500 text-sm mb-10 font-bold">Free forever</p>
++
++                                                <button className="w-full md:w-[300px] py-4 rounded-xl border-2 border-blue-600 bg-white text-blue-600 font-bold text-lg mb-12 hover:bg-blue-50 transition-colors">Start Free</button>
++
++                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12">
++                                                    <div className="flex gap-4 text-slate-600 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> 50+ DSA Problems</div>
++                                                    <div className="flex gap-4 text-slate-600 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Basic SQL Sandbox</div>
++                                                    <div className="flex gap-4 text-slate-600 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Community Access</div>
++                                                    <div className="flex gap-4 text-slate-600 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Weekly Newsletter</div>
++                                                </div>
+                                             </div>
+                                         </div>
+                                     </div>
+-                                    <div className="flex-1 space-y-8 order-2 max-w-md">
+-                                        <div className="flex items-center gap-3">
+-                                            <div className="h-px w-8 bg-accent-purple"></div>
+-                                            <span className="text-accent-purple text-sm font-medium tracking-widest uppercase">Architecture</span>
++
++                                    {/* --- STANDARD TIER --- */}
++                                    <div
++                                        onClick={() => setActiveTier("STANDARD")}
++                                        className={`relative transition-all duration-500 ease-in-out border-r border-gray-200 cursor-pointer overflow-hidden group ${activeTier === "STANDARD" ? "flex-[1_1_80%]" : "flex-[0_0_80px] md:flex-[0_0_100px]"}`}
++                                    >
++                                        <div className="absolute left-0 top-0 w-[80px] md:w-[100px] h-full bg-slate-100 z-10 flex flex-col items-center justify-center border-r-2 border-gray-200 transition-colors group-hover:bg-slate-200">
++                                            <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(59, 130, 246, 0.3) 2px, rgba(59, 130, 246, 0.3) 4px)' }}></div>
++                                            {activeTier === "STANDARD" ? null : <div className="absolute left-[30%] top-1/2 -translate-y-1/2 w-[40px] h-[200px] opacity-50 pointer-events-none transition-all duration-300" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(59, 130, 246, 0.5) 2px, rgba(59, 130, 246, 0.5) 4px, transparent 4px, transparent 6px)' }}></div>}
++                                            <span className={`[writing-mode:vertical-rl] rotate-180 tracking-[0.5em] font-bold text-xs md:text-sm mt-4 whitespace-nowrap transition-colors duration-300 ${activeTier === "STANDARD" ? "text-slate-300" : "text-blue-600"}`}>S T A N D A R D</span>
+                                         </div>
+-                                        <h3 className="text-white text-3xl font-light">System Design Canvas</h3>
+-                                        <p className="text-gray-400 leading-relaxed font-light text-lg">
+-                                            Drag, drop, and scale. Simulate high-traffic scenarios on a live whiteboard. Understand trade-offs between consistency and availability in real-time.
+-                                        </p>
+-                                        <ul className="space-y-4 pt-4 border-l border-border-dark pl-6">
+-                                            <li className="text-sm text-gray-300">
+-                                                <span className="text-accent-purple mr-2">•</span> Interactive Component Library
+-                                            </li>
+-                                            <li className="text-sm text-gray-300">
+-                                                <span className="text-accent-purple mr-2">•</span> Real-time Load Simulation
+-                                            </li>
+-                                            <li className="text-sm text-gray-300">
+-                                                <span className="text-accent-purple mr-2">•</span> Failure Mode Analysis
+-                                            </li>
+-                                        </ul>
+-                                    </div>
+-                                </div>
+-                                <div className="group flex flex-col md:flex-row gap-20 items-center">
+-                                    <div className="flex-1 space-y-8 order-2 md:order-1 max-w-md">
+-                                        <div className="flex items-center gap-3">
+-                                            <div className="h-px w-8 bg-accent-purple"></div>
+-                                            <span className="text-accent-purple text-sm font-medium tracking-widest uppercase">Data</span>
++                                        <div className={`absolute top-0 left-[80px] md:left-[100px] w-[calc(100%-80px)] md:w-[calc(100%-100px)] h-full bg-white p-8 md:p-12 transition-all duration-300 delay-100 flex flex-col ${activeTier === "STANDARD" ? "opacity-100 visible translate-x-0" : "opacity-0 invisible -translate-x-8"}`}>
++                                            <div className="flex-1 flex flex-col items-center justify-center w-full">
++                                                <h3 className="text-3xl font-bold mb-8 text-blue-600">STANDARD</h3>
++                                                <div className="text-5xl font-extrabold text-slate-800 mb-6">Rs.500</div>
++                                                <p className="text-slate-500 text-sm mb-10 font-bold">Per month</p>
++
++                                                <button className="w-full max-w-[400px] py-4 rounded-xl bg-blue-600 text-white font-bold text-lg mb-12 hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all">Buy Plan</button>
++
++                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12 w-full max-w-[600px] mx-auto">
++                                                    <div className="flex gap-4 text-slate-600 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> All DSA Problems</div>
++                                                    <div className="flex gap-4 text-slate-600 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Visual SQL Sandbox</div>
++                                                    <div className="flex gap-4 text-slate-600 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> 10 Company Roadmaps</div>
++                                                    <div className="flex gap-4 text-slate-600 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Portfolio Templates</div>
++                                                </div>
++                                            </div>
+                                         </div>
+-                                        <h3 className="text-white text-3xl font-light">Live SQL Query Builder</h3>
+-                                        <p className="text-gray-400 leading-relaxed font-light text-lg">
+-                                            Construct complex queries visually or in code. See the query plan execution and optimize for performance against million-row datasets.
+-                                        </p>
+-                                        <ul className="space-y-4 pt-4 border-l border-border-dark pl-6">
+-                                            <li className="text-sm text-gray-300">
+-                                                <span className="text-accent-purple mr-2">•</span> Query Cost Analysis
+-                                            </li>
+-                                            <li className="text-sm text-gray-300">
+-                                                <span className="text-accent-purple mr-2">•</span> Indexing Strategy Lab
+-                                            </li>
+-                                            <li className="text-sm text-gray-300">
+-                                                <span className="text-accent-purple mr-2">•</span> Production Schemas
+-                                            </li>
+-                                        </ul>
+                                     </div>
+-                                    <div className="flex-1 w-full order-1 md:order-2">
+-                                        <div className="aspect-[4/3] w-full bg-surface-dark rounded-lg overflow-hidden border border-border-dark relative shadow-2xl">
+-                                            <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDHvY8Snd22wzcZRI7-dq5a-sdlMOLHBJzoqOrpELACtRjnEYLFDnOnFx5AsHgZxu2Gb26BOFJ4ksHTserBx49sTi8AiU_8rHF3LR1idgIYDSOMZwoSR_nvY6nKEkfsaBfZUFbCIDq1JtSWH3Lux05heNZANd_cOPT8FI8MgfLNYSq_eMP8NjTL3HOAb0Q3fMt-C3g1NqCqOoJuBUGWhfPalSH6Ru8t7G9ymDlJ5jhHAo7X-PIN1b2OXHl0h-JHe9cCTFOue_exPURM')" }}></div>
+-                                            <div className="absolute inset-0 bg-gradient-to-r from-background-dark/80 to-transparent"></div>
+-                                            <div className="absolute left-6 top-1/2 -translate-y-1/2 space-y-2">
+-                                                <div className="h-8 w-40 bg-gray-800 rounded border-l-2 border-accent-purple"></div>
+-                                                <div className="h-8 w-32 bg-gray-800/80 rounded border-l-2 border-accent-purple/50"></div>
+-                                                <div className="h-8 w-36 bg-gray-800/60 rounded border-l-2 border-accent-purple/30"></div>
++
++                                    {/* --- PRO TIER --- */}
++                                    <div
++                                        onClick={() => setActiveTier("PRO")}
++                                        className={`relative transition-all duration-500 ease-in-out cursor-pointer overflow-hidden group bg-slate-50 ${activeTier === "PRO" ? "flex-[1_1_80%]" : "flex-[0_0_80px] md:flex-[0_0_100px]"}`}
++                                    >
++                                        <div className="absolute left-0 top-0 w-[80px] md:w-[100px] h-full bg-slate-800 z-10 flex flex-col items-center justify-center border-r border-slate-700 transition-colors group-hover:bg-slate-900">
++                                            <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.1) 2px, rgba(255, 255, 255, 0.1) 4px)' }}></div>
++                                            <span className={`[writing-mode:vertical-rl] rotate-180 tracking-[0.5em] font-semibold text-xs md:text-sm mt-4 whitespace-nowrap transition-colors duration-300 ${activeTier === "PRO" ? "text-slate-600" : "text-white/80"}`}>P R O</span>
++                                        </div>
++                                        <div className={`absolute top-0 left-[80px] md:left-[100px] w-[calc(100%-80px)] md:w-[calc(100%-100px)] h-full bg-slate-900 p-8 md:p-12 transition-all duration-300 delay-100 flex flex-col ${activeTier === "PRO" ? "opacity-100 visible translate-x-0" : "opacity-0 invisible -translate-x-8"}`}>
++                                            <div className="flex-1 flex flex-col items-center justify-center w-full">
++                                                <h3 className="text-3xl font-bold mb-8 text-white">PRO</h3>
++                                                <div className="text-5xl font-extrabold text-white mb-6">Rs.1500</div>
++                                                <p className="text-slate-400 text-sm mb-10 font-bold">Per month</p>
++
++                                                <button className="w-full max-w-[400px] py-4 rounded-xl bg-white text-slate-900 font-bold text-lg mb-12 hover:bg-gray-100 transition-colors shadow-xl">Buy Pro Plan</button>
++
++                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12 w-full max-w-[600px] mx-auto">
++                                                    <div className="flex gap-4 text-slate-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> Mock Interview Sessions</div>
++                                                    <div className="flex gap-4 text-slate-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> All 50+ Roadmaps</div>
++                                                    <div className="flex gap-4 text-slate-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> HR Contacts Database</div>
++                                                    <div className="flex gap-4 text-slate-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> 1-on-1 Mentorship</div>
++                                                </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                         </section>
+-                        <section className="py-32 border-t border-border-dark bg-surface-dark">
+-                            <div className="max-w-4xl mx-auto px-6 text-center">
+-                                <div className="mb-8 flex justify-center">
+-                                    <span className="material-symbols-outlined text-4xl text-accent-purple opacity-50">format_quote</span>
+-                                </div>
+-                                <h3 className="text-white text-2xl md:text-3xl font-extralight leading-relaxed mb-10 italic">
+-                                    "The interactivity changes everything. I wasn't just reading about race conditions; I was creating them and fixing them in the simulator. It's the only reason I passed my Meta onsite."
+-                                </h3>
+-                                <div className="flex flex-col items-center gap-2">
+-                                    <div className="size-14 rounded-full p-0.5 bg-gradient-to-tr from-accent-purple to-transparent mb-2">
+-                                        <div className="w-full h-full rounded-full bg-cover bg-center" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAFKBmlBm1ZXsHPbStNZrJlainLgP7psUc83iam7JKHEAjuVG0twnuAZvvt0VVxX0GoFzEf-VjkwIEB2E1PgazhqpN8StjrFLzVLyoZLPPlEF0R2YCwGylP25XmhXKkGUlFfszZbfs2riXkRAtcKsTpbNfS7ME7l54-ItOF9A9KOVJPqq681sfG0xAXA1CqTnyl7ewBlb2zPS71KIikVY9sFTT_QL1IuETtYwKX2Sd3BXesY7KO39D2j_GIUtBrlGRvcbeqhqvksavb')" }}></div>
+-                                    </div>
+-                                    <p className="text-white font-medium tracking-wide">Sarah Jenkins</p>
+-                                    <p className="text-gray-500 text-sm font-light">E5 Engineer @ Meta</p>
+-                                </div>
+-                            </div>
+-                        </section>
+-                        <section className="py-32 bg-background-dark border-t border-border-dark relative overflow-hidden">
+-                            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent-purple/5 via-background-dark to-background-dark pointer-events-none"></div>
+-                            <div className="max-w-[600px] mx-auto px-6 text-center flex flex-col gap-8 relative z-10">
+-                                <h2 className="text-white text-4xl font-light tracking-tight">Ready to master the craft?</h2>
+-                                <p className="text-gray-400 font-light">Join the top 1% of engineers who build with intuition.</p>
+-                                <div className="flex justify-center pt-4">
+-                                    <button onClick={handleGetStarted} className="flex min-w-[200px] cursor-pointer items-center justify-center rounded-lg h-14 px-8 bg-white text-black hover:bg-gray-100 transition-all text-lg font-medium tracking-wide shadow-[0_0_30px_-5px_rgba(255,255,255,0.15)]">
+-                                        Start Free Trial
+-                                    </button>
++
++                        {/* FAQ Section */}
++                        <section className="py-24 bg-[#fafafa] border-t border-gray-100">
++                            <div className="max-w-[800px] mx-auto px-6">
++                                <h3 className="text-slate-800 text-3xl font-light text-center mb-16">Frequently Asked Questions</h3>
++                                <div className="space-y-4">
++                                    {faqs.map((faq, i) => (
++                                        <div key={i} className="bg-white border text-left border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
++                                            <button
++                                                className="w-full flex items-center justify-between p-6 text-left"
++                                                onClick={() => setOpenFaq(openFaq === i ? null : i)}
++                                            >
++                                                <span className="text-slate-800 font-medium text-lg">{faq.q}</span>
++                                                <span className={`material-symbols-outlined text-blue-600 transition-transform duration-300 bg-blue-50 p-2 rounded-full ${openFaq === i ? 'rotate-45' : ''}`}>add</span>
++                                            </button>
++                                            <div
++                                                className={`transition-all duration-300 ease-in-out px-6 ${openFaq === i ? 'max-h-40 opacity-100 pb-6' : 'max-h-0 opacity-0'}`}
++                                            >
++                                                <p className="text-slate-500 leading-relaxed pt-2 border-t border-gray-100 mt-2">{faq.a}</p>
++                                            </div>
++                                        </div>
++                                    ))}
+                                 </div>
+                             </div>
+                         </section>
++
+                     </main>
+-                    <footer className="bg-background-dark border-t border-border-dark py-12 px-6 md:px-10">
+-                        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+-                            <div className="flex items-center gap-3 text-white">
+-                                <div className="size-5 text-accent-purple">
+-                                    <span className="material-symbols-outlined !text-xl">layers</span>
++
++                    {/* Footer */}
++                    <footer className="bg-white border-t border-gray-200 py-16 px-6 md:px-10">
++                        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 text-sm text-slate-600">
++                            <div className="space-y-4 md:col-span-1">
++                                <div className="flex items-center gap-3 text-slate-900">
++                                    <div className="size-6 bg-blue-600 text-white flex items-center justify-center rounded">
++                                        <span className="font-bold text-[10px] tracking-wide">M</span>
++                                    </div>
++                                    <span className="font-semibold tracking-wider text-sm">Monolith AI</span>
+                                 </div>
+-                                <span className="text-sm font-medium tracking-wider text-gray-300">MASTER.AI</span>
++                                <p className="text-slate-500 font-light pr-4 leading-relaxed">Don't just prepare. Evolve. Beat the automation curve.</p>
+                             </div>
+-                            <div className="text-gray-600 text-sm font-light">
+-                                © 2024 Interactive Mastery Inc.
++
++                            <div>
++                                <h5 className="text-slate-900 font-medium mb-4">Platform</h5>
++                                <ul className="space-y-3 text-slate-500 font-light">
++                                    <li><a href="#" className="hover:text-blue-600 transition-colors">Algorithm Lab</a></li>
++                                    <li><a href="#" className="hover:text-blue-600 transition-colors">SQL Sandbox</a></li>
++                                    <li><a href="#" className="hover:text-blue-600 transition-colors">System Design Canvas</a></li>
++                                </ul>
+                             </div>
+-                            <div className="flex gap-6">
+-                                <a className="text-gray-500 hover:text-accent-purple transition-colors" href="#">
+-                                    <span className="material-symbols-outlined !text-xl">public</span>
+-                                </a>
+-                                <a className="text-gray-500 hover:text-accent-purple transition-colors" href="#">
+-                                    <span className="material-symbols-outlined !text-xl">alternate_email</span>
+-                                </a>
++
++                            <div>
++                                <h5 className="text-slate-900 font-medium mb-4">Company</h5>
++                                <ul className="space-y-3 text-slate-500 font-light">
++                                    <li><a href="#" className="hover:text-blue-600 transition-colors">About Us</a></li>
++                                    <li><a href="#" className="hover:text-blue-600 transition-colors">Careers</a></li>
++                                    <li><a href="#" className="hover:text-blue-600 transition-colors">Contact</a></li>
++                                </ul>
++                            </div>
++
++                            <div>
++                                <h5 className="text-slate-900 font-medium mb-4">Stay updated</h5>
++                                <div className="flex relative">
++                                    <input type="email" placeholder="Enter your email" className="w-full bg-slate-50 border border-gray-200 text-slate-800 px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm shadow-sm" />
++                                    <button className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800 transition-colors p-2 bg-blue-50 hover:bg-blue-100 rounded-md">
++                                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
++                                    </button>
++                                </div>
++                            </div>
++                        </div>
++                        <div className="max-w-[1400px] mx-auto mt-16 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-light text-slate-500 tracking-wide">
++                            <div>© 2026 Monolith AI Inc. All rights reserved.</div>
++                            <div className="flex gap-6 font-medium">
++                                <a href="#" className="hover:text-blue-600 transition-colors">Facebook</a>
++                                <a href="#" className="hover:text-blue-600 transition-colors">Twitter</a>
++                                <a href="#" className="hover:text-blue-600 transition-colors">LinkedIn</a>
+                             </div>
+                         </div>
+                     </footer>
+diff --git a/src/pages/QuestionDetail.tsx b/src/pages/QuestionDetail.tsx
+index d41fc2f..b14a8ce 100644
+--- a/src/pages/QuestionDetail.tsx
++++ b/src/pages/QuestionDetail.tsx
+@@ -114,6 +114,24 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
+         }
+     };
+ 
++    // Get DB Topic string mapping
++    const getDbTopic = () => {
++        switch (type) {
++            case 'dsa':
++                return 'DSA';
++            case 'sql':
++                return 'SQL';
++            case 'aptitude':
++                return 'Aptitude';
++            case 'corecs':
++                return 'Core CS';
++            case 'interview':
++                return 'Interview Questions';
++            default:
++                return type;
++        }
++    };
++
+     // Get display name
+     const getTypeName = () => {
+         switch (type) {
+@@ -136,10 +154,18 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
+     useEffect(() => {
+         const fetchAllQuestions = async () => {
+             try {
+-                const { data, error } = await supabase
++                let query = supabase
+                     .from(getTableName())
+                     .select('id')
+-                    .order('created_at');
++                    .order('created_at')
++                    .order('id'); // Secondary sort for stability
++
++                if (getTableName() === 'company_topic_questions') {
++                    // Filter by mapped DB topic exact string match
++                    query = query.eq('topic', getDbTopic());
++                }
++
++                const { data, error } = await query;
+ 
+                 if (error) throw error;
+                 const ids = data?.map((q) => q.id) || [];
+@@ -153,6 +179,16 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
+         fetchAllQuestions();
+     }, [type]);
+ 
++    // Update current index when questionId changes (e.g., from clicking Next)
++    useEffect(() => {
++        if (allQuestions.length > 0 && questionId) {
++            const index = allQuestions.indexOf(questionId);
++            if (index !== -1) {
++                setCurrentIndex(index);
++            }
++        }
++    }, [questionId, allQuestions]);
++
+     // Fetch question data
+     useEffect(() => {
+         const fetchQuestion = async () => {
+@@ -305,16 +341,16 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
+         }
+     };
+ 
+-    // Handle next button (for non-quiz questions)
+-    const handleNext = async () => {
++    // Handle next button
++    const handleNext = () => {
+         if (!user || !questionId) return;
+ 
+-        if (!interactionCompleted) {
+-            await handleComplete();
++        if (currentIndex < allQuestions.length - 1) {
++            const nextId = allQuestions[currentIndex + 1];
++            navigate(`${getRoutePath()}/${nextId}`);
++        } else {
++            console.log("No next question found in list. Remaining on current question.");
+         }
+-
+-        // Return to the list page instead of going to next question
+-        navigate(getRoutePath());
+     };
+ 
+     // Handle previous button
+@@ -527,9 +563,10 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
+ 
+                         <button
+                             onClick={handleNext}
++                            disabled={currentIndex >= allQuestions.length - 1}
+                             className="flex items-center gap-2 px-6 py-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                         >
+-                            <span>Complete & Return</span>
++                            <span>Next</span>
+                             <ChevronRight className="w-5 h-5" />
+                         </button>
+                     </div>
+diff --git a/src/pages/SQL.tsx b/src/pages/SQL.tsx
+index 115dff5..32fc985 100644
+--- a/src/pages/SQL.tsx
++++ b/src/pages/SQL.tsx
+@@ -79,7 +79,8 @@ export default function SQL() {
+         .from('company_topic_questions')
+         .select('*')
+         .eq('topic', 'SQL')
+-        .order('created_at');
++        .order('created_at')
++        .order('id');
+ 
+       if (error) throw error;
+ 
+diff --git a/tailwind.config.js b/tailwind.config.js
+index 12f6f07..cc169bd 100644
+--- a/tailwind.config.js
++++ b/tailwind.config.js
+@@ -11,13 +11,22 @@ export default {
+         "background-dark": "#0B0B0C",
+         "surface-dark": "#161617",
+         "border-dark": "#27272A",
+-        "accent-purple": "#4F46E5",
++        "accent-purple": "#a855f7",
+       },
+       fontFamily: {
+         "display": ["Outfit", "sans-serif"],
+         "body": ["Outfit", "sans-serif"],
+       },
+       borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
++      keyframes: {
++        scrollMarquee: {
++          '0%': { transform: 'translateX(0)' },
++          '100%': { transform: 'translateX(-50%)' },
++        }
++      },
++      animation: {
++        'marquee': 'scrollMarquee 20s linear infinite',
++      }
+     },
+   },
+   plugins: [

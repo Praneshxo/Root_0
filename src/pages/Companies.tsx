@@ -53,7 +53,8 @@ export default function Companies() {
           .select('*')
           .eq('company_name', activeCompany)
           .in('topic', ['HR', 'Technical'])
-          .order('created_at');
+          .order('created_at')
+          .order('id');
         data = (result.data || []).map(q => ({
           ...q,
           category: q.topic // Map topic to category for display interface
@@ -65,7 +66,8 @@ export default function Companies() {
           .select('*')
           .eq('company_name', activeCompany)
           .eq('topic', activeTab)
-          .order('created_at');
+          .order('created_at')
+          .order('id');
 
         // Map 'topic' to 'category' for UI consistency if needed, though we display category below
         data = (result.data || []).map(q => ({

@@ -79,7 +79,8 @@ export default function SQL() {
         .from('company_topic_questions')
         .select('*')
         .eq('topic', 'SQL')
-        .order('created_at');
+        .order('created_at')
+        .order('id');
 
       if (error) throw error;
 

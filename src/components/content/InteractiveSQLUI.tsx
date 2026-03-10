@@ -47,7 +47,7 @@ function shuffle<T>(arr: T[]): T[] {
 
 // ─── Component ────────────────────────────────────────────────────
 
-export default function InteractiveSQLUI({ sqlData, onComplete, isCompleted: initialCompleted }: InteractiveSQLUIProps) {
+export default function InteractiveSQLUI({ sqlData, onComplete }: InteractiveSQLUIProps) {
     // Flatten the correct tokens (order-preserved) and build slot model
     const allCorrectTokens = sqlData.queryLines.flat();
     const totalSlots = allCorrectTokens.length;
@@ -80,7 +80,7 @@ export default function InteractiveSQLUI({ sqlData, onComplete, isCompleted: ini
         setFeedback(Array(totalSlots).fill(null));
         setIsSuccess(false);
         setHasAttempted(false);
-    }, [sqlData, initialCompleted]);
+    }, [sqlData]);
 
     // ── Find the first empty slot index ──
     const firstEmptySlot = useCallback(() => {
@@ -343,31 +343,45 @@ export default function InteractiveSQLUI({ sqlData, onComplete, isCompleted: ini
     };
 
     const handleReveal = () => {
-        setSlots([...allCorrectTokens]);
-        const correctCopy = [...allCorrectTokens];
-        setPool(prev => {
-            const remaining = [...prev];
-            const currentSlotTokens = slots.filter(s => s !== '');
-            const allAvailable = [...remaining, ...currentSlotTokens];
-            const result = [...allAvailable];
-            correctCopy.forEach(tok => {
-                const idx = result.indexOf(tok);
-                if (idx !== -1) result.splice(idx, 1);
-            });
-            return result;
-        });
-        setFeedback(allCorrectTokens.map(() => true));
-        setIsSuccess(true);
         setHasAttempted(true);
-        // Animate reveal
-        requestAnimationFrame(() => {
-            slotRefs.current.forEach((el, idx) => {
-                gsap.fromTo(el,
-                    { scale: 0.6, opacity: 0 },
-                    { scale: 1, opacity: 1, duration: 0.35, delay: idx * 0.04, ease: 'back.out(1.4)' }
-                );
-            });
-        });
+
+        const targetSlots = [...allCorrectTokens];
+        const allAvailableTokens = [...pool, ...slots.filter(s => s !== '')];
+
+        setSlots(Array(totalSlots).fill(''));
+        setPool(allAvailableTokens);
+        setFeedback(Array(totalSlots).fill(null));
+
+        let currentPool = [...allAvailableTokens];
+        let currentSlots = Array(totalSlots).fill('');
+        let i = 0;
+
+        const nextStep = () => {
+            if (i >= totalSlots) {
+                setFeedback(allCorrectTokens.map(() => true));
+                setIsSuccess(true);
+                return;
+            }
+
+            const token = targetSlots[i];
+            const poolIdx = currentPool.indexOf(token);
+            if (poolIdx !== -1) {
+                currentPool.splice(poolIdx, 1);
+            }
+
+            currentSlots[i] = token;
+
+            setSlots([...currentSlots]);
+            setPool([...currentPool]);
+
+            requestAnimationFrame(() => animateSlotFill(i));
+
+            i++;
+            setTimeout(nextStep, 150);
+        };
+
+        // start after a beat
+        setTimeout(nextStep, 300);
         // NOTE: We do NOT call onComplete() here so reveal doesn't mark as completed
     };
 
@@ -453,7 +467,9 @@ export default function InteractiveSQLUI({ sqlData, onComplete, isCompleted: ini
                                                     ? 'border-[#a855f7] bg-[#a855f7]/10 border-solid scale-105'
                                                     : filled
                                                         ? fb === true
-                                                            ? 'bg-emerald-600/20 border-emerald-500/60 text-emerald-300 border-solid'
+                                                            ? isSymbolToken(slots[globalIdx])
+                                                                ? 'bg-yellow-600/15 border-emerald-500/40 text-yellow-400 border-solid shadow-[0_0_8px_rgba(16,185,129,0.15)]'
+                                                                : 'bg-zinc-800/50 border-emerald-500/40 text-[#d0d0e0] border-solid shadow-[0_0_8px_rgba(16,185,129,0.15)]'
                                                             : fb === false
                                                                 ? 'bg-red-600/20 border-red-500/60 text-red-300 border-solid'
                                                                 : isSymbolToken(slots[globalIdx])

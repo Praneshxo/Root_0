@@ -114,6 +114,24 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
         }
     };
 
+    // Get DB Topic string mapping
+    const getDbTopic = () => {
+        switch (type) {
+            case 'dsa':
+                return 'DSA';
+            case 'sql':
+                return 'SQL';
+            case 'aptitude':
+                return 'Aptitude';
+            case 'corecs':
+                return 'Core CS';
+            case 'interview':
+                return 'Interview Questions';
+            default:
+                return type;
+        }
+    };
+
     // Get display name
     const getTypeName = () => {
         switch (type) {
@@ -136,10 +154,18 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
     useEffect(() => {
         const fetchAllQuestions = async () => {
             try {
-                const { data, error } = await supabase
+                let query = supabase
                     .from(getTableName())
                     .select('id')
-                    .order('created_at');
+                    .order('created_at')
+                    .order('id'); // Secondary sort for stability
+
+                if (getTableName() === 'company_topic_questions') {
+                    // Filter by mapped DB topic exact string match
+                    query = query.eq('topic', getDbTopic());
+                }
+
+                const { data, error } = await query;
 
                 if (error) throw error;
                 const ids = data?.map((q) => q.id) || [];
@@ -152,6 +178,16 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
 
         fetchAllQuestions();
     }, [type]);
+
+    // Update current index when questionId changes (e.g., from clicking Next)
+    useEffect(() => {
+        if (allQuestions.length > 0 && questionId) {
+            const index = allQuestions.indexOf(questionId);
+            if (index !== -1) {
+                setCurrentIndex(index);
+            }
+        }
+    }, [questionId, allQuestions]);
 
     // Fetch question data
     useEffect(() => {
@@ -305,16 +341,16 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
         }
     };
 
-    // Handle next button (for non-quiz questions)
-    const handleNext = async () => {
+    // Handle next button
+    const handleNext = () => {
         if (!user || !questionId) return;
 
-        if (!interactionCompleted) {
-            await handleComplete();
+        if (currentIndex < allQuestions.length - 1) {
+            const nextId = allQuestions[currentIndex + 1];
+            navigate(`${getRoutePath()}/${nextId}`);
+        } else {
+            console.log("No next question found in list. Remaining on current question.");
         }
-
-        // Return to the list page instead of going to next question
-        navigate(getRoutePath());
     };
 
     // Handle previous button
@@ -527,9 +563,10 @@ export default function QuestionDetail({ type }: QuestionDetailProps) {
 
                         <button
                             onClick={handleNext}
+                            disabled={currentIndex >= allQuestions.length - 1}
                             className="flex items-center gap-2 px-6 py-3 bg-[#4F0F93] text-white rounded-lg hover:bg-[#6312BA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <span>Complete & Return</span>
+                            <span>Next</span>
                             <ChevronRight className="w-5 h-5" />
                         </button>
                     </div>

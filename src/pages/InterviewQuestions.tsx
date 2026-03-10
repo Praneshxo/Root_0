@@ -82,8 +82,9 @@ export default function InterviewQuestions() {
       const { data: questionsData, error } = await supabase
         .from('questions')
         .select('*')
-        .in('category', ['HR', 'Technical', 'Managerial'])
-        .order('created_at');
+        .in('topic', ['HR', 'Technical'])
+        .order('created_at')
+        .order('id');
 
       if (error) throw error;
       setQuestions(questionsData || []);

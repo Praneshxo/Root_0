@@ -75,7 +75,8 @@ export default function DSA() {
         .from('company_topic_questions')
         .select('*')
         .eq('topic', 'DSA')
-        .order('created_at');
+        .order('created_at')
+        .order('id');
 
       if (error) throw error;
 

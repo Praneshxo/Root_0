@@ -78,7 +78,8 @@ export default function Aptitude() {
         .from('company_topic_questions')
         .select('*')
         .eq('topic', 'Aptitude')
-        .order('created_at');
+        .order('created_at')
+        .order('id');
 
       if (error) throw error;
 

@@ -76,7 +76,8 @@ export default function CoreCS() {
         .from('company_topic_questions')
         .select('*')
         .eq('topic', 'Core CS')
-        .order('created_at');
+        .order('created_at')
+        .order('id');
 
       if (error) throw error;
 

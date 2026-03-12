@@ -24,26 +24,34 @@ const LandingPage: React.FC = () => {
                 return -(sWidth - window.innerWidth);
             };
 
-            if (getScrollAmount() < 0) {
-                const tween = gsap.to(scrollContainerRef.current, {
-                    x: getScrollAmount,
-                    ease: "none"
-                });
+            if (scrollContainerRef.current && horizontalScrollRef.current) {
+                const scrollAmount = Math.abs(
+                    scrollContainerRef.current.scrollWidth - window.innerWidth
+                );
 
-                ScrollTrigger.create({
-                    trigger: horizontalScrollRef.current,
-                    start: "top top",
-                    end: () => `+=${getScrollAmount() * -1}`,
-                    pin: true,
-                    animation: tween,
-                    scrub: 1,
-                    invalidateOnRefresh: true,
-                });
+                if (scrollAmount > 0) {
+                    const tween = gsap.to(scrollContainerRef.current, {
+                        x: () => getScrollAmount(),
+                        ease: "none",
+                    });
+
+                    ScrollTrigger.create({
+                        trigger: horizontalScrollRef.current,
+                        start: "top top",
+                        end: () => `+=${scrollAmount}`,
+                        pin: true,
+                        pinSpacing: true,        // ← ensures space is reserved after pin
+                        animation: tween,
+                        scrub: 1,
+                        anticipatePin: 1,        // ← prevents jump on pin entry
+                        invalidateOnRefresh: true,
+                    });
+                }
             }
         });
+
         return () => ctx.revert();
     }, []);
-
     // Initial Animations
     useEffect(() => {
         if (heroContentRef.current) {
@@ -85,35 +93,57 @@ const LandingPage: React.FC = () => {
 
     return (
         <div className="dark">
-            <div className="bg-[#0b0b0c] text-slate-200 font-display antialiased overflow-x-hidden min-h-screen selection:bg-accent-purple/30 selection:text-white">
+            <div className="bg-[#ffffff] text-slate-200 font-display antialiased overflow-x-hidden min-h-screen selection:bg-accent-purple/30 selection:text-white">
                 <div className="relative flex min-h-screen w-full flex-col group/design-root">
 
-                    {/* Header */}
-                    <header className="flex items-center justify-between whitespace-nowrap border-b border-gray-100 bg-[#fafafa]/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4 md:px-10">
-                        <div className="flex items-center gap-4 text-black">
-                            <div className="w-8 h-8 rounded shrink-0 flex items-center justify-center border border-gray-200 shadow-sm bg-white">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    {/* Header – floating pill navbar */}
+                    <header className="sticky top-0 z-50 w-full flex justify-center pointer-events-none">
+                        {/* SVG Background Container */}
+                        <div className="absolute top-0 left-0 w-full flex justify-center -z-10">
+                            {/* increased width slightly to 60rem to ensure everything fits inside */}
+                            <div className="w-[60rem] h-[42px] md:h-[50px]">
+                                <svg
+                                    width="100%"
+                                    height="100%"
+                                    viewBox="0 0 4291 243"
+                                    preserveAspectRatio="none"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="drop-shadow-2xl"
+                                >
+                                    <path d="M0 0H3611.72C3651.29 0 3683.37 32.0778 3683.37 71.6478V171.352C3683.37 210.922 3651.29 243 3611.72 243H662.989C633.399 243 606.854 224.811 596.172 197.217L554.881 90.5466C544.199 62.9525 517.653 44.7632 488.064 44.7632H74.4407C55.4385 44.7632 37.2146 37.2146 23.778 23.778L0 0Z" fill="#1a1a1e" />
+                                    <path d="M4290.87 0H679.15C639.58 0 607.502 32.0778 607.502 71.6478V171.352C607.502 210.922 639.58 243 679.15 243H3627.88C3657.47 243 3684.02 224.811 3694.7 197.217L3735.99 90.5466C3746.67 62.9525 3773.22 44.7632 3802.81 44.7632H4216.43C4235.43 44.7632 4253.66 37.2146 4267.09 23.778L4290.87 0Z" fill="#1a1a1e" />
                                 </svg>
                             </div>
-                            <h2 className="text-black text-xl font-bold tracking-wide">MASTER<span className="font-normal">.AI</span></h2>
                         </div>
-                        <div className="hidden md:flex flex-1 justify-end mr-8 items-center">
-                            <nav className="flex items-center gap-8">
-                                <a className="text-gray-500 hover:text-black transition-colors text-sm font-medium" href="#">Curriculum</a>
-                                <a className="text-gray-500 hover:text-black transition-colors text-sm font-medium" href="#">Challenge Mode</a>
-                                <a className="text-gray-500 hover:text-black transition-colors text-sm font-medium" href="#">Pricing</a>
+
+                        {/* Navbar Content - max-w set smaller than the SVG width to force content inside */}
+                        <div className="flex items-center justify-between w-full max-w-[44rem] px-12 h-[42px] md:h-[50px] pointer-events-auto">
+                            {/* Logo */}
+                            <div className="flex items-center gap-2 text-white">
+                                <div className="w-4 h-4 rounded-full flex items-center justify-center bg-white/10">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" />
+                                        <path d="M2 17L12 22L22 17" />
+                                        <path d="M2 12L12 17L22 12" />
+                                    </svg>
+                                </div>
+                                <span className="text-[10px] font-bold tracking-[0.2em] text-white">MASTER.AI</span>
+                            </div>
+
+                            {/* Nav Links */}
+                            <nav className="hidden md:flex items-center gap-10">
+                                <a className="text-gray-400 hover:text-white transition-all text-[14px] font-medium tracking-wide" href="#">About</a>
+                                <a className="text-gray-400 hover:text-white transition-all text-[14px] font-medium tracking-wide" href="#">Pricing</a>
+                                <a className="text-gray-400 hover:text-white transition-all text-[14px] font-medium tracking-wide cursor-pointer" onClick={handleGetStarted}>Login</a>
                             </nav>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <button onClick={handleGetStarted} className="flex min-w-[120px] cursor-pointer items-center justify-center rounded-lg border border-transparent h-10 px-6 bg-slate-900 text-white hover:bg-slate-800 transition-colors text-sm font-medium shadow-sm">
-                                Get Started
+
+                            {/* CTA */}
+                            <button onClick={handleGetStarted} className="flex items-center justify-center rounded-full h-8 px-4 bg-[#7c3aed] hover:bg-[#6d28d9] transition-all text-white text-[14px] font-bold">
+                                Get started
                             </button>
                         </div>
                     </header>
-
                     <main className="flex flex-col grow">
 
                         {/* Hero Section */}
@@ -129,13 +159,13 @@ const LandingPage: React.FC = () => {
                                 </div>
                                 <h1 className="text-slate-900 text-5xl md:text-6xl lg:text-[5rem] font-light leading-[1.05] tracking-tight mt-2">
                                     Master Placements<br />in the<br />
-                                    <span className="font-semibold border-b-[3px] border-[#3b5bdb] pb-1">Age of AI</span>
+                                    <span className="font-semibold border-b-[3px] border-[#7c3aed] pb-1">Age of AI</span>
                                 </h1>
                                 <p className="text-slate-600 text-lg md:text-xl font-light leading-relaxed max-w-lg mt-4">
                                     Secure your future by mastering the skills AI can't replicate. Deep problem solving, system architecture, and human-centric engineering.
                                 </p>
                                 <div className="flex flex-wrap gap-4 mt-6 pointer-events-auto">
-                                    <button onClick={handleGetStarted} className="flex px-8 py-3.5 bg-[#3b5bdb] text-white font-semibold rounded-lg hover:bg-[#364fc7] transition-colors shadow-lg shadow-blue-500/30">
+                                    <button onClick={handleGetStarted} className="flex px-8 py-3.5 bg-[#7c3aed] text-white font-semibold rounded-lg hover:bg-[#6d28d9] transition-colors shadow-lg shadow-purple-500/30">
                                         Start Assessment
                                     </button>
                                     <button className="flex px-8 py-3.5 bg-transparent text-slate-700 font-semibold rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center gap-2">
@@ -149,10 +179,10 @@ const LandingPage: React.FC = () => {
                             <div className="absolute bottom-16 right-16 z-20 hidden lg:block bg-white/90 backdrop-blur-md border border-gray-200/60 rounded-xl p-6 w-[350px] shadow-2xl">
                                 <div className="flex justify-between items-center text-xs tracking-widest font-semibold mb-4">
                                     <span className="text-gray-500">SYSTEM STATUS</span>
-                                    <span className="text-[#3b5bdb]">OPTIMAL</span>
+                                    <span className="text-[#7c3aed]">OPTIMAL</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden mb-4">
-                                    <div className="h-full bg-slate-800 w-[85%] rounded-full"></div>
+                                    <div className="h-full bg-[#7c3aed] w-[85%] rounded-full"></div>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-slate-700">Architecture</span>
@@ -177,6 +207,35 @@ const LandingPage: React.FC = () => {
                             <div className="mt-12 text-center max-w-2xl px-6">
                                 <h3 className="text-2xl font-light text-slate-800">Super fast interactive learning</h3>
                                 <p className="text-slate-500 mt-2 text-sm leading-relaxed">Experience learning that feels like play. Connect concepts seamlessly with our intuitive engine.</p>
+                            </div>
+                        </section>
+
+                        {/* Companies & Courses Carousel */}
+                        <section className="py-20 bg-[#121214] border-t border-[#1A1A1A]">
+                            <div className="w-full overflow-hidden flex mb-20 whitespace-nowrap opacity-60 hover:opacity-100 transition-opacity relative before:absolute before:left-0 before:top-0 before:w-32 before:h-full before:bg-gradient-to-r before:from-[#121214] before:to-transparent before:z-10 after:absolute after:right-0 after:top-0 after:w-32 after:h-full after:bg-gradient-to-l after:from-[#121214] after:to-transparent after:z-10">
+                                <div className="flex animate-marquee gap-32 px-16 items-center">
+                                    {[...companies, ...companies].map((c, i) => (
+                                        <span key={i} className="text-2xl md:text-3xl font-extralight text-gray-500 tracking-[0.2em]">{c}</span>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="max-w-[1400px] mx-auto px-6">
+                                <h3 className="text-white text-3xl font-light mb-12">Advanced Specializations</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {courses.map((course, i) => (
+                                        <div key={i} className="bg-[#161617] border border-[#27272A] shadow-sm p-8 rounded-2xl min-h-[250px] flex flex-col justify-between group hover:border-gray-500 hover:shadow-md transition-all cursor-pointer">
+                                            <div>
+                                                <h4 className="text-white font-medium text-lg mb-4">{course.title}</h4>
+                                                <p className="text-gray-400 text-sm leading-relaxed">{course.desc}</p>
+                                            </div>
+                                            <div className="flex items-center justify-between mt-8">
+                                                <span className="text-accent-purple text-xs font-bold tracking-widest">{course.modules}</span>
+                                                <span className="material-symbols-outlined text-gray-500 group-hover:text-white transition-colors">arrow_forward</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </section>
 
@@ -279,35 +338,6 @@ const LandingPage: React.FC = () => {
                                             see more reviews <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                         </button>
                                     </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* Companies & Courses Carousel */}
-                        <section className="py-20 bg-[#121214] border-t border-[#1A1A1A]">
-                            <div className="w-full overflow-hidden flex mb-20 whitespace-nowrap opacity-60 hover:opacity-100 transition-opacity relative before:absolute before:left-0 before:top-0 before:w-32 before:h-full before:bg-gradient-to-r before:from-[#121214] before:to-transparent before:z-10 after:absolute after:right-0 after:top-0 after:w-32 after:h-full after:bg-gradient-to-l after:from-[#121214] after:to-transparent after:z-10">
-                                <div className="flex animate-marquee gap-32 px-16 items-center">
-                                    {[...companies, ...companies].map((c, i) => (
-                                        <span key={i} className="text-2xl md:text-3xl font-extralight text-gray-500 tracking-[0.2em]">{c}</span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="max-w-[1400px] mx-auto px-6">
-                                <h3 className="text-white text-3xl font-light mb-12">Advanced Specializations</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    {courses.map((course, i) => (
-                                        <div key={i} className="bg-[#161617] border border-[#27272A] shadow-sm p-8 rounded-2xl min-h-[250px] flex flex-col justify-between group hover:border-gray-500 hover:shadow-md transition-all cursor-pointer">
-                                            <div>
-                                                <h4 className="text-white font-medium text-lg mb-4">{course.title}</h4>
-                                                <p className="text-gray-400 text-sm leading-relaxed">{course.desc}</p>
-                                            </div>
-                                            <div className="flex items-center justify-between mt-8">
-                                                <span className="text-accent-purple text-xs font-bold tracking-widest">{course.modules}</span>
-                                                <span className="material-symbols-outlined text-gray-500 group-hover:text-white transition-colors">arrow_forward</span>
-                                            </div>
-                                        </div>
-                                    ))}
                                 </div>
                             </div>
                         </section>

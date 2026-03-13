@@ -173,11 +173,18 @@ export function SmoothCursor({
 
         window.addEventListener("mousemove", throttledMouseMove)
 
+        const style = document.createElement("style")
+        style.innerHTML = `* { cursor: none !important; }`
+        document.head.appendChild(style)
+
         return () => {
             window.removeEventListener("mousemove", throttledMouseMove)
             if (rafId) cancelAnimationFrame(rafId)
             if (timeout !== null) {
                 clearTimeout(timeout)
+            }
+            if (document.head.contains(style)) {
+                document.head.removeChild(style)
             }
         }
     }, [cursorX, cursorY, rotation, scale])

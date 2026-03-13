@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import gsap from 'gsap';
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import InteractiveHands from '../components/InteractiveHands';
+import { SmoothCursor } from '../components/ui/smooth-cursor';
 
 gsap.registerPlugin(ScrollTrigger);
 const LandingPage: React.FC = () => {
@@ -16,6 +17,7 @@ const LandingPage: React.FC = () => {
     const heroContentRef = useRef<HTMLDivElement>(null);
     const horizontalScrollRef = useRef<HTMLElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const ballRef = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
         const ctx = gsap.context(() => {
@@ -45,6 +47,75 @@ const LandingPage: React.FC = () => {
                         scrub: 1,
                         anticipatePin: 1,        // ← prevents jump on pin entry
                         invalidateOnRefresh: true,
+                    });
+                }
+
+                // Ball bounce animation - Sixth Refinement: Timing & Hide at End
+                if (ballRef.current && scrollContainerRef.current) {
+                    // --- TUNE THESE VALUES ---
+                    const startY = 20;     // Initial Y position (aligned with text)
+                    const topY = 12;       // Peak height of the bounce (lower value = higher jump)
+                    const restY = 21.8;    // Landing Y position (height of card tops)
+                    const finalY = 75;     // Final fall position (bottom of screen)
+                    const travelDistance = window.innerWidth * 0.6;  // Total X distance to travel
+                    const totalHops = 6;  // How many times the ball bounces
+                    const startDelayPercent = 0.15; // % of scroll spent waiting at "learn"
+                    // -------------------------
+
+                    const totalScrollPx = Math.abs(
+                        scrollContainerRef.current.scrollWidth - window.innerWidth
+                    );
+
+                    const ballTl = gsap.timeline({ paused: true });
+
+                    // 1. Initial Wait (Stay at "learn" text)
+                    const waitDuration = totalScrollPx * startDelayPercent;
+                    ballTl.to(ballRef.current, {
+                        top: `${startY}%`,
+                        x: 0,
+                        opacity: 1,
+                        duration: waitDuration
+                    });
+
+                    // 2. Moving Bouncy Hops
+                    const xStep = travelDistance / totalHops;
+                    const hopScrollDuration = (totalScrollPx * (0.9 - startDelayPercent)) / totalHops;
+
+                    for (let i = 1; i <= totalHops; i++) {
+                        const targetX = i * xStep;
+                        const midX = targetX - (xStep / 2);
+
+                        // Arc Up
+                        ballTl.to(ballRef.current, {
+                            x: midX,
+                            top: `${topY}%`,
+                            ease: "sine.out",
+                            duration: hopScrollDuration * 0.4,
+                        });
+
+                        // Land
+                        ballTl.to(ballRef.current, {
+                            x: targetX,
+                            top: `${restY}%`,
+                            ease: "sine.in",
+                            duration: hopScrollDuration * 0.6,
+                        });
+                    }
+
+                    // 3. Final Fall and Hide
+                    ballTl.to(ballRef.current, {
+                        top: `${finalY}%`,
+                        opacity: 0, // Fades out so it doesn't jump in blank space
+                        ease: "power2.inOut",
+                        duration: totalScrollPx * 0.1,
+                    });
+
+                    ScrollTrigger.create({
+                        trigger: horizontalScrollRef.current,
+                        start: "top top",
+                        end: () => `+=${totalScrollPx}`,
+                        scrub: 1.2,
+                        animation: ballTl,
                     });
                 }
             }
@@ -93,6 +164,7 @@ const LandingPage: React.FC = () => {
 
     return (
         <div className="dark">
+            <SmoothCursor />
             <div className="bg-[#ffffff] text-slate-200 font-display antialiased overflow-x-hidden min-h-screen selection:bg-accent-purple/30 selection:text-white">
                 <div className="relative flex min-h-screen w-full flex-col group/design-root">
 
@@ -262,6 +334,13 @@ const LandingPage: React.FC = () => {
                                 </div>
                             </div>
 
+                            {/* Bouncing Ball */}
+                            <div
+                                ref={ballRef}
+                                className="absolute z-30 w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_3px_2px_rgba(255,255,255,0.3)]"
+                                style={{ top: '21.8%', left: '345px', transform: 'translateX(0px)' }}
+                            />
+
                             {/* Card Container that Scrolls */}
                             <div ref={scrollContainerRef} className="flex gap-8 px-10 md:px-[40vw] h-[55vh] mt-10 w-max">
                                 {/* Card 1 */}
@@ -322,26 +401,47 @@ const LandingPage: React.FC = () => {
                         </section>
 
                         {/* Testimonial Section (New) */}
+
                         <section className="py-24 bg-[#0b0b0c] border-t border-[#1A1A1A] flex flex-col items-center justify-center">
-                            <div className="max-w-3xl px-6 text-center">
+                            <div className="max-w-3xl px-6 text-center w-full">
                                 <div className="bg-[#161617] border border-[#27272A] rounded-3xl p-10 md:p-16 shadow-2xl relative">
                                     <div className="absolute top-8 left-8 text-6xl text-[#27272A] font-serif leading-none">"</div>
-                                    <p className="text-xl md:text-3xl text-gray-300 font-light leading-relaxed italic relative z-10 mb-8">
+                                    <p className="text-xl md:text-3xl text-gray-300 font-light leading-relaxed italic relative z-10 mb-10">
                                         This project is so good we love this and super cool interactions. The platform feels like it's from the future.
                                     </p>
-                                    <div className="flex flex-col items-center justify-center gap-4">
-                                        <div className="w-16 h-16 bg-[#1A1A1A] rounded-full border-4 border-[#27272A] shadow-md flex items-center justify-center text-white font-bold text-xl">
-                                            A
+                                    <div className="flex flex-col items-center justify-center gap-3">
+                                        {/* Avatar image */}
+                                        <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-[#27272A] shadow-md">
+                                            <img
+                                                src="/images/avatar.png"
+                                                alt="Alex Student"
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    // Fallback to letter avatar if image not found
+                                                    e.currentTarget.style.display = 'none';
+                                                    e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-[#1A1A1A] flex items-center justify-center text-white font-bold text-xl">A</div>`;
+                                                }}
+                                            />
                                         </div>
                                         <div className="text-sm font-medium text-white">Alex Student</div>
-                                        <button className="text-sm text-accent-purple font-medium hover:text-white transition-colors flex items-center gap-1 mt-2">
-                                            see more reviews <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                                        </button>
+                                        <div className="text-xs text-gray-500">Placed at Google · 2025</div>
+
+                                        {/* Arrow button linking to reviews page */}
+
+                                        <a href="/reviews" className="mt-4 flex items-center gap-2 text-sm text-accent-purple font-medium hover:text-white transition-colors group">
+                                            <span className="w-7 h-7 rounded-full bg-accent-purple/10 group-hover:bg-accent-purple flex items-center justify-center transition-colors">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M6 13h15M13 6l7 7-7 7" />
+                                                </svg>
+                                            </span>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </section>
 
+
+                        {/* Custom Pricing Accordion */}
                         {/* Custom Pricing Accordion */}
                         <section className="py-24 bg-[#0b0b0c]">
                             <div className="max-w-[1000px] mx-auto px-4 md:px-6">
@@ -350,93 +450,130 @@ const LandingPage: React.FC = () => {
                                     <p className="text-gray-400 text-lg font-light">Simple, transparent pricing for every stage of your career.</p>
                                 </div>
 
-                                <div className="flex w-full h-[600px] rounded-2xl overflow-hidden bg-[#161617] border border-[#27272A] shadow-2xl">
+                                <div className="flex w-full h-[580px] rounded-2xl overflow-hidden border border-[#27272A] shadow-2xl">
+
                                     {/* --- BASIC TIER --- */}
                                     <div
                                         onClick={() => setActiveTier("BASIC")}
-                                        className={`relative transition-all duration-500 ease-in-out border-r border-[#1A1A1A] cursor-pointer overflow-hidden group ${activeTier === "BASIC" ? "flex-[1_1_80%]" : "flex-[0_0_80px] md:flex-[0_0_100px]"}`}
+                                        className={`relative transition-all duration-500 ease-in-out cursor-pointer flex ${activeTier === "BASIC" ? "flex-[4]" : "flex-[0.4]"
+                                            } bg-[#111113]`}
                                     >
-                                        <div className="absolute left-0 top-0 w-[80px] md:w-[100px] h-full bg-[#161617] z-10 flex flex-col items-center justify-center border-r-2 border-transparent transition-colors group-hover:bg-[#1A1A1A]">
-                                            <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(147, 51, 234, 0.2) 2px, rgba(147, 51, 234, 0.2) 4px)' }}></div>
-                                            {activeTier === "BASIC" && <div className="absolute left-[30%] top-1/2 -translate-y-1/2 w-[40px] h-[150px] opacity-40 pointer-events-none transition-all duration-300" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(147, 51, 234, 0.4) 2px, rgba(147, 51, 234, 0.4) 6px, transparent 6px, transparent 8px)' }}></div>}
-                                            <span className={`[writing-mode:vertical-rl] rotate-180 tracking-[0.5em] font-semibold text-xs md:text-sm mt-4 whitespace-nowrap transition-colors duration-300 ${activeTier === "BASIC" ? "text-gray-300" : "text-gray-600"}`}>B A S I C</span>
+                                        {/* Collapsed label */}
+                                        <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${activeTier === "BASIC" ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+                                            <span className="[writing-mode:vertical-rl] rotate-180 tracking-[0.3em] font-medium text-xs text-gray-500 whitespace-nowrap">
+                                                BASIC
+                                            </span>
                                         </div>
-                                        <div className={`absolute top-0 left-[80px] md:left-[100px] w-[calc(100%-80px)] md:w-[calc(100%-100px)] h-full bg-[#0b0b0c] p-8 md:p-12 transition-all duration-300 delay-100 flex flex-col ${activeTier === "BASIC" ? "opacity-100 visible translate-x-0" : "opacity-0 invisible -translate-x-8"}`}>
-                                            <div className="flex-1">
-                                                <h3 className="text-3xl font-bold mb-8 text-white">BASIC</h3>
-                                                <div className="text-5xl font-extrabold text-accent-purple mb-6">Rs.0</div>
-                                                <p className="text-gray-400 text-sm mb-10 font-bold">Free forever</p>
 
-                                                <button className="w-full md:w-[300px] py-4 rounded-xl border border-[#27272A] text-white font-bold text-lg mb-12 hover:bg-[#1A1A1A] transition-colors">Start Free</button>
-
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12">
-                                                    <div className="flex gap-4 text-gray-400 text-sm items-center"><span className="w-1.5 h-1.5 bg-accent-purple rounded-full"></span> 50+ DSA Problems</div>
-                                                    <div className="flex gap-4 text-gray-400 text-sm items-center"><span className="w-1.5 h-1.5 bg-accent-purple rounded-full"></span> Basic SQL Sandbox</div>
-                                                    <div className="flex gap-4 text-gray-400 text-sm items-center"><span className="w-1.5 h-1.5 bg-accent-purple rounded-full"></span> Community Access</div>
-                                                    <div className="flex gap-4 text-gray-400 text-sm items-center"><span className="w-1.5 h-1.5 bg-accent-purple rounded-full"></span> Weekly Newsletter</div>
-                                                </div>
+                                        {/* Expanded content */}
+                                        <div className={`absolute inset-0 flex flex-col justify-center px-10 md:px-14 transition-all duration-300 ${activeTier === "BASIC" ? "opacity-100 delay-150" : "opacity-0 pointer-events-none"}`}>
+                                            <h3 className="text-2xl font-bold text-white mb-6">BASIC</h3>
+                                            <div className="text-5xl font-extrabold text-white mb-2">Rs.399</div>
+                                            <p className="text-gray-500 text-sm mb-3">1 month access</p>
+                                            <div className="flex items-center gap-2 mb-8 px-3 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] w-fit">
+                                                <span className="text-lg">🎬</span>
+                                                <span className="text-gray-400 text-xs italic">"Less than a movie ticket."</span>
+                                            </div>
+                                            <button className="w-full max-w-[320px] py-3.5 rounded-xl border border-[#333] text-white font-semibold text-base mb-10 hover:bg-[#1A1A1A] transition-colors">
+                                                Start Free
+                                            </button>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                {["50+ DSA Problems", "Basic SQL Sandbox", "Community Access", "Weekly Newsletter"].map(f => (
+                                                    <div key={f} className="flex items-center gap-3 text-gray-400 text-sm">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-gray-500 shrink-0" />
+                                                        {f}
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Divider */}
+                                    <div className="w-px bg-[#27272A] shrink-0" />
 
                                     {/* --- STANDARD TIER --- */}
                                     <div
                                         onClick={() => setActiveTier("STANDARD")}
-                                        className={`relative transition-all duration-500 ease-in-out border-r border-[#1A1A1A] cursor-pointer overflow-hidden group ${activeTier === "STANDARD" ? "flex-[1_1_80%]" : "flex-[0_0_80px] md:flex-[0_0_100px]"}`}
+                                        className={`relative transition-all duration-500 ease-in-out cursor-pointer flex ${activeTier === "STANDARD" ? "flex-[4]" : "flex-[0.4]"
+                                            } bg-[#131315]`}
                                     >
-                                        <div className="absolute left-0 top-0 w-[80px] md:w-[100px] h-full bg-[#1A1A1A] z-10 flex flex-col items-center justify-center border-r-2 border-transparent transition-colors group-hover:bg-[#27272A]">
-                                            <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(147, 51, 234, 0.3) 2px, rgba(147, 51, 234, 0.3) 4px)' }}></div>
-                                            {activeTier === "STANDARD" ? null : <div className="absolute left-[30%] top-1/2 -translate-y-1/2 w-[40px] h-[200px] opacity-50 pointer-events-none transition-all duration-300" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(147, 51, 234, 0.5) 2px, rgba(147, 51, 234, 0.5) 4px, transparent 4px, transparent 6px)' }}></div>}
-                                            <span className={`[writing-mode:vertical-rl] rotate-180 tracking-[0.5em] font-bold text-xs md:text-sm mt-4 whitespace-nowrap transition-colors duration-300 ${activeTier === "STANDARD" ? "text-white" : "text-accent-purple"}`}>S T A N D A R D</span>
+                                        {/* Collapsed label */}
+                                        <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${activeTier === "STANDARD" ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+                                            <span className="[writing-mode:vertical-rl] rotate-180 tracking-[0.3em] font-medium text-xs text-accent-purple whitespace-nowrap">
+                                                STANDARD
+                                            </span>
                                         </div>
-                                        <div className={`absolute top-0 left-[80px] md:left-[100px] w-[calc(100%-80px)] md:w-[calc(100%-100px)] h-full bg-[#121214] p-8 md:p-12 transition-all duration-300 delay-100 flex flex-col ${activeTier === "STANDARD" ? "opacity-100 visible translate-x-0" : "opacity-0 invisible -translate-x-8"}`}>
-                                            <div className="flex-1 flex flex-col items-center justify-center w-full">
-                                                <h3 className="text-3xl font-bold mb-8 text-white">STANDARD</h3>
-                                                <div className="text-5xl font-extrabold text-accent-purple mb-6">Rs.500</div>
-                                                <p className="text-gray-400 text-sm mb-10 font-bold">Per month</p>
 
-                                                <button className="w-full max-w-[400px] py-4 rounded-xl bg-accent-purple text-white font-bold text-lg mb-12 hover:bg-purple-600 shadow-lg shadow-purple-500/20 transition-all">Buy Plan</button>
-
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12 w-full max-w-[600px] mx-auto">
-                                                    <div className="flex gap-4 text-gray-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-accent-purple rounded-full"></span> All DSA Problems</div>
-                                                    <div className="flex gap-4 text-gray-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-accent-purple rounded-full"></span> Visual SQL Sandbox</div>
-                                                    <div className="flex gap-4 text-gray-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-accent-purple rounded-full"></span> 10 Company Roadmaps</div>
-                                                    <div className="flex gap-4 text-gray-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-accent-purple rounded-full"></span> Portfolio Templates</div>
-                                                </div>
+                                        {/* Expanded content */}
+                                        <div className={`absolute inset-0 flex flex-col justify-center px-10 md:px-14 transition-all duration-300 ${activeTier === "STANDARD" ? "opacity-100 delay-150" : "opacity-0 pointer-events-none"}`}>
+                                            <h3 className="text-2xl font-bold text-white mb-6">STANDARD</h3>
+                                            <div className="text-5xl font-extrabold text-accent-purple mb-2">Rs.699</div>
+                                            <p className="text-gray-500 text-sm mb-3">100 days access</p>
+                                            <div className="flex items-center gap-2 mb-8 px-3 py-2 rounded-lg bg-[#1a1a1c] border border-[#2e2a3a] w-fit">
+                                                <span className="text-lg">👕</span>
+                                                <span className="text-purple-300 text-xs italic">"About the price of a branded T-shirt."</span>
+                                            </div>
+                                            <button className="w-full max-w-[320px] py-3.5 rounded-xl bg-[#7c3aed] text-white font-semibold text-base mb-10 hover:bg-[#6d28d9] transition-colors shadow-lg shadow-purple-500/20">
+                                                Buy Plan
+                                            </button>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                {["All DSA Problems", "Visual SQL Sandbox", "10 Company Roadmaps", "Portfolio Templates"].map(f => (
+                                                    <div key={f} className="flex items-center gap-3 text-gray-300 text-sm">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-accent-purple shrink-0" />
+                                                        {f}
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Divider */}
+                                    <div className="w-px bg-[#27272A] shrink-0" />
 
                                     {/* --- PRO TIER --- */}
                                     <div
                                         onClick={() => setActiveTier("PRO")}
-                                        className={`relative transition-all duration-500 ease-in-out cursor-pointer overflow-hidden group bg-[#0b0b0c] ${activeTier === "PRO" ? "flex-[1_1_80%]" : "flex-[0_0_80px] md:flex-[0_0_100px]"}`}
+                                        className={`relative transition-all duration-500 ease-in-out cursor-pointer flex ${activeTier === "PRO" ? "flex-[4]" : "flex-[0.4]"
+                                            } bg-[#0d0d0f]`}
                                     >
-                                        <div className="absolute left-0 top-0 w-[80px] md:w-[100px] h-full bg-[#0b0b0c] z-10 flex flex-col items-center justify-center border-r border-[#1A1A1A] transition-colors group-hover:bg-black">
-                                            <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.1) 2px, rgba(255, 255, 255, 0.1) 4px)' }}></div>
-                                            <span className={`[writing-mode:vertical-rl] rotate-180 tracking-[0.5em] font-semibold text-xs md:text-sm mt-4 whitespace-nowrap transition-colors duration-300 ${activeTier === "PRO" ? "text-gray-400" : "text-gray-500"}`}>P R O</span>
+                                        {/* Collapsed label */}
+                                        <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${activeTier === "PRO" ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+                                            <span className="[writing-mode:vertical-rl] rotate-180 tracking-[0.3em] font-medium text-xs text-[#FACC15] whitespace-nowrap">
+                                                PRO
+                                            </span>
                                         </div>
-                                        <div className={`absolute top-0 left-[80px] md:left-[100px] w-[calc(100%-80px)] md:w-[calc(100%-100px)] h-full bg-[#161617] p-8 md:p-12 transition-all duration-300 delay-100 flex flex-col ${activeTier === "PRO" ? "opacity-100 visible translate-x-0" : "opacity-0 invisible -translate-x-8"}`}>
-                                            <div className="flex-1 flex flex-col items-center justify-center w-full">
-                                                <h3 className="text-3xl font-bold mb-8 text-white">PRO</h3>
-                                                <div className="text-5xl font-extrabold text-[#FACC15] mb-6">Rs.1500</div>
-                                                <p className="text-gray-400 text-sm mb-10 font-bold">Per month</p>
 
-                                                <button className="w-full max-w-[400px] py-4 rounded-xl bg-white text-black font-bold text-lg mb-12 hover:bg-gray-200 transition-colors shadow-xl">Buy Pro Plan</button>
-
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12 w-full max-w-[600px] mx-auto">
-                                                    <div className="flex gap-4 text-gray-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-[#FACC15] rounded-full"></span> Mock Interview Sessions</div>
-                                                    <div className="flex gap-4 text-gray-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-[#FACC15] rounded-full"></span> All 50+ Roadmaps</div>
-                                                    <div className="flex gap-4 text-gray-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-[#FACC15] rounded-full"></span> HR Contacts Database</div>
-                                                    <div className="flex gap-4 text-gray-300 text-sm items-center"><span className="w-1.5 h-1.5 bg-[#FACC15] rounded-full"></span> 1-on-1 Mentorship</div>
-                                                </div>
+                                        {/* Expanded content */}
+                                        <div className={`absolute inset-0 flex flex-col justify-center px-10 md:px-14 transition-all duration-300 ${activeTier === "PRO" ? "opacity-100 delay-150" : "opacity-0 pointer-events-none"}`}>
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <h3 className="text-2xl font-bold text-white">PRO</h3>
+                                                <span className="text-[10px] font-bold tracking-widest px-2 py-1 rounded-full bg-[#FACC15]/10 text-[#FACC15] border border-[#FACC15]/20">
+                                                    MOST POPULAR
+                                                </span>
+                                            </div>
+                                            <div className="text-5xl font-extrabold text-[#FACC15] mb-2">Rs.1500</div>
+                                            <p className="text-gray-500 text-sm mb-3">Lifetime access</p>
+                                            <div className="flex items-center gap-2 mb-8 px-3 py-2 rounded-lg bg-[#1a1a10] border border-[#2e2a10] w-fit">
+                                                <span className="text-lg">👟</span>
+                                                <span className="text-yellow-300 text-xs italic">"Less than the price of a pair of sneakers."</span>
+                                            </div>
+                                            <button className="w-full max-w-[320px] py-3.5 rounded-xl bg-white text-black font-bold text-base mb-10 hover:bg-gray-100 transition-colors shadow-xl">
+                                                Buy Pro Plan
+                                            </button>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                {["Mock Interview Sessions", "All 50+ Roadmaps", "HR Contacts Database", "1-on-1 Mentorship"].map(f => (
+                                                    <div key={f} className="flex items-center gap-3 text-gray-300 text-sm">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-[#FACC15] shrink-0" />
+                                                        {f}
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </section>
-
                         {/* FAQ Section */}
                         <section className="py-24 bg-[#121214] border-t border-[#1A1A1A]">
                             <div className="max-w-[800px] mx-auto px-6">

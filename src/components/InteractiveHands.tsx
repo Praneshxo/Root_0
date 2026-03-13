@@ -1,5 +1,4 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react';
-import { SmoothCursor } from './ui/smooth-cursor';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { handPaths } from './HandPaths';
 
 // ─── Particle system constants ───────────────────────────────────────────────
@@ -21,7 +20,6 @@ const InteractiveHands: React.FC<{ className?: string; fillColor?: string }> = (
     className = 'absolute inset-0 w-full h-full',
     fillColor = '#1a1a1dff',
 }) => {
-    const [isHovered, setIsHovered] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const particlesRef = useRef<Particle[]>([]);
@@ -235,13 +233,10 @@ const InteractiveHands: React.FC<{ className?: string; fillColor?: string }> = (
             ref={containerRef}
             className={className}
             style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
         >
-            {isHovered && <SmoothCursor />}
             <canvas
                 ref={canvasRef}
-                className={`w-full h-full ${isHovered ? 'cursor-none' : 'cursor-default'}`}
+                className="w-full h-full"
                 style={{ width: '100%', height: '100%', pointerEvents: 'auto', display: 'block' }}
             />
         </div>

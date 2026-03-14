@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
+import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
@@ -18,16 +19,35 @@ import Projects from './pages/Projects';
 import QuestionDetail from './pages/QuestionDetail';
 import CompanyQuestionDetail from './pages/CompanyQuestionDetail';
 import Profile from './pages/Profile';
+import AboutPage from './pages/AboutPage';
+import CareersPage from './pages/CareersPage';
+import ContactPage from './pages/ContactPage';
+import AffiliatePage from './pages/AffiliatePage';
+import ReviewsPage from './pages/ReviewsPage';
+import {
+  AlgorithmLabPage,
+  SQLSandboxPage,
+  SystemDesignPage,
+} from './pages/ResourcePages';
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
 
           <Route path="/" element={<LandingPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/careers" element={<CareersPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/affiliate" element={<AffiliatePage />} />
+          <Route path="/reviews" element={<ReviewsPage />} />
+          <Route path="/resources/algorithm-lab" element={<AlgorithmLabPage />} />
+          <Route path="/resources/sql-sandbox" element={<SQLSandboxPage />} />
+          <Route path="/resources/system-design" element={<SystemDesignPage />} />
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="companies" element={<Companies />} />

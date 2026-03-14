@@ -1,12 +1,310 @@
 import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Navbar, Footer } from '../components/SharedLayout';
 import gsap from 'gsap';
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import InteractiveHands from '../components/InteractiveHands';
 import { SmoothCursor } from '../components/ui/smooth-cursor';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const hrContacts = [
+    { name: "Priya Sharma", role: "Technical Recruiter", company: "Google", email: "p.sharma@google.com", tag: "MAANG" },
+    { name: "Rahul Mehta", role: "HR Manager", company: "Amazon", email: "r.mehta@amazon.com", tag: "MAANG" },
+    { name: "Sneha Iyer", role: "Talent Acquisition", company: "Flipkart", email: "s.iyer@flipkart.com", tag: "Unicorn" },
+    { name: "Arjun Nair", role: "Campus Recruiter", company: "Microsoft", email: "a.nair@microsoft.com", tag: "MAANG" },
+    { name: "Divya Patel", role: "HR Lead", company: "Swiggy", email: "d.patel@swiggy.com", tag: "Startup" },
+];
+
+const HRInboxMockup: React.FC = () => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [typed, setTyped] = useState("");
+    const [isTyping, setIsTyping] = useState(false);
+    const contact = hrContacts[activeIndex];
+
+    useEffect(() => {
+        setIsTyping(true);
+        setTyped("");
+        let i = 0;
+        const interval = setInterval(() => {
+            setTyped(contact.email.slice(0, i + 1));
+            i++;
+            if (i >= contact.email.length) {
+                clearInterval(interval);
+                setIsTyping(false);
+            }
+        }, 45);
+        return () => clearInterval(interval);
+    }, [activeIndex]);
+
+    return (
+        <div className="bg-[#111113] border border-[#27272A] rounded-2xl overflow-hidden shadow-2xl">
+            {/* Window bar */}
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1A1A1A] bg-[#0d0d0f]">
+                <span className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+                <span className="w-3 h-3 rounded-full bg-[#febc2e]" />
+                <span className="w-3 h-3 rounded-full bg-[#28c840]" />
+                <span className="ml-4 text-xs text-gray-600 tracking-wide">New Message — Mail</span>
+            </div>
+
+            <div className="flex h-[400px]">
+                {/* Sidebar contact list */}
+                <div className="w-[200px] border-r border-[#1A1A1A] flex flex-col py-3 shrink-0">
+                    <p className="text-[10px] tracking-widest text-gray-600 px-4 mb-3 font-semibold">CONTACTS</p>
+                    {hrContacts.map((c, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setActiveIndex(i)}
+                            className={`flex flex-col px-4 py-2.5 text-left transition-colors ${activeIndex === i ? "bg-accent-purple/10 border-l-2 border-accent-purple" : "hover:bg-[#161617] border-l-2 border-transparent"}`}
+                        >
+                            <span className={`text-xs font-semibold ${activeIndex === i ? "text-white" : "text-gray-400"}`}>{c.name}</span>
+                            <span className="text-[10px] text-gray-600 mt-0.5">{c.company}</span>
+                        </button>
+                    ))}
+                    <div className="mt-auto px-4 py-3 border-t border-[#1A1A1A]">
+                        <div className="text-[10px] text-gray-600 text-center">+1,995 more contacts</div>
+                        <div className="w-full mt-2 h-1 bg-[#1A1A1A] rounded-full overflow-hidden">
+                            <div className="h-full w-[8%] bg-accent-purple rounded-full" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Compose area */}
+                <div className="flex-1 flex flex-col p-6 gap-4">
+                    {/* To field */}
+                    <div className="flex items-center gap-3 border-b border-[#1A1A1A] pb-3">
+                        <span className="text-xs text-gray-600 w-8 shrink-0">To</span>
+                        <div className="flex items-center gap-2 flex-1">
+                            <div className="flex items-center gap-2 bg-[#1A1A1A] border border-[#27272A] rounded-full px-3 py-1">
+                                <div className="w-5 h-5 rounded-full bg-accent-purple/20 flex items-center justify-center text-[9px] text-accent-purple font-bold">
+                                    {contact.name[0]}
+                                </div>
+                                <span className="text-xs text-gray-300">{contact.name}</span>
+                                <span className="text-[9px] text-gray-600">· {contact.role}</span>
+                            </div>
+                        </div>
+                        <span className={`text-[9px] px-2 py-0.5 rounded-full border ${contact.tag === "MAANG" ? "border-blue-500/30 text-blue-400 bg-blue-500/10" :
+                            contact.tag === "Unicorn" ? "border-purple-500/30 text-purple-400 bg-purple-500/10" :
+                                "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+                            }`}>{contact.tag}</span>
+                    </div>
+
+                    {/* Email field — typewriter */}
+                    <div className="flex items-center gap-3 border-b border-[#1A1A1A] pb-3">
+                        <span className="text-xs text-gray-600 w-8 shrink-0">Email</span>
+                        <div className="flex-1 font-mono text-sm text-emerald-400 tracking-wide">
+                            {typed}
+                            {isTyping && <span className="animate-pulse text-emerald-400">|</span>}
+                        </div>
+                        <button className="text-[10px] px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors">
+                            Copy
+                        </button>
+                    </div>
+
+                    {/* Subject */}
+                    <div className="flex items-center gap-3 border-b border-[#1A1A1A] pb-3">
+                        <span className="text-xs text-gray-600 w-8 shrink-0">Sub</span>
+                        <span className="text-sm text-gray-500 italic">Referral Request — SDE Role @ {contact.company}</span>
+                    </div>
+
+                    {/* Body placeholder */}
+                    <div className="flex-1 relative">
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                            Hi {contact.name.split(" ")[0]}, I came across your profile and wanted to reach out regarding open SDE positions at {contact.company}...
+                        </p>
+                        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#111113] to-transparent" />
+                    </div>
+
+                    {/* Bottom bar */}
+                    <div className="flex items-center justify-between pt-2 border-t border-[#1A1A1A]">
+                        <div className="flex items-center gap-2 text-[10px] text-gray-600">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                            Pro feature — unlock full database
+                        </div>
+                        <button className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#7c3aed] text-white text-xs font-semibold hover:bg-[#6d28d9] transition-colors">
+                            Send
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const studyTopics = [
+    {
+        id: "dsa",
+        label: "Data Structures & Algorithms",
+        icon: "🧩",
+        tag: "Core",
+        tagColor: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+        preview: {
+            title: "DSA Mastersheet",
+            desc: "Covers Arrays, Linked Lists, Trees, Graphs, DP and more. Includes pattern recognition guides and complexity cheatsheets.",
+            items: ["150+ topic-wise problems", "Pattern recognition guide", "Big-O cheatsheet", "Top interview templates"],
+            updated: "2 days ago",
+            pages: 84,
+        }
+    },
+    {
+        id: "system",
+        label: "System Design",
+        icon: "🏗️",
+        tag: "Advanced",
+        tagColor: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+        preview: {
+            title: "System Design Playbook",
+            desc: "How to design Twitter, YouTube, Uber and 20+ other systems. Covers load balancing, caching, sharding, and CAP theorem.",
+            items: ["20+ real system walkthroughs", "HLD & LLD templates", "CAP theorem deep-dive", "Scalability patterns"],
+            updated: "1 week ago",
+            pages: 112,
+        }
+    },
+    {
+        id: "sql",
+        label: "SQL & Databases",
+        icon: "🗄️",
+        tag: "Core",
+        tagColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+        preview: {
+            title: "SQL Zero to Hero",
+            desc: "From basic SELECT to window functions and query optimization. Includes real interview questions from product-based companies.",
+            items: ["Window functions guide", "Query optimization tips", "50+ interview questions", "Index & execution plans"],
+            updated: "3 days ago",
+            pages: 56,
+        }
+    },
+    {
+        id: "core",
+        label: "CS Core Subjects",
+        icon: "⚙️",
+        tag: "Theory",
+        tagColor: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20",
+        preview: {
+            title: "OS · CN · DBMS Notes",
+            desc: "Concise revision notes for Operating Systems, Computer Networks and DBMS. Built specifically for placement interviews.",
+            items: ["OS process & memory notes", "CN protocols simplified", "DBMS normalization guide", "PYQ answer bank"],
+            updated: "5 days ago",
+            pages: 98,
+        }
+    },
+    {
+        id: "behavioral",
+        label: "HR & Behavioral",
+        icon: "🎤",
+        tag: "Soft Skills",
+        tagColor: "text-rose-400 bg-rose-500/10 border-rose-500/20",
+        preview: {
+            title: "HR Interview Bible",
+            desc: "Top 50 HR questions with structured STAR-format answers. Includes salary negotiation scripts and offer letter guidance.",
+            items: ["50 HR questions answered", "STAR framework templates", "Salary negotiation script", "Offer letter checklist"],
+            updated: "1 day ago",
+            pages: 42,
+        }
+    },
+];
+
+const StudyNotesSplitScreen: React.FC = () => {
+    const [activeTopic, setActiveTopic] = useState(studyTopics[0]);
+    const [animating, setAnimating] = useState(false);
+
+    const handleSelect = (topic: typeof studyTopics[0]) => {
+        if (topic.id === activeTopic.id) return;
+        setAnimating(true);
+        setTimeout(() => {
+            setActiveTopic(topic);
+            setAnimating(false);
+        }, 180);
+    };
+
+    return (
+        <div className="flex flex-col lg:flex-row gap-0 rounded-2xl overflow-hidden border border-[#27272A] shadow-2xl min-h-[460px]">
+
+            {/* Left — topic list */}
+            <div className="lg:w-[280px] shrink-0 bg-[#0d0d0f] border-r border-[#1A1A1A] flex flex-col py-4">
+                <p className="text-[10px] tracking-widest text-gray-600 px-5 mb-3 font-semibold">TOPICS</p>
+                {studyTopics.map((topic) => (
+                    <button
+                        key={topic.id}
+                        onClick={() => handleSelect(topic)}
+                        className={`flex items-center gap-3 px-5 py-3.5 text-left transition-all border-l-2 ${activeTopic.id === topic.id
+                            ? "bg-[#161617] border-accent-purple"
+                            : "border-transparent hover:bg-[#111113] hover:border-gray-700"
+                            }`}
+                    >
+                        <span className="text-lg shrink-0">{topic.icon}</span>
+                        <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium truncate ${activeTopic.id === topic.id ? "text-white" : "text-gray-400"}`}>
+                                {topic.label}
+                            </p>
+                        </div>
+                        {activeTopic.id === topic.id && (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            {/* Right — preview card */}
+            <div className={`flex-1 bg-[#111113] p-8 md:p-10 flex flex-col justify-between transition-opacity duration-200 ${animating ? "opacity-0" : "opacity-100"}`}>
+                <div>
+                    <div className="flex items-start justify-between mb-6 gap-4">
+                        <div>
+                            <div className="flex items-center gap-3 mb-2">
+                                <span className="text-2xl">{activeTopic.icon}</span>
+                                <h3 className="text-white text-xl font-semibold">{activeTopic.preview.title}</h3>
+                            </div>
+                            <p className="text-gray-400 text-sm leading-relaxed max-w-lg">{activeTopic.preview.desc}</p>
+                        </div>
+                        <span className={`shrink-0 text-[10px] font-bold tracking-widest px-2.5 py-1 rounded-full border ${activeTopic.tagColor}`}>
+                            {activeTopic.tag}
+                        </span>
+                    </div>
+
+                    {/* Feature list */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+                        {activeTopic.preview.items.map((item, i) => (
+                            <div key={i} className="flex items-center gap-3 bg-[#161617] border border-[#1A1A1A] rounded-lg px-4 py-3">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                <span className="text-gray-300 text-sm">{item}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Footer meta + CTA */}
+                <div className="flex items-center justify-between pt-6 border-t border-[#1A1A1A]">
+                    <div className="flex items-center gap-6 text-xs text-gray-600">
+                        <div className="flex items-center gap-1.5">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+                            </svg>
+                            Updated {activeTopic.preview.updated}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" />
+                            </svg>
+                            {activeTopic.preview.pages} pages
+                        </div>
+                    </div>
+                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#7c3aed] text-white text-sm font-semibold hover:bg-[#6d28d9] transition-colors shadow-lg shadow-purple-500/20">
+                        Access Notes
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 const LandingPage: React.FC = () => {
     const navigate = useNavigate();
     const { user, loading } = useAuth();
@@ -146,13 +444,6 @@ const LandingPage: React.FC = () => {
     };
 
 
-    const courses = [
-        { title: "System Design Masterclass", desc: "Scaling architectures for 100M+ users. Load balancing, sharding, and caching strategies.", modules: "12 MODULES" },
-        { title: "Advanced Data Structures", desc: "Moving beyond binary trees. Segment trees, Fenwick trees, and advanced graph theory.", modules: "20 MODULES" },
-        { title: "Full-Stack Development", desc: "From zero to production. Next.js, Go, PostgreSQL, and AWS deployment pipelines.", modules: "15 MODULES" },
-        { title: "Machine Learning", desc: "Deploying predictive models in production environments.", modules: "10 MODULES" }
-    ];
-
     const faqs = [
         { q: "How do the visual builders work?", a: "Our proprietary visual builders represent syntax as logical blocks that can be manipulated in real-time, helping you grasp complex algorithms intuitively." },
         { q: "Are the HR contacts really verified?", a: "Yes, our database is updated weekly through direct integrations and manual verifications to ensure you're reaching out to active decision-makers." },
@@ -168,58 +459,11 @@ const LandingPage: React.FC = () => {
             <div className="bg-[#ffffff] text-slate-200 font-display antialiased overflow-x-hidden min-h-screen selection:bg-accent-purple/30 selection:text-white">
                 <div className="relative flex min-h-screen w-full flex-col group/design-root">
 
-                    {/* Header – floating pill navbar */}
-                    <header className="sticky top-0 z-50 w-full flex justify-center pointer-events-none">
-                        {/* SVG Background Container */}
-                        <div className="absolute top-0 left-0 w-full flex justify-center -z-10">
-                            {/* increased width slightly to 60rem to ensure everything fits inside */}
-                            <div className="w-[60rem] h-[42px] md:h-[50px]">
-                                <svg
-                                    width="100%"
-                                    height="100%"
-                                    viewBox="0 0 4291 243"
-                                    preserveAspectRatio="none"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="drop-shadow-2xl"
-                                >
-                                    <path d="M0 0H3611.72C3651.29 0 3683.37 32.0778 3683.37 71.6478V171.352C3683.37 210.922 3651.29 243 3611.72 243H662.989C633.399 243 606.854 224.811 596.172 197.217L554.881 90.5466C544.199 62.9525 517.653 44.7632 488.064 44.7632H74.4407C55.4385 44.7632 37.2146 37.2146 23.778 23.778L0 0Z" fill="#1a1a1e" />
-                                    <path d="M4290.87 0H679.15C639.58 0 607.502 32.0778 607.502 71.6478V171.352C607.502 210.922 639.58 243 679.15 243H3627.88C3657.47 243 3684.02 224.811 3694.7 197.217L3735.99 90.5466C3746.67 62.9525 3773.22 44.7632 3802.81 44.7632H4216.43C4235.43 44.7632 4253.66 37.2146 4267.09 23.778L4290.87 0Z" fill="#1a1a1e" />
-                                </svg>
-                            </div>
-                        </div>
-
-                        {/* Navbar Content - max-w set smaller than the SVG width to force content inside */}
-                        <div className="flex items-center justify-between w-full max-w-[44rem] px-12 h-[42px] md:h-[50px] pointer-events-auto">
-                            {/* Logo */}
-                            <div className="flex items-center gap-2 text-white">
-                                <div className="w-4 h-4 rounded-full flex items-center justify-center bg-white/10">
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" />
-                                        <path d="M2 17L12 22L22 17" />
-                                        <path d="M2 12L12 17L22 12" />
-                                    </svg>
-                                </div>
-                                <span className="text-[10px] font-bold tracking-[0.2em] text-white">MASTER.AI</span>
-                            </div>
-
-                            {/* Nav Links */}
-                            <nav className="hidden md:flex items-center gap-10">
-                                <a className="text-gray-400 hover:text-white transition-all text-[14px] font-medium tracking-wide" href="#">About</a>
-                                <a className="text-gray-400 hover:text-white transition-all text-[14px] font-medium tracking-wide" href="#">Pricing</a>
-                                <a className="text-gray-400 hover:text-white transition-all text-[14px] font-medium tracking-wide cursor-pointer" onClick={handleGetStarted}>Login</a>
-                            </nav>
-
-                            {/* CTA */}
-                            <button onClick={handleGetStarted} className="flex items-center justify-center rounded-full h-8 px-4 bg-[#7c3aed] hover:bg-[#6d28d9] transition-all text-white text-[14px] font-bold">
-                                Get started
-                            </button>
-                        </div>
-                    </header>
+                    <Navbar />
                     <main className="flex flex-col grow">
 
                         {/* Hero Section */}
-                        <section className="flex flex-col lg:flex-row items-center justify-between px-6 py-20 lg:py-32 xl:py-40 relative flex-1 min-h-[85vh] overflow-hidden bg-[#fafafa]">
+                        <section id="hero" className="flex flex-col lg:flex-row items-center justify-between px-6 py-20 lg:py-32 xl:py-40 relative flex-1 min-h-[85vh] overflow-hidden bg-[#fafafa]">
                             <div className="absolute top-0 right-0 w-full lg:w-[60%] h-full z-0 pointer-events-auto">
                                 <InteractiveHands className="absolute inset-0 w-full h-full mix-blend-multiply opacity-80" />
                             </div>
@@ -264,7 +508,7 @@ const LandingPage: React.FC = () => {
                         </section>
 
                         {/* Video Demo Section */}
-                        <section className="py-24 bg-[#fafafa] border-t border-gray-100 flex flex-col items-center justify-center">
+                        <section id="video" className="py-24 bg-[#fafafa] border-t border-gray-100 flex flex-col items-center justify-center">
                             <div className="w-full max-w-4xl px-6">
                                 <div className="w-full aspect-video bg-gray-100 border border-gray-200 rounded-2xl flex items-center justify-center shadow-xl relative overflow-hidden group cursor-pointer">
                                     {/* Video Placeholder */}
@@ -283,7 +527,7 @@ const LandingPage: React.FC = () => {
                         </section>
 
                         {/* Companies & Courses Carousel */}
-                        <section className="py-20 bg-[#121214] border-t border-[#1A1A1A]">
+                        <section id="courses" className="py-20 bg-[#121214] border-t border-[#1A1A1A]">
                             <div className="w-full overflow-hidden flex mb-20 whitespace-nowrap opacity-60 hover:opacity-100 transition-opacity relative before:absolute before:left-0 before:top-0 before:w-32 before:h-full before:bg-gradient-to-r before:from-[#121214] before:to-transparent before:z-10 after:absolute after:right-0 after:top-0 after:w-32 after:h-full after:bg-gradient-to-l after:from-[#121214] after:to-transparent after:z-10">
                                 <div className="flex animate-marquee gap-32 px-16 items-center">
                                     {[...companies, ...companies].map((c, i) => (
@@ -292,27 +536,10 @@ const LandingPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="max-w-[1400px] mx-auto px-6">
-                                <h3 className="text-white text-3xl font-light mb-12">Advanced Specializations</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    {courses.map((course, i) => (
-                                        <div key={i} className="bg-[#161617] border border-[#27272A] shadow-sm p-8 rounded-2xl min-h-[250px] flex flex-col justify-between group hover:border-gray-500 hover:shadow-md transition-all cursor-pointer">
-                                            <div>
-                                                <h4 className="text-white font-medium text-lg mb-4">{course.title}</h4>
-                                                <p className="text-gray-400 text-sm leading-relaxed">{course.desc}</p>
-                                            </div>
-                                            <div className="flex items-center justify-between mt-8">
-                                                <span className="text-accent-purple text-xs font-bold tracking-widest">{course.modules}</span>
-                                                <span className="material-symbols-outlined text-gray-500 group-hover:text-white transition-colors">arrow_forward</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
                         </section>
 
                         {/* Horizontal Scroll Section */}
-                        <section ref={horizontalScrollRef} className="h-screen w-full bg-[#121214] flex items-center overflow-hidden border-t border-[#1A1A1A] relative">
+                        <section id="learn" ref={horizontalScrollRef} className="h-screen w-full bg-[#121214] flex items-center overflow-hidden border-t border-[#1A1A1A] relative">
                             {/* Dot Grid Pattern for dark background */}
                             <div className="absolute inset-0 pointer-events-none opacity-20" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
 
@@ -400,50 +627,105 @@ const LandingPage: React.FC = () => {
                             </div>
                         </section>
 
-                        {/* Testimonial Section (New) */}
+                        {/* HR Contacts Section */}
+                        <section id="hr" className="py-24 bg-[#0b0b0c] border-t border-[#1A1A1A] overflow-hidden">
+                            <div className="max-w-[1100px] mx-auto px-6">
+                                <div className="flex flex-col lg:flex-row items-center gap-16">
 
-                        <section className="py-24 bg-[#0b0b0c] border-t border-[#1A1A1A] flex flex-col items-center justify-center">
-                            <div className="max-w-3xl px-6 text-center w-full">
-                                <div className="bg-[#161617] border border-[#27272A] rounded-3xl p-10 md:p-16 shadow-2xl relative">
-                                    <div className="absolute top-8 left-8 text-6xl text-[#27272A] font-serif leading-none">"</div>
-                                    <p className="text-xl md:text-3xl text-gray-300 font-light leading-relaxed italic relative z-10 mb-10">
-                                        This project is so good we love this and super cool interactions. The platform feels like it's from the future.
-                                    </p>
-                                    <div className="flex flex-col items-center justify-center gap-3">
-                                        {/* Avatar image */}
-                                        <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-[#27272A] shadow-md">
-                                            <img
-                                                src="/images/avatar.png"
-                                                alt="Alex Student"
-                                                className="w-full h-full object-cover"
-                                                onError={(e) => {
-                                                    // Fallback to letter avatar if image not found
-                                                    e.currentTarget.style.display = 'none';
-                                                    e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-[#1A1A1A] flex items-center justify-center text-white font-bold text-xl">A</div>`;
-                                                }}
-                                            />
+                                    {/* Left copy */}
+                                    <div className="lg:w-2/5 shrink-0">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#27272A] bg-[#161617] text-xs tracking-widest font-semibold text-gray-500 mb-6">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                            LIVE DATABASE
                                         </div>
-                                        <div className="text-sm font-medium text-white">Alex Student</div>
-                                        <div className="text-xs text-gray-500">Placed at Google · 2025</div>
-
-                                        {/* Arrow button linking to reviews page */}
-
-                                        <a href="/reviews" className="mt-4 flex items-center gap-2 text-sm text-accent-purple font-medium hover:text-white transition-colors group">
-                                            <span className="w-7 h-7 rounded-full bg-accent-purple/10 group-hover:bg-accent-purple flex items-center justify-center transition-colors">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                    <path d="M6 13h15M13 6l7 7-7 7" />
-                                                </svg>
-                                            </span>
-                                        </a>
+                                        <h2 className="text-white text-4xl font-light leading-tight mb-4">
+                                            2000+ verified<br />
+                                            <span className="font-semibold">HR contacts</span><br />
+                                            at your fingertips
+                                        </h2>
+                                        <p className="text-gray-400 text-base leading-relaxed mb-6">
+                                            Get direct access to hiring managers and HR professionals across top companies. No middlemen — you get their email, you reach out on your own terms.
+                                        </p>
+                                        <div className="flex flex-col gap-3 mb-8">
+                                            {[
+                                                { icon: "✉️", text: "Direct email access — no platform DMs" },
+                                                { icon: "🔄", text: "Database updated every week" },
+                                                { icon: "🏢", text: "500+ companies across MAANG, startups & MNCs" },
+                                            ].map((item, i) => (
+                                                <div key={i} className="flex items-center gap-3 text-sm text-gray-400">
+                                                    <span>{item.icon}</span>
+                                                    <span>{item.text}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#161617] border border-[#27272A] text-xs text-gray-500">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                                            Available on Standard & Pro plans only
+                                        </div>
                                     </div>
+
+                                    {/* Right — Inbox UI mockup */}
+                                    <div className="lg:w-3/5 w-full">
+                                        <HRInboxMockup />
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Study Notes Section */}
+                        <section id="notes" className="py-24 bg-[#121214] border-t border-[#1A1A1A] relative overflow-hidden">
+                            {/* Ambient glows */}
+                            <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2" />
+                            <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none" />
+
+                            <div className="max-w-[1300px] mx-auto px-6 relative z-10">
+
+                                {/* Asymmetric header */}
+                                <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-14 gap-6">
+                                    <div>
+                                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#27272A] bg-[#161617] text-xs tracking-widest font-semibold text-gray-500 mb-5">
+                                            <span className="text-base">📚</span>
+                                            STUDY MATERIALS
+                                        </div>
+                                        <h2 className="text-white text-5xl font-light leading-tight">
+                                            Everything you need,<br />
+                                            <span className="font-semibold">one place.</span>
+                                        </h2>
+                                    </div>
+                                    {/* Floating stat cards on the right of heading */}
+                                    <div className="flex gap-4 lg:mb-2 shrink-0">
+                                        <div className="bg-[#161617] border border-[#27272A] rounded-xl px-5 py-4 text-center shadow-lg">
+                                            <div className="text-2xl font-bold text-white">500+</div>
+                                            <div className="text-[11px] text-gray-500 mt-1">study pages</div>
+                                        </div>
+                                        <div className="bg-[#161617] border border-[#27272A] rounded-xl px-5 py-4 text-center shadow-lg">
+                                            <div className="text-2xl font-bold text-accent-purple">6</div>
+                                            <div className="text-[11px] text-gray-500 mt-1">core subjects</div>
+                                        </div>
+                                        <div className="bg-[#161617] border border-[#27272A] rounded-xl px-5 py-4 text-center shadow-lg">
+                                            <div className="text-2xl font-bold text-emerald-400">weekly</div>
+                                            <div className="text-[11px] text-gray-500 mt-1">updates</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Split screen — now full width */}
+                                <StudyNotesSplitScreen />
+
+                                {/* Bottom ticker — fills remaining width */}
+                                <div className="mt-8 flex items-center gap-4 overflow-hidden opacity-40">
+                                    {["DSA", "System Design", "SQL", "OS", "CN", "DBMS", "HR Prep", "PYQs", "Mock Tests", "Cheatsheets"].map((tag, i) => (
+                                        <span key={i} className="shrink-0 text-xs text-gray-500 border border-[#27272A] px-3 py-1.5 rounded-full">
+                                            {tag}
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
                         </section>
 
 
                         {/* Custom Pricing Accordion */}
-                        {/* Custom Pricing Accordion */}
-                        <section className="py-24 bg-[#0b0b0c]">
+                        <section id="pricing" className="py-24 bg-[#0b0b0c]">
                             <div className="max-w-[1000px] mx-auto px-4 md:px-6">
                                 <div className="text-center mb-16">
                                     <h2 className="text-white text-4xl font-light mb-4">Choose Your Vector</h2>
@@ -575,7 +857,7 @@ const LandingPage: React.FC = () => {
                             </div>
                         </section>
                         {/* FAQ Section */}
-                        <section className="py-24 bg-[#121214] border-t border-[#1A1A1A]">
+                        <section id="faq" className="py-24 bg-[#121214] border-t border-[#1A1A1A]">
                             <div className="max-w-[800px] mx-auto px-6">
                                 <h3 className="text-white text-3xl font-light text-center mb-16">Frequently Asked Questions</h3>
                                 <div className="space-y-4">
@@ -586,7 +868,11 @@ const LandingPage: React.FC = () => {
                                                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                                             >
                                                 <span className="text-white font-medium text-lg">{faq.q}</span>
-                                                <span className={`material-symbols-outlined text-accent-purple transition-transform duration-300 bg-accent-purple/10 p-2 rounded-full ${openFaq === i ? 'rotate-45' : ''}`}>add</span>
+                                                <span className={`w-8 h-8 rounded-full bg-accent-purple/10 border border-accent-purple/20 flex items-center justify-center transition-transform duration-300 shrink-0 ${openFaq === i ? 'rotate-45' : ''}`}>
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round">
+                                                        <path d="M12 5v14M5 12h14" />
+                                                    </svg>
+                                                </span>
                                             </button>
                                             <div
                                                 className={`transition-all duration-300 ease-in-out px-6 ${openFaq === i ? 'max-h-40 opacity-100 pb-6' : 'max-h-0 opacity-0'}`}
@@ -601,56 +887,7 @@ const LandingPage: React.FC = () => {
 
                     </main>
 
-                    {/* Footer */}
-                    <footer className="bg-[#0b0b0c] border-t border-[#1A1A1A] py-16 px-6 md:px-10">
-                        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 text-sm text-gray-400">
-                            <div className="space-y-4 md:col-span-1">
-                                <div className="flex items-center gap-3 text-white">
-                                    <div className="size-6 bg-accent-purple text-white flex items-center justify-center rounded">
-                                        <span className="font-bold text-[10px] tracking-wide">M</span>
-                                    </div>
-                                    <span className="font-semibold tracking-wider text-sm">Monolith AI</span>
-                                </div>
-                                <p className="text-gray-500 font-light pr-4 leading-relaxed">Don't just prepare. Evolve. Beat the automation curve.</p>
-                            </div>
-
-                            <div>
-                                <h5 className="text-white font-medium mb-4">Platform</h5>
-                                <ul className="space-y-3 text-gray-500 font-light">
-                                    <li><a href="#" className="hover:text-accent-purple transition-colors">Algorithm Lab</a></li>
-                                    <li><a href="#" className="hover:text-accent-purple transition-colors">SQL Sandbox</a></li>
-                                    <li><a href="#" className="hover:text-accent-purple transition-colors">System Design Canvas</a></li>
-                                </ul>
-                            </div>
-
-                            <div>
-                                <h5 className="text-white font-medium mb-4">Company</h5>
-                                <ul className="space-y-3 text-gray-500 font-light">
-                                    <li><a href="#" className="hover:text-accent-purple transition-colors">About Us</a></li>
-                                    <li><a href="#" className="hover:text-accent-purple transition-colors">Careers</a></li>
-                                    <li><a href="#" className="hover:text-accent-purple transition-colors">Contact</a></li>
-                                </ul>
-                            </div>
-
-                            <div>
-                                <h5 className="text-white font-medium mb-4">Stay updated</h5>
-                                <div className="flex relative">
-                                    <input type="email" placeholder="Enter your email" className="w-full bg-[#161617] border border-[#27272A] text-white px-4 py-3 rounded-lg focus:outline-none focus:border-accent-purple focus:ring-1 focus:ring-accent-purple transition-all text-sm shadow-sm" />
-                                    <button className="absolute right-2 top-1/2 -translate-y-1/2 text-accent-purple hover:text-white transition-colors p-2 bg-accent-purple/10 hover:bg-accent-purple hover:text-white rounded-md">
-                                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="max-w-[1400px] mx-auto mt-16 pt-8 border-t border-[#1A1A1A] flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-light text-gray-500 tracking-wide">
-                            <div>© 2026 Monolith AI Inc. All rights reserved.</div>
-                            <div className="flex gap-6 font-medium">
-                                <a href="#" className="hover:text-accent-purple transition-colors">Facebook</a>
-                                <a href="#" className="hover:text-accent-purple transition-colors">Twitter</a>
-                                <a href="#" className="hover:text-accent-purple transition-colors">LinkedIn</a>
-                            </div>
-                        </div>
-                    </footer>
+                    <Footer />
                 </div>
             </div>
         </div>

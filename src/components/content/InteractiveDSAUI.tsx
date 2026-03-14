@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Lightbulb, CheckCircle2, Eye, RotateCcw } from 'lucide-react';
+import { CheckCircle2, Lightbulb, RotateCcw, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
     DndContext,
@@ -9,6 +9,9 @@ import {
     useSensor,
     useSensors,
     DragEndEvent,
+    DragStartEvent,
+    DragOverlay,
+    defaultDropAnimationSideEffects,
 } from '@dnd-kit/core';
 import {
     arrayMove,
@@ -27,19 +30,19 @@ const SortableItem = ({ id, text }: { id: string; text: string }) => {
     return (
         <motion.div
             layout
-            transition={{ type: "spring", stiffness: 350, damping: 25 }}
             ref={setNodeRef}
             style={{
-                transform: CSS.Transform.toString(transform),
-                transition: transform ? transition : undefined,
-                zIndex: isDragging ? 10 : 1
+                transform: CSS.Translate.toString(transform),
+                transition,
+                zIndex: isDragging ? 0 : 1,
+                opacity: isDragging ? 0.3 : 1,
             }}
             {...attributes}
             {...listeners}
             className={`flex items-center p-4 rounded-lg border
                 cursor-grab active:cursor-grabbing touch-none select-none
                 ${isDragging
-                    ? 'bg-zinc-800/70 border-purple-500/60 shadow-xl opacity-90 scale-[1.02]'
+                    ? 'bg-zinc-800/20 border-gray-800'
                     : 'bg-[#111317] border-gray-800 hover:border-gray-700 hover:bg-zinc-800/20'
                 }`}
         >
@@ -81,7 +84,8 @@ export default function InteractiveDSAUI({ dsaData, onComplete }: InteractiveDSA
     const [correctSteps, setCorrectSteps] = useState<DSAStep[]>([]);
     const [feedback, setFeedback] = useState<{ issue?: string; hint?: string; concept?: string } | null>(null);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [hasValidated, setHasValidated] = useState(false);   // did user click Validate at least once?
+    const [hasValidated, setHasValidated] = useState(false);
+    const [activeId, setActiveId] = useState<string | null>(null);   // did user click Validate at least once?
 
     // Refs for GSAP — keyed by step index
     const dotRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -170,9 +174,15 @@ export default function InteractiveDSAUI({ dsaData, onComplete }: InteractiveDSA
         return tl;
     };
 
+    // ── Drag Start ────────────────────────────────────────────────────────────
+    const handleDragStart = (event: DragStartEvent) => {
+        setActiveId(event.active.id as string);
+    };
+
     // ── Drag end ──────────────────────────────────────────────────────────────
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
+        setActiveId(null);
         if (over && active.id !== over.id) {
             setUserSteps(items => {
                 const oi = items.findIndex(x => x.id === active.id);
@@ -296,7 +306,12 @@ export default function InteractiveDSAUI({ dsaData, onComplete }: InteractiveDSA
 
                     {/* ── Timeline + Sortable ── */}
                     <div className="flex-1">
-                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragStart={handleDragStart}
+                            onDragEnd={handleDragEnd}
+                        >
                             <SortableContext items={userSteps.map(s => s.id)} strategy={verticalListSortingStrategy}>
                                 <div className="flex flex-col">
                                     {userSteps.map((step, idx) => {
@@ -341,6 +356,27 @@ export default function InteractiveDSAUI({ dsaData, onComplete }: InteractiveDSA
                                     })}
                                 </div>
                             </SortableContext>
+
+                            <DragOverlay dropAnimation={{
+                                sideEffects: defaultDropAnimationSideEffects({
+                                    styles: {
+                                        active: {
+                                            opacity: '0.5',
+                                        },
+                                    },
+                                }),
+                            }}>
+                                {activeId ? (
+                                    <div className="flex items-center p-4 rounded-lg border bg-zinc-800 border-purple-500 shadow-2xl scale-[1.02] cursor-grabbing w-full">
+                                        <div className="pr-3 text-yellow-600 flex-shrink-0">
+                                            <Lightbulb size={16} />
+                                        </div>
+                                        <div className="flex-1 text-[#D0D0E0] text-sm font-mono tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
+                                            {userSteps.find(s => s.id === activeId)?.text}
+                                        </div>
+                                    </div>
+                                ) : null}
+                            </DragOverlay>
                         </DndContext>
                     </div>
 
